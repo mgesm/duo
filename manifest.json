@@ -1,0 +1,18 @@
+{
+  "name": "Duo — Decisiones compartidas",
+  "short_name": "Duo",
+  "description": "Elige planes, comidas y decisiones en pareja o con amigos sin discutir. Votación a ciegas y coincidencia al instante.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "./duo_icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

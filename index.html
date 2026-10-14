@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <title>Duo — Decisiones compartidas</title>
+  
+  <!-- Mobile & iOS PWA meta tags -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Duo">
+  <link rel="manifest" href="./manifest.json">
+
+  <!-- Favicon & iOS Web Clip Icon -->
+  <link rel="icon" type="image/svg+xml" href="./duo_icon.svg">
+  <link rel="apple-touch-icon" href="./duo_icon.svg">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            p1: {
+              main: '#FF2D55',
+              glow: 'rgba(255, 45, 85, 0.4)',
+              light: '#ffe4e6',
+              dark: '#9f1239'
+            },
+            p2: {
+              main: '#5E5CE6',
+              glow: 'rgba(94, 92, 230, 0.4)',
+              light: '#e0e7ff',
+              dark: '#3730a3'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Confetti script -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- Custom styles Apple HIG & visionOS Liquid Glass -->
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body class="bg-black text-slate-100 antialiased selection:bg-rose-500 selection:text-white min-h-screen relative overflow-x-hidden">
+
+  <!-- Ambient visionOS light orbs in background -->
+  <div class="fixed top-[-80px] left-[-80px] w-96 h-96 rounded-full bg-rose-500/12 blur-[120px] pointer-events-none -z-10 animate-orb"></div>
+  <div class="fixed bottom-[-80px] right-[-80px] w-96 h-96 rounded-full bg-indigo-500/12 blur-[140px] pointer-events-none -z-10 animate-orb" style="animation-delay: -6s;"></div>
+
+  <!-- Shell principal optimizado para iPhone & Android nativo -->
+  <div id="app" class="max-w-md mx-auto min-h-screen relative flex flex-col bg-black/85 border-x border-white/[0.08] shadow-[0_0_50px_rgba(0,0,0,0.9)]">
+    <!-- El contenido se renderiza dinámicamente desde bundle.js -->
+  </div>
+
+  <!-- Banner nativo estilo iOS para instalación como WebApp / PWA -->
+  <div id="ios-install-banner" class="hidden fixed bottom-4 left-4 right-4 z-40 max-w-md mx-auto p-3.5 rounded-[22px] bg-neutral-900/95 border border-white/15 backdrop-blur-2xl shadow-2xl text-white flex items-center justify-between gap-3 animate-ios-slide">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-2xl p-0.5 shrink-0 flex items-center justify-center shadow-md">
+        <img src="./duo_icon.svg" alt="Duo" class="w-full h-full object-contain rounded-xl" />
+      </div>
+      <div class="text-left">
+        <div class="text-xs font-bold leading-tight">Instalar en tu iPhone / Móvil</div>
+        <div class="text-[10px] text-neutral-400 mt-0.5">Pulsa <span class="text-sky-400 font-semibold">Compartir</span> y luego <span class="text-white font-semibold">"Añadir a pantalla de inicio"</span>.</div>
+      </div>
+    </div>
+    <button id="btn-close-install" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-neutral-400 hover:text-white shrink-0">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <!-- Modal para gestionar / añadir restaurantes -->
+  <div id="modal-container"></div>
+
+  <!-- Toast notification estilo Dynamic Island / iOS Capsule -->
+  <div id="toast" class="fixed top-8 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full text-xs font-semibold shadow-2xl border transition-all duration-300 opacity-0 pointer-events-none bg-neutral-900/90 text-white border-white/15 backdrop-blur-xl flex items-center gap-2">
+    Mensaje
+  </div>
+
+  <!-- App logic (compatible con doble clic file:// y web/PWA) -->
+  <script src="./bundle.js"></script>
+  
+  <!-- Registrar Service Worker si el navegador lo soporta -->
+  <script>
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => {
+          console.log('SW registration note:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

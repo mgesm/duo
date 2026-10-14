@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="popeyesOrange" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FF7A18"/>
+      <stop offset="100%" stop-color="#EA580C"/>
+    </linearGradient>
+  </defs>
+  <!-- Squircle Base -->
+  <rect width="200" height="200" rx="46" fill="url(#popeyesOrange)"/>
+  <rect x="1" y="1" width="198" height="198" rx="45" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+
+  <!-- Iconic Popeyes Louisiana Fleur-de-lis / Star Accent -->
+  <g transform="translate(100, 52) scale(0.85)">
+    <circle cx="0" cy="0" r="16" fill="rgba(255,255,255,0.18)"/>
+    <path d="M0 -12 C1 -5, 5 -1, 12 0 C5 1, 1 5, 0 12 C-1 5, -5 1, -12 0 C-5 -1, -1 -5, 0 -12 Z" fill="#FFFFFF"/>
+    <circle cx="0" cy="0" r="3" fill="#EA580C"/>
+  </g>
+
+  <!-- Typography POPEYES -->
+  <text x="100" y="112" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Arial Black', sans-serif" font-weight="900" font-size="28" fill="#FFFFFF" text-anchor="middle" letter-spacing="1.5">POPEYES</text>
+
+  <!-- Subtitle LOUISIANA KITCHEN -->
+  <g transform="translate(100, 138)">
+    <rect x="-65" y="-10" width="130" height="18" rx="9" fill="rgba(0,0,0,0.18)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
+    <text x="0" y="3" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-weight="800" font-size="8.5" fill="#FFFFFF" text-anchor="middle" letter-spacing="2">LOUISIANA KITCHEN</text>
+  </g>
+</svg>

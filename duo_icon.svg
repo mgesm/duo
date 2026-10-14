@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- ClipPath: Apple Superellipse G2 Continuous Curvature Squircle (512x512) -->
+    <clipPath id="squircleClip">
+      <path d="M 0,256 C 0,59.39 59.39,0 256,0 C 452.61,0 512,59.39 512,256 C 512,452.61 452.61,512 256,512 C 59.39,512 0,452.61 0,256 Z" />
+    </clipPath>
+
+    <!-- Deep OLED Glass Canvas Gradient -->
+    <radialGradient id="oledBg" cx="50%" cy="20%" r="90%">
+      <stop offset="0%" stop-color="#181524" />
+      <stop offset="45%" stop-color="#0a0812" />
+      <stop offset="100%" stop-color="#020204" />
+    </radialGradient>
+
+    <!-- Specular Overhead Sheen (visionOS Liquid Glass) -->
+    <linearGradient id="topSheen" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.16" />
+      <stop offset="35%" stop-color="#ffffff" stop-opacity="0.03" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Inner Border Specular Ring -->
+    <linearGradient id="innerStroke" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28" />
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.02" />
+    </linearGradient>
+
+    <!-- Ring 1: Player 1 Vibrant Rose / Neon Coral -->
+    <linearGradient id="gradP1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF375F" />
+      <stop offset="50%" stop-color="#FF2D55" />
+      <stop offset="100%" stop-color="#E00034" />
+    </linearGradient>
+
+    <!-- Ring 2: Player 2 Vibrant Indigo / Electric Cyan -->
+    <linearGradient id="gradP2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#5E5CE6" />
+      <stop offset="60%" stop-color="#0A84FF" />
+      <stop offset="100%" stop-color="#40C8FF" />
+    </linearGradient>
+
+    <!-- Intersection Caustic Light -->
+    <radialGradient id="causticGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
+      <stop offset="25%" stop-color="#FFEFA6" stop-opacity="0.8" />
+      <stop offset="55%" stop-color="#FF9F0A" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#FF2D55" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Precision Optical Filters for Apple Liquid Glass -->
+    <filter id="atmosphericGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="36" result="blur" />
+    </filter>
+
+    <filter id="coreSparkGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="glow" />
+      <feMerge>
+        <feMergeNode in="glow" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Squircle Clipped Content -->
+  <g clip-path="url(#squircleClip)">
+    <!-- 1. Background OLED -->
+    <rect width="512" height="512" fill="url(#oledBg)" />
+
+    <!-- 2. Ambient Deep Caustic Glows behind the rings -->
+    <circle cx="204" cy="256" r="130" fill="#FF2D55" opacity="0.22" filter="url(#atmosphericGlow)" />
+    <circle cx="308" cy="256" r="130" fill="#0A84FF" opacity="0.22" filter="url(#atmosphericGlow)" />
+    <circle cx="256" cy="256" r="60" fill="#FFD60A" opacity="0.30" filter="url(#atmosphericGlow)" />
+
+    <!-- 3. Interlocking Apple visionOS Rings (Venn Symmetry) -->
+    <!-- Shadow for depth underneath Ring 1 -->
+    <circle cx="204" cy="256" r="98" fill="none" stroke="#000000" stroke-width="26" opacity="0.4" />
+
+    <!-- Left Ring: Player 1 (Rose) -->
+    <circle cx="204" cy="256" r="98" fill="none" stroke="url(#gradP1)" stroke-width="24" stroke-linecap="round" />
+    <!-- Specular highlight on upper left curve of Ring 1 -->
+    <path d="M 125,215 A 98 98 0 0 1 204,158" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" opacity="0.5" />
+
+    <!-- Right Ring: Player 2 (Indigo/Cyan) with additive lighting -->
+    <circle cx="308" cy="256" r="98" fill="none" stroke="url(#gradP2)" stroke-width="24" stroke-linecap="round" style="mix-blend-mode: screen;" />
+    <!-- Specular highlight on upper right curve of Ring 2 -->
+    <path d="M 308,158 A 98 98 0 0 1 387,215" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" opacity="0.6" />
+
+    <!-- 4. Intersection Harmonic Glow (The Coincidence Lens) -->
+    <ellipse cx="256" cy="256" rx="44" ry="74" fill="url(#causticGlow)" opacity="0.55" style="mix-blend-mode: screen;" />
+
+    <!-- 5. Central Diamond Spark (The Match Sparkle - 4-Point Optical Brilliance) -->
+    <g transform="translate(256, 256)" filter="url(#coreSparkGlow)">
+      <!-- Soft diamond halo -->
+      <polygon points="0,-46 11,-11 46,0 11,11 0,46 -11,11 -46,0 -11,-11" fill="#FFD60A" opacity="0.35" />
+      <!-- Sharp core star -->
+      <polygon points="0,-36 7,-7 36,0 7,7 0,36 -7,7 -36,0 -7,-7" fill="#FFFFFF" />
+      <!-- Center intense micro-bead -->
+      <circle cx="0" cy="0" r="4.5" fill="#FFFFFF" />
+    </g>
+
+    <!-- 6. Overhead Specular Light Beam (Apple Glass Bevel) -->
+    <rect width="512" height="256" fill="url(#topSheen)" pointer-events="none" />
+  </g>
+
+  <!-- 7. Outer Specular Edge (1.5px Hairline Rim) -->
+  <path d="M 0,256 C 0,59.39 59.39,0 256,0 C 452.61,0 512,59.39 512,256 C 512,452.61 452.61,512 256,512 C 59.39,512 0,452.61 0,256 Z" fill="none" stroke="url(#innerStroke)" stroke-width="2" />
+</svg>

@@ -1,0 +1,11 @@
+# Scripts temporales o auxiliares de escaneo
+scan.ps1
+scan_more.ps1
+
+# Archivos de sistema operativo / editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.log

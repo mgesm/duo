@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="tpRed" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E60026"/>
+      <stop offset="100%" stop-color="#B8001F"/>
+    </linearGradient>
+  </defs>
+  <!-- Squircle Base -->
+  <rect width="200" height="200" rx="46" fill="url(#tpRed)"/>
+  <rect x="1" y="1" width="198" height="198" rx="45" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+
+  <!-- Pizza Slice / Heart Emblem -->
+  <g transform="translate(100, 62)">
+    <circle cx="0" cy="0" r="26" fill="rgba(255,255,255,0.18)"/>
+    <!-- Triangular slice pointing down with crust -->
+    <path d="M-15 -12 Q0 -16 15 -12 L0 16 Z" fill="#FFFFFF"/>
+    <!-- Pepperonis -->
+    <circle cx="-4" cy="-5" r="3" fill="#E60026"/>
+    <circle cx="5" cy="-3" r="2.5" fill="#E60026"/>
+    <circle cx="0" cy="5" r="2.5" fill="#E60026"/>
+  </g>
+
+  <!-- Telepizza Brand Typography -->
+  <text x="100" y="126" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Arial Black', sans-serif" font-weight="900" font-size="22" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">telepizza</text>
+  
+  <!-- Slogan pill -->
+  <g transform="translate(100, 154)">
+    <rect x="-60" y="-9" width="120" height="16" rx="8" fill="rgba(0,0,0,0.18)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
+    <text x="0" y="2.5" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-weight="700" font-size="8.5" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">EL SECRETO ESTÁ EN LA MASA</text>
+  </g>
+</svg>
