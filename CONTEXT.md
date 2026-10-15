@@ -191,6 +191,32 @@ La app cuenta con coordenadas reales precargadas para la zona de **Cartagena y M
 - **Service Worker v4**:
   - Actualizada la caché con los nuevos ficheros PNG para acceso 100% offline.
 
+### [v1.9.0] - 2026-10-15
+- **Selector de Modo Tripartito (Comer / Películas y Series / Planes y Citas)**:
+  - Nuevo control segmentado visionOS Liquid Glass en la pantalla de inicio con 3 modos:
+    * **Comer**: Restaurantes de Cartagena y Murcia.
+    * **Películas y Series**: Catálogo curado de 12 películas y series aclamadas de Netflix, Disney+, Prime Video, Max y Apple TV+ con duración, temporadas, pistas misteriosas y enlace para ver online.
+    * **Planes y Citas**: 12 planes románticos, activos y acogedores (cine, paseo y helado artesano, bolera retro, spa termal, picnic, escape room, cata de vinos, senderismo, concierto, juegos de mesa, museo, cocinar juntos).
+  - Cada modo incluye logotipos vectoriales SVG autocontenidos en squircle Apple, pistas para el modo misterio y textos contextualizados (*Comensales*, *Espectadores*, *Participantes*).
+- **Modo a Distancia / Multidispositivo (Compartir Enlace Peer-to-Peer)**:
+  - En la pantalla de traspaso (Handover), nuevo bloque *"¿Estáis a distancia? Vota cada uno en su propio móvil"*.
+  - Genera un enlace ultraligero codificado en el hash de la URL (`#duo_p2=...`) que el Jugador 1 puede compartir por WhatsApp, Telegram, iMessage o copiar al portapapeles.
+  - El Jugador 2 abre el enlace en su propio móvil, vota en secreto sin ver las elecciones del Jugador 1, y la app calcula la coincidencia.
+  - Al resolverse, el Jugador 2 puede pulsar *"Compartir resultado"* (`#duo_result=...`) para que el Jugador 1 también vea el confeti, pistas y destino en su teléfono.
+  - 100% serverless, sin backend ni cuentas de usuario, compatible con GitHub Pages y respetuoso con la privacidad.
+- **Ruleta de Desempate Táctil e Interactiva (Canvas con Física y Fricción)**:
+  - En caso de 0 coincidencias (Ronda 2 o acceso express en Ronda 1), se despliega una ruleta interactiva basada en HTML5 Canvas con aceleración por hardware.
+  - Soporte de pulsación del botón central visionOS "GIRAR" o arrastre / deslizamiento táctil con el dedo (*flick physics*).
+  - Desaceleración por fricción realista, sonido de *tick* y respuesta háptica al pasar cada segmento, aguja superior dorada con sombra y fanfarria triunfal al seleccionar el ganador.
+- **Horarios en Tiempo Real ("¿Está abierto ahora?")**:
+  - En las tarjetas de restaurantes recomendados, cálculo en tiempo real del estado de apertura según la franja horaria local (almuerzo 13:30–16:30, cena 20:30–23:45).
+  - Insignias visuales dinámicas:
+    * `Abierto ahora` (verde esmeralda con punto pulsante).
+    * `Abre a las 20:30` / `Abre a las 13:30` (ámbar con icono de reloj).
+    * `Cerrado ahora` (neutral translúcido con próximo turno).
+- **Service Worker v18**:
+  - Actualización de versión de caché para sincronización inmediata y persistencia offline.
+
 ### [v1.8.2] - 2026-10-14
 - **Carga en Cascada Progresiva ("Ver más")**:
   - Sustituida la rotación paginada de 5 por un botón interactivo de revelación en cascada (*"Ver más"*), que va desplegando fluidamente opciones adicionales hacia abajo acumulándolas en la lista sin perder las anteriores.

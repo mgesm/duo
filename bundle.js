@@ -175,6 +175,516 @@
 
   const STORAGE_KEY = 'donde_comemos_custom_restaurants_v7';
 
+  function makeMovieSvg(primaryColor) {
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">' +
+      '<defs><linearGradient id="bgm" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0%" stop-color="' + primaryColor + '" stop-opacity="0.35"/>' +
+      '<stop offset="100%" stop-color="' + primaryColor + '" stop-opacity="0.1"/>' +
+      '</linearGradient></defs>' +
+      '<rect width="96" height="96" rx="26" fill="url(#bgm)" stroke="' + primaryColor + '" stroke-opacity="0.4" stroke-width="2"/>' +
+      '<rect x="22" y="24" width="52" height="48" rx="8" fill="none" stroke="' + primaryColor + '" stroke-width="2.5"/>' +
+      '<line x1="22" y1="36" x2="74" y2="36" stroke="' + primaryColor + '" stroke-width="2"/>' +
+      '<line x1="32" y1="24" x2="28" y2="36" stroke="' + primaryColor + '" stroke-width="2"/>' +
+      '<line x1="46" y1="24" x2="42" y2="36" stroke="' + primaryColor + '" stroke-width="2"/>' +
+      '<line x1="60" y1="24" x2="56" y2="36" stroke="' + primaryColor + '" stroke-width="2"/>' +
+      '<polygon points="43,44 57,52 43,60" fill="' + primaryColor + '"/>' +
+      '</svg>';
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+
+  function makePlanSvg(primaryColor, iconType) {
+    let innerIcon = '';
+    if (iconType === 'cinema') {
+      innerIcon = '<rect x="22" y="24" width="52" height="48" rx="8" fill="none" stroke="' + primaryColor + '" stroke-width="2.5"/><polygon points="43,44 57,52 43,60" fill="' + primaryColor + '"/>';
+    } else if (iconType === 'sunset') {
+      innerIcon = '<circle cx="48" cy="46" r="14" fill="none" stroke="' + primaryColor + '" stroke-width="2.5"/><path d="M24 64h48M30 72h36" stroke="' + primaryColor + '" stroke-width="2.5" stroke-linecap="round"/>';
+    } else if (iconType === 'bowling') {
+      innerIcon = '<circle cx="48" cy="48" r="22" fill="none" stroke="' + primaryColor + '" stroke-width="2.5"/><circle cx="42" cy="42" r="2.5" fill="' + primaryColor + '"/><circle cx="54" cy="42" r="2.5" fill="' + primaryColor + '"/><circle cx="48" cy="54" r="2.5" fill="' + primaryColor + '"/>';
+    } else if (iconType === 'spa') {
+      innerIcon = '<path d="M48 24c-12 16-16 26-16 34a16 16 0 0 0 32 0c0-8-4-18-16-34z" fill="none" stroke="' + primaryColor + '" stroke-width="2.5"/>';
+    } else if (iconType === 'picnic') {
+      innerIcon = '<rect x="24" y="38" width="48" height="34" rx="6" fill="none" stroke="' + primaryColor + '" stroke-width="2.5"/><path d="M48 38v34M24 54h48M34 38c0-8 6-14 14-14s14 6 14 14" fill="none" stroke="' + primaryColor + '" stroke-width="2.5"/>';
+    } else if (iconType === 'escape') {
+      innerIcon = '<rect x="30" y="42" width="36" height="30" rx="6" fill="none" stroke="' + primaryColor + '" stroke-width="2.5"/><path d="M38 42v-8a10 10 0 0 1 20 0v8" fill="none" stroke="' + primaryColor + '" stroke-width="2.5"/><circle cx="48" cy="56" r="3" fill="' + primaryColor + '"/>';
+    } else if (iconType === 'wine') {
+      innerIcon = '<path d="M34 26h28l-8 22a8 8 0 0 1-6 6 8 8 0 0 1-6-6zM48 54v18M36 72h24" fill="none" stroke="' + primaryColor + '" stroke-width="2.5" stroke-linecap="round"/>';
+    } else if (iconType === 'hiking') {
+      innerIcon = '<path d="M22 68l22-34 16 22 14-16 12 28H22z" fill="none" stroke="' + primaryColor + '" stroke-width="2.5" stroke-linejoin="round"/>';
+    } else if (iconType === 'music') {
+      innerIcon = '<path d="M34 62a6 6 0 1 1-6-6 6 6 0 0 1 6 6zm30-8a6 6 0 1 1-6-6 6 6 0 0 1 6 6zM34 56V28l30-6v34M34 38l30-6" fill="none" stroke="' + primaryColor + '" stroke-width="2.5"/>';
+    } else if (iconType === 'games') {
+      innerIcon = '<rect x="26" y="26" width="44" height="44" rx="8" fill="none" stroke="' + primaryColor + '" stroke-width="2.5"/><circle cx="38" cy="38" r="3" fill="' + primaryColor + '"/><circle cx="48" cy="48" r="3" fill="' + primaryColor + '"/><circle cx="58" cy="58" r="3" fill="' + primaryColor + '"/>';
+    } else if (iconType === 'museum') {
+      innerIcon = '<path d="M24 38l24-14 24 14M24 70h48M28 42v28M40 42v28M56 42v28M68 42v28" fill="none" stroke="' + primaryColor + '" stroke-width="2.5" stroke-linecap="round"/>';
+    } else {
+      innerIcon = '<circle cx="48" cy="48" r="22" fill="none" stroke="' + primaryColor + '" stroke-width="2.5"/><path d="M38 48a10 10 0 0 0 20 0M48 26v4M38 28l2 3M58 28l-2 3" stroke="' + primaryColor + '" stroke-width="2.5" stroke-linecap="round"/>';
+    }
+
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">' +
+      '<defs><linearGradient id="bgp" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0%" stop-color="' + primaryColor + '" stop-opacity="0.35"/>' +
+      '<stop offset="100%" stop-color="' + primaryColor + '" stop-opacity="0.1"/>' +
+      '</linearGradient></defs>' +
+      '<rect width="96" height="96" rx="26" fill="url(#bgp)" stroke="' + primaryColor + '" stroke-opacity="0.4" stroke-width="2"/>' +
+      innerIcon +
+      '</svg>';
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+
+  const MOVIES_CATALOGUE = [
+    {
+      id: 'movie-the-bear',
+      name: 'The Bear',
+      category: 'Disney+ • Serie',
+      price: '3 Temporadas',
+      color: '#0284C7',
+      logo: makeMovieSvg('#0284C7'),
+      image: makeMovieSvg('#0284C7'),
+      description: 'Un prestigioso chef de alta cocina regresa a Chicago para levantar la caótica sandwichería familiar.',
+      hints: [
+        'En esta cocina la frase más repetida con respeto es: ¡Oído, Chef!',
+        'El negocio original era de bocadillos de ternera italiana.',
+        'El ritmo frenético y la tensión de los fogones no da respiro.',
+        'Ha ganado múltiples premios Emmy a mejor serie.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-stranger-things',
+      name: 'Stranger Things',
+      category: 'Netflix • Serie',
+      price: '4 Temporadas',
+      color: '#E50914',
+      logo: makeMovieSvg('#E50914'),
+      image: makeMovieSvg('#E50914'),
+      description: 'Misterios sobrenaturales de los 80, experimentos secretos del gobierno y una niña con telequinesis.',
+      hints: [
+        'Todo comenzó con la desaparición de un niño en Hawkins, Indiana.',
+        'Existe una dimensión alternativa oscura llamada Del Revés.',
+        'A la protagonista le fascinan los gofres tostados.',
+        'Banda sonora de sintetizadores ochenteros inconfundible.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-the-last-of-us',
+      name: 'The Last of Us',
+      category: 'Max • Serie',
+      price: '1 Temporada',
+      color: '#10B981',
+      logo: makeMovieSvg('#10B981'),
+      image: makeMovieSvg('#10B981'),
+      description: 'Joel y Ellie cruzan un país postapocalíptico desolado por una pandemia fúngica de cordyceps.',
+      hints: [
+        'Una mutación de hongo devastó por completo a la civilización.',
+        'Un contrabandista endurecido debe proteger a una joven inmune.',
+        'Adaptación fiel de una de las mayores obras maestras del videojuego.',
+        'Los infectados más peligrosos se orientan por chasquidos acústicos.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-dune',
+      name: 'Dune',
+      category: 'Max / Prime • Película',
+      price: '165 min',
+      color: '#D97706',
+      logo: makeMovieSvg('#D97706'),
+      image: makeMovieSvg('#D97706'),
+      description: 'Paul Atreides debe viajar al planeta desértico más peligroso del universo para salvar su pueblo.',
+      hints: [
+        'La especia melange solo se cosecha en el planeta desértico Arrakis.',
+        'Gusanos de arena gigantescos emergen al ritmo de las pisadas.',
+        'El miedo es el asesino de la mente.',
+        'Dirigida por Denis Villeneuve con banda sonora de Hans Zimmer.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-interstellar',
+      name: 'Interstellar',
+      category: 'Prime Video • Película',
+      price: '169 min',
+      color: '#3B82F6',
+      logo: makeMovieSvg('#3B82F6'),
+      image: makeMovieSvg('#3B82F6'),
+      description: 'Un grupo de astronautas atraviesa un agujero de gusano buscando un nuevo hogar para la humanidad.',
+      hints: [
+        'Un reloj de manecillas y una librería conectan el espacio y el tiempo.',
+        'En el planeta de las olas titánicas, una hora son siete años en la Tierra.',
+        'El amor es lo único que trasciende las dimensiones.',
+        'Una obra colosal de Christopher Nolan.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-ted-lasso',
+      name: 'Ted Lasso',
+      category: 'Apple TV+ • Serie',
+      price: '3 Temporadas',
+      color: '#F59E0B',
+      logo: makeMovieSvg('#F59E0B'),
+      image: makeMovieSvg('#F59E0B'),
+      description: 'Un entrenador de fútbol americano cruza el charco para dirigir un club de la Premier League inglesa.',
+      hints: [
+        'Un cartel amarillo con la palabra BELIEVE sobre la puerta del vestuario.',
+        'Hornea galletas caseras en caja rosa todas las mañanas para su jefa.',
+        'El optimismo puro y la amabilidad desarman a cualquiera.',
+        'Su protagonista luce un icónico bigote y simpatía sureña.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-severance',
+      name: 'Severance',
+      category: 'Apple TV+ • Serie',
+      price: '2 Temporadas',
+      color: '#06B6D4',
+      logo: makeMovieSvg('#06B6D4'),
+      image: makeMovieSvg('#06B6D4'),
+      description: 'Empleados dividen sus recuerdos quirúrgicamente entre su jornada laboral y su vida personal.',
+      hints: [
+        'Tu "yo" del trabajo no sabe nada de tu vida exterior, ni al revés.',
+        'Pasillos infinitos de color blanco inmaculado y moqueta verde.',
+        'Lumon Industries premia a los mejores empleados con fiestas de baile y melón.',
+        'El ascensor de la oficina marca el cambio instantáneo de consciencia.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-inception',
+      name: 'Inception (Origen)',
+      category: 'Max / Prime • Película',
+      price: '148 min',
+      color: '#8B5CF6',
+      logo: makeMovieSvg('#8B5CF6'),
+      image: makeMovieSvg('#8B5CF6'),
+      description: 'Un ladrón que roba secretos entrando en los sueños de los demás debe implantar una idea ajena.',
+      hints: [
+        'Una peonza metálica girando sobre una mesa para comprobar si es realidad o sueño.',
+        'Peleas de gravedad cero en el pasillo de un hotel.',
+        'La canción de Edith Piaf avisa de la patada inminente para despertar.',
+        'Protagonizada por Leonardo DiCaprio y dirigida por Nolan.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-oppenheimer',
+      name: 'Oppenheimer',
+      category: 'SkyShowtime • Película',
+      price: '180 min',
+      color: '#F97316',
+      logo: makeMovieSvg('#F97316'),
+      image: makeMovieSvg('#F97316'),
+      description: 'La historia del físico J. Robert Oppenheimer y el proyecto Manhattan en Los Álamos.',
+      hints: [
+        'El silencio absoluto durante la prueba Trinity.',
+        'Ahora me he convertido en la muerte, el destructor de mundos.',
+        'Arrasó con 7 premios Óscar, incluyendo Mejor Película.',
+        'Cillian Murphy encarna al padre de la bomba atómica.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-spiderman',
+      name: 'Spider-Man: Multiverso',
+      category: 'Movistar+ • Película',
+      price: '140 min',
+      color: '#EF4444',
+      logo: makeMovieSvg('#EF4444'),
+      image: makeMovieSvg('#EF4444'),
+      description: 'Miles Morales es catapultado a través del Multiverso y redefine lo que significa salvar a quienes ama.',
+      hints: [
+        'Animación deslumbrante que mezcla estilos visuales de cómic en cada plano.',
+        'Miles Morales y Gwen Stacy saltan entre realidades paralelas.',
+        'Los eventos canónicos marcan el destino inevitable de cada héroe.',
+        'Revolución artística que ha marcado un antes y un después en el cine.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-gladiator',
+      name: 'Gladiator',
+      category: 'Prime Video • Película',
+      price: '155 min',
+      color: '#B45309',
+      logo: makeMovieSvg('#B45309'),
+      image: makeMovieSvg('#B45309'),
+      description: 'Un respetado general romano traicionado resurge como gladiador en el Coliseo en busca de justicia.',
+      hints: [
+        'Acariciar espigas doradas de trigo con la palma de la mano.',
+        'Mi nombre es Máximo Décimo Meridio, comandante de los ejércitos del norte...',
+        'Lo que hacemos en la vida tiene su eco en la eternidad.',
+        'La arena del Coliseo y la épica banda sonora de Hans Zimmer.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-la-casa-papel',
+      name: 'La Casa de Papel',
+      category: 'Netflix • Serie',
+      price: '5 Temporadas',
+      color: '#DC2626',
+      logo: makeMovieSvg('#DC2626'),
+      image: makeMovieSvg('#DC2626'),
+      description: 'Ocho atracadores con nombres de ciudades asaltan la Fábrica de Moneda bajo el plan de El Profesor.',
+      hints: [
+        'Monos de trabajo rojos y máscaras de Salvador Dalí.',
+        'El líder de la banda opera desde un hangar aislado con una maqueta.',
+        'El himno de resistencia que cantan es Bella Ciao.',
+        'Fenómeno global de la ficción en español.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    }
+  ];
+
+  const PLANS_CATALOGUE = [
+    {
+      id: 'plan-cine',
+      name: 'Cine y Palomitas',
+      category: 'Ocio • Noche',
+      price: '2h 30m',
+      color: '#EC4899',
+      logo: makePlanSvg('#EC4899', 'cinema'),
+      image: makePlanSvg('#EC4899', 'cinema'),
+      description: 'Estreno en pantalla gigante, butacas cómodas, cubo grande de palomitas calientes y refresco.',
+      hints: [
+        'Aroma inconfundible a palomitas de mantequilla recién hechas en el hall.',
+        'Las luces se apagan por completo y el sonido envolvente retumba.',
+        'La eterna disputa amigable por quién se queda con el mejor reposabrazos.',
+        'El plan infalible para desconectar cualquier tarde de fin de semana.'
+      ],
+      branches: [
+        { name: 'Neocine Mandarache', address: 'Ronda Ciudad de La Unión, Cartagena', lat: 37.6160, lng: -0.9820 },
+        { name: 'Cinesa Nueva Condomina', address: 'Autovía A-7 km 560, Murcia', lat: 38.0332, lng: -1.1441 }
+      ]
+    },
+    {
+      id: 'plan-paseo-helado',
+      name: 'Paseo al Atardecer y Helado',
+      category: 'Romántico • Aire libre',
+      price: '1h 30m',
+      color: '#F59E0B',
+      logo: makePlanSvg('#F59E0B', 'sunset'),
+      image: makePlanSvg('#F59E0B', 'sunset'),
+      description: 'Paseo relajado por el puerto o casco histórico con parada en la mejor heladería artesanal.',
+      hints: [
+        'Ver el cielo teñirse de tonos rosas, dorados y anaranjados.',
+        'Elegir tarrina o cucurucho con dos sabores favoritos.',
+        'Caminar sin prisa charlando de todo un poco mientras baja la brisa.',
+        'Sentarse en un banco frente al mar o en una plaza bonita.'
+      ],
+      branches: [
+        { name: 'Puerto de Cartagena', address: 'Paseo Alfonso XII, Cartagena', lat: 37.5980, lng: -0.9850 },
+        { name: 'Paseo del Malecón', address: 'Plaza Camachos / Malecón, Murcia', lat: 37.9820, lng: -1.1350 }
+      ]
+    },
+    {
+      id: 'plan-bolera',
+      name: 'Bolera y Arcade Retro',
+      category: 'Diversión • Pique sano',
+      price: '2h',
+      color: '#3B82F6',
+      logo: makePlanSvg('#3B82F6', 'bowling'),
+      image: makePlanSvg('#3B82F6', 'bowling'),
+      description: 'Partida de bolos americana con zapatos especiales, pique de puntos y máquinas de aire hockey.',
+      hints: [
+        'Calzarse los zapatos bicolores especiales de pista.',
+        'El sonido crujiente y satisfactorio al derribar los diez bolos de pleno.',
+        'Partida a vida o muerte en la mesa de disco flotante de aire hockey.',
+        'Pique sano para ver a quién le toca pagar la siguiente ronda.'
+      ],
+      branches: [
+        { name: 'Bowling CC Espacio Mediterráneo', address: 'Parque Comercial Mediterráneo, Cartagena', lat: 37.6186, lng: -0.9575 },
+        { name: 'Ozone Bowling ZigZag', address: 'Av. Juan Carlos I, Murcia', lat: 38.0010, lng: -1.1410 }
+      ]
+    },
+    {
+      id: 'plan-spa',
+      name: 'Spa y Circuito Termal',
+      category: 'Bienestar • Desconexión',
+      price: '2h',
+      color: '#06B6D4',
+      logo: makePlanSvg('#06B6D4', 'spa'),
+      image: makePlanSvg('#06B6D4', 'spa'),
+      description: 'Circuito de aguas relajantes, chorros cervicales, sauna de vapor, jacuzzi y ambiente zen.',
+      hints: [
+        'Vapor templado, aroma a eucalipto y música ambiental relajante.',
+        'Burbujas en el jacuzzi para descargar toda la tensión muscular acumulada.',
+        'El contraste revitalizante del chorro de agua fría tras el baño de vapor.',
+        'Salir sintiéndose como flotando en una nube de paz.'
+      ],
+      branches: [
+        { name: 'Balneario & Spa', address: 'Zona termal Archena / Los Alcázares', lat: 37.7450, lng: -0.8500 }
+      ]
+    },
+    {
+      id: 'plan-picnic',
+      name: 'Picnic al Aire Libre',
+      category: 'Naturaleza • Relax',
+      price: '2h 30m',
+      color: '#10B981',
+      logo: makePlanSvg('#10B981', 'picnic'),
+      image: makePlanSvg('#10B981', 'picnic'),
+      description: 'Manta sobre la hierba, cesta con aperitivos, fruta, embutidos y bebida fresca bajo los árboles.',
+      hints: [
+        'Extender una manta amplia en el césped a la sombra de un árbol.',
+        'Aperitivos en fiambreras, frutos secos y bebida fría recién sacada.',
+        'Escuchar la brisa suave o poner una lista acústica de fondo.',
+        'Tumbarse a mirar el cielo después de merendar.'
+      ],
+      branches: [
+        { name: 'Parque Torres', address: 'Castillo de la Concepción, Cartagena', lat: 37.5995, lng: -0.9840 },
+        { name: 'Parque de Fofó', address: 'Ronda Norte, Murcia', lat: 37.9940, lng: -1.1370 }
+      ]
+    },
+    {
+      id: 'plan-escape-room',
+      name: 'Escape Room en Pareja',
+      category: 'Misterio • Enigma',
+      price: '1h',
+      color: '#8B5CF6',
+      logo: makePlanSvg('#8B5CF6', 'escape'),
+      image: makePlanSvg('#8B5CF6', 'escape'),
+      description: 'Encerrados en una habitación temática resolviendo acertijos y candados para escapar a tiempo.',
+      hints: [
+        'Un cronómetro digital luminoso descontando los sesenta minutos.',
+        'Abrir candados secretos, descifrar combinaciones y encontrar llaves ocultas.',
+        'La adrenalina sube al máximo cuando solo quedan cinco minutos.',
+        'Pone a prueba la compenetración y la astucia en equipo.'
+      ],
+      branches: [
+        { name: 'Escape Room Centro', address: 'Casco Histórico, Cartagena / Murcia', lat: 37.6020, lng: -0.9830 }
+      ]
+    },
+    {
+      id: 'plan-cata-vinos',
+      name: 'Cata de Vinos y Tapas',
+      category: 'Gourmet • Sabores',
+      price: '2h',
+      color: '#9333EA',
+      logo: makePlanSvg('#9333EA', 'wine'),
+      image: makePlanSvg('#9333EA', 'wine'),
+      description: 'Degustación de copas de vino seleccionadas con tabla de quesos curados y jamón ibérico.',
+      hints: [
+        'Copas de cristal para apreciar aromas frutales y madera en barrica.',
+        'Pan tostado crujiente con aceite de oliva virgen y lonchas de jamón ibérico.',
+        'Descubrir qué maridaje realza mejor cada copa.',
+        'Ambiente íntimo, iluminación tenue y conversación pausada.'
+      ],
+      branches: [
+        { name: 'Taberna Selecta', address: 'Plaza de las Flores / Casco Antiguo', lat: 37.9860, lng: -1.1320 }
+      ]
+    },
+    {
+      id: 'plan-senderismo',
+      name: 'Ruta de Senderismo',
+      category: 'Aventura • Naturaleza',
+      price: '3h',
+      color: '#14B8A6',
+      logo: makePlanSvg('#14B8A6', 'hiking'),
+      image: makePlanSvg('#14B8A6', 'hiking'),
+      description: 'Ruta de montaña o sendero costero, respirar aire puro y coronar un mirador con vistas.',
+      hints: [
+        'Calzado de montaña cómodo y mochila ligera con agua fresca.',
+        'Subir la senda con calma hasta coronar el mirador más alto.',
+        'La foto panorámica de recuerdo con el horizonte.',
+        'La satisfacción de haber hecho ejercicio en la naturaleza juntos.'
+      ],
+      branches: [
+        { name: 'Batería de Castillitos', address: 'Cabo Tiñoso, Cartagena', lat: 37.5450, lng: -1.1150 },
+        { name: 'Cresta del Gallo', address: 'Parque Regional El Valle, Murcia', lat: 37.9300, lng: -1.1100 }
+      ]
+    },
+    {
+      id: 'plan-concierto',
+      name: 'Concierto o Música en Directo',
+      category: 'Música • Noche',
+      price: '2h 30m',
+      color: '#F43F5E',
+      logo: makePlanSvg('#F43F5E', 'music'),
+      image: makePlanSvg('#F43F5E', 'music'),
+      description: 'Banda en directo o acústico íntimo en sala para cantar y vibrar con buena música.',
+      hints: [
+        'Sentir el golpe del bajo y la batería vibrando en el pecho.',
+        'Cantar los estribillos favoritos mirándose y sonriendo.',
+        'La energía contagiosa de una sala llena de aplausos.',
+        'Pedir otra canción cuando el grupo se despide antes de los bises.'
+      ],
+      branches: [
+        { name: 'Sala de conciertos', address: 'Zona centro o auditorio', lat: 37.6000, lng: -0.9850 }
+      ]
+    },
+    {
+      id: 'plan-juegos-mesa',
+      name: 'Tarde de Juegos de Mesa y Café',
+      category: 'Acogedor • Café y risas',
+      price: '2h',
+      color: '#D97706',
+      logo: makePlanSvg('#D97706', 'games'),
+      image: makePlanSvg('#D97706', 'games'),
+      description: 'Cafetería acogedora o mesa del salón con té/café, tarta casera y partidas a juegos favoritos.',
+      hints: [
+        'Café calentito con espuma y una porción generosa de tarta casera.',
+        'Tablero desplegado sobre la mesa, dados rodando y risas garantizadas.',
+        'Las miradas de sospecha al robar una carta con cara de póker.',
+        'El plan perfecto para una tarde tranquila o de lluvia.'
+      ],
+      branches: [
+        { name: 'En casa o cafetería', address: 'Ambiente acogedor', lat: 37.6000, lng: -0.9850 }
+      ]
+    },
+    {
+      id: 'plan-museo',
+      name: 'Museo o Exposición de Arte',
+      category: 'Cultura • Inspiración',
+      price: '1h 45m',
+      color: '#6366F1',
+      logo: makePlanSvg('#6366F1', 'museum'),
+      image: makePlanSvg('#6366F1', 'museum'),
+      description: 'Paseo tranquilo por galerías de arte, fotografía o historia comentando las piezas sin prisas.',
+      hints: [
+        'Salas amplias, techos altos y atmósfera de serenidad.',
+        'Debatir qué transmite la obra más abstracta o curiosa.',
+        'Curiosidades históricas y detalles que llaman la atención.',
+        'Terminar ojeando libros y postales en la tienda de la salida.'
+      ],
+      branches: [
+        { name: 'Teatro Romano de Cartagena', address: 'Palacio Consistorial, Cartagena', lat: 37.5992, lng: -0.9852 },
+        { name: 'Museo Ramón Gaya', address: 'Plaza Santa Catalina, Murcia', lat: 37.9855, lng: -1.1332 }
+      ]
+    },
+    {
+      id: 'plan-cocinar-juntos',
+      name: 'Cocinar una Receta Nueva Juntos',
+      category: 'En Casa • Culinario',
+      price: '2h 30m',
+      color: '#FB7185',
+      logo: makePlanSvg('#FB7185', 'cooking'),
+      image: makePlanSvg('#FB7185', 'cooking'),
+      description: 'Comprar ingredientes especiales, poner música, vino frío y preparar sushi, pasta o tacos desde cero.',
+      hints: [
+        'Poner una playlist especial de fondo mientras se pican los ingredientes.',
+        'Una copa de vino blanco o cerveza fría para ir abriendo boca en la cocina.',
+        'Probar la salsa de la cazuela con cuchara de madera: ¿un toque más de sal?',
+        'Emplatar con mimo como en un restaurante con estrellas y cenar a la luz de las velas.'
+      ],
+      branches: [
+        { name: 'En casa en la cocina', address: 'Cocina con música y copas', lat: 37.6000, lng: -0.9850 }
+      ]
+    }
+  ];
+
+  function loadModeCatalogue() {
+    if (state.activeMode === 'movies') {
+      state.restaurants = MOVIES_CATALOGUE.slice();
+    } else if (state.activeMode === 'plans') {
+      state.restaurants = PLANS_CATALOGUE.slice();
+    } else {
+      state.restaurants = getRestaurants();
+    }
+  }
+
   function getRestaurants() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -325,6 +835,12 @@
   }
 
   function getMysteryNavigationUrl(branch) {
+    if (state.activeMode === 'movies' && state.winningRestaurant) {
+      return 'https://www.google.com/search?q=ver+' + encodeURIComponent(state.winningRestaurant.name) + '+online';
+    }
+    if (!branch || typeof branch.lat !== 'number') {
+      return 'https://www.google.com/search?q=' + encodeURIComponent((state.winningRestaurant && state.winningRestaurant.name) || 'Duo');
+    }
     const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
     const lat = branch.lat.toFixed(6);
     const lng = branch.lng.toFixed(6);
@@ -517,6 +1033,9 @@
     player2Veto: null,
     player1Superlike: null,
     player2Superlike: null,
+    activeMode: localStorage.getItem('donde_comemos_active_mode') || 'food', // 'food' | 'movies' | 'plans'
+    isRemoteSession: false,
+    remoteRole: null, // 'player2' | null
     avoidLastWinner: localStorage.getItem('donde_comemos_avoid_last') === 'true',
     lastWinnerId: localStorage.getItem('donde_comemos_last_winner_id') || null,
     lastWinnerName: localStorage.getItem('donde_comemos_last_winner_name') || null,
@@ -1120,6 +1639,160 @@
     };
   }
 
+  function getOpeningStatus(r) {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const cur = hours + minutes / 60;
+
+    const isLunch = cur >= 13.5 && cur < 16.5;
+    const isDinner = cur >= 20.5 && cur < 23.75;
+
+    if (isLunch) {
+      return { status: 'open', label: 'Abierto ahora', sub: 'Cierra 16:30' };
+    }
+    if (isDinner) {
+      return { status: 'open', label: 'Abierto ahora', sub: 'Cierra 23:45' };
+    }
+    if (cur >= 12.5 && cur < 13.5) {
+      return { status: 'soon', label: 'Abre a las 13:30', sub: 'Comida' };
+    }
+    if (cur >= 19.5 && cur < 20.5) {
+      return { status: 'soon', label: 'Abre a las 20:30', sub: 'Cena' };
+    }
+    if (cur >= 16.5 && cur < 19.5) {
+      return { status: 'closed', label: 'Cerrado ahora', sub: 'Abre a las 20:30' };
+    }
+    return { status: 'closed', label: 'Cerrado ahora', sub: 'Abre a las 13:30' };
+  }
+
+  function encodeRemoteState(obj) {
+    return encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(obj)))));
+  }
+
+  function decodeRemoteState(str) {
+    return JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(str)))));
+  }
+
+  function getRemoteP2ShareUrl() {
+    const payload = {
+      v: 1,
+      m: state.activeMode,
+      p1: state.player1Name,
+      p2: state.player2Name,
+      p1s: Array.from(state.player1Selections),
+      p1v: state.player1Veto,
+      p1x: state.player1Superlike,
+      rnd: state.roundAttempt,
+      avd: state.avoidLastWinner,
+      lw: state.lastWinnerId
+    };
+    const base = window.location.href.split('#')[0];
+    return base + '#duo_p2=' + encodeRemoteState(payload);
+  }
+
+  function getRemoteResultShareUrl() {
+    const payload = {
+      v: 1,
+      m: state.activeMode,
+      p1: state.player1Name,
+      p2: state.player2Name,
+      w: state.winningRestaurant ? state.winningRestaurant.id : null,
+      mc: state.matchesCount,
+      tb: state.tieBreakerUser
+    };
+    const base = window.location.href.split('#')[0];
+    return base + '#duo_result=' + encodeRemoteState(payload);
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        showToast('Enlace copiado al portapapeles');
+        sound.playPop();
+        sound.vibrate([30]);
+      }).catch(function () {
+        fallbackCopyText(text);
+      });
+    } else {
+      fallbackCopyText(text);
+    }
+  }
+
+  function fallbackCopyText(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      showToast('Enlace copiado al portapapeles');
+      sound.playPop();
+      sound.vibrate([30]);
+    } catch (e) {
+      showToast('Copia el enlace manualmente');
+    }
+    document.body.removeChild(ta);
+  }
+
+  function checkRemoteHash() {
+    try {
+      const hash = window.location.hash || '';
+      if (hash.startsWith('#duo_p2=')) {
+        const encoded = hash.replace('#duo_p2=', '');
+        const data = decodeRemoteState(encoded);
+        if (data && data.p1s) {
+          state.activeMode = data.m || 'food';
+          loadModeCatalogue();
+          state.player1Name = data.p1 || 'Jugador 1';
+          state.player2Name = data.p2 || 'Jugador 2';
+          state.player1Selections = new Set(data.p1s);
+          state.player1Veto = data.p1v || null;
+          state.player1Superlike = data.p1x || null;
+          state.roundAttempt = data.rnd || 1;
+          state.avoidLastWinner = !!data.avd;
+          state.lastWinnerId = data.lw || null;
+          state.isRemoteSession = true;
+          state.remoteRole = 'player2';
+          state.screen = 'player2';
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+          setTimeout(function () {
+            showToast('Turno de ' + state.player2Name + ' listo para votar');
+          }, 350);
+        }
+      } else if (hash.startsWith('#duo_result=')) {
+        const encoded = hash.replace('#duo_result=', '');
+        const data = decodeRemoteState(encoded);
+        if (data && data.w) {
+          state.activeMode = data.m || 'food';
+          loadModeCatalogue();
+          state.player1Name = data.p1 || 'Jugador 1';
+          state.player2Name = data.p2 || 'Jugador 2';
+          state.winningRestaurant = state.restaurants.find(function (r) { return r.id === data.w; }) || state.restaurants[0];
+          state.matchesCount = data.mc || 1;
+          state.tieBreakerUser = data.tb || null;
+          state.winningBranch = findClosestBranch(state.winningRestaurant, state.userCoords);
+          state.isNameRevealed = false;
+          state.showClues = false;
+          state.clueIndex = 0;
+          state.screen = 'result';
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+          setTimeout(function () {
+            showToast('Resultado recibido en Duo');
+          }, 350);
+        }
+      }
+    } catch (err) {
+      console.error('Error al procesar enlace a distancia:', err);
+    }
+  }
+
   const SECRET_MISSIONS_POOL = [
     'Quien haya usado el Veto o haya perdido la moneda invita a los postres.',
     'Pedid al menos un producto o complemento de la carta que ninguno de los dos haya probado nunca.',
@@ -1147,7 +1820,8 @@
   }
 
   function init() {
-    state.restaurants = getRestaurants();
+    loadModeCatalogue();
+    checkRemoteHash();
     setupPwaBanner();
     render();
   }
@@ -1213,22 +1887,53 @@
 
     app.innerHTML = `
       <div class="mobile-shell px-6 justify-between animate-view-enter">
-        <div class="pt-10 text-center flex flex-col items-center">
-          <div class="w-20 h-20 rounded-[24px] p-0.5 shadow-2xl shadow-indigo-500/20 mb-3 flex items-center justify-center">
+        <div class="pt-8 text-center flex flex-col items-center">
+          <div class="w-16 h-16 rounded-[22px] p-0.5 shadow-2xl shadow-indigo-500/20 mb-2 flex items-center justify-center">
             <img src="./duo_icon.svg" alt="Duo" class="w-full h-full object-contain filter drop-shadow-xl" />
           </div>
 
-          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-1 flex items-center justify-center gap-2">
+          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-0.5 flex items-center justify-center gap-2">
             <span>Duo</span>
           </h1>
-          <p class="text-neutral-400 text-xs sm:text-sm max-w-xs mx-auto leading-relaxed">
-            Votad en secreto a dos turnos y encontrad el plan o sitio ideal sin discutir.
+          <p class="text-neutral-400 text-xs sm:text-sm max-w-xs mx-auto leading-relaxed mb-3">
+            ${state.activeMode === 'food' 
+              ? 'Votad en secreto a dos turnos y encontrad el restaurante ideal sin discutir.' 
+              : state.activeMode === 'movies'
+              ? 'Votad en secreto a dos turnos y decidid qué película o serie ver hoy.'
+              : 'Votad en secreto a dos turnos y encontrad la cita o plan perfecto.'}
           </p>
+
+          <!-- Selector de Modo Apple HIG Segmented Control -->
+          <div class="w-full max-w-xs p-1 rounded-2xl bg-white/[0.06] border border-white/[0.1] backdrop-blur-xl flex items-center justify-between text-xs font-bold mb-1">
+            <button 
+              id="mode-food" 
+              class="flex-1 py-2 px-2.5 rounded-xl transition flex items-center justify-center gap-1.5 ${state.activeMode === 'food' ? 'bg-gradient-to-r from-[#FF2D55] to-[#FF9F0A] text-white shadow-md' : 'text-neutral-400 hover:text-white'}"
+            >
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
+              <span>Comer</span>
+            </button>
+
+            <button 
+              id="mode-movies" 
+              class="flex-1 py-2 px-2.5 rounded-xl transition flex items-center justify-center gap-1.5 ${state.activeMode === 'movies' ? 'bg-gradient-to-r from-[#5E5CE6] to-[#0A84FF] text-white shadow-md' : 'text-neutral-400 hover:text-white'}"
+            >
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+              <span>Películas</span>
+            </button>
+
+            <button 
+              id="mode-plans" 
+              class="flex-1 py-2 px-2.5 rounded-xl transition flex items-center justify-center gap-1.5 ${state.activeMode === 'plans' ? 'bg-gradient-to-r from-[#BF5AF2] to-[#FF2D55] text-white shadow-md' : 'text-neutral-400 hover:text-white'}"
+            >
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <span>Planes</span>
+            </button>
+          </div>
         </div>
 
         <div class="ios-glass p-5 rounded-[26px] my-3 space-y-3.5">
           <div class="text-[11px] font-bold text-neutral-400 uppercase tracking-widest pl-1">
-            Comensales
+            ${state.activeMode === 'food' ? 'Comensales' : state.activeMode === 'movies' ? 'Espectadores' : 'Participantes'}
           </div>
           
           <div class="space-y-2.5">
@@ -1416,6 +2121,21 @@
         renderHomeScreen();
       });
     }
+
+    ['food', 'movies', 'plans'].forEach(function (m) {
+      const btn = document.getElementById('mode-' + m);
+      if (btn) {
+        btn.addEventListener('click', function () {
+          if (state.activeMode === m) return;
+          state.activeMode = m;
+          localStorage.setItem('donde_comemos_active_mode', m);
+          loadModeCatalogue();
+          sound.playPop();
+          sound.vibrate([25]);
+          renderHomeScreen();
+        });
+      }
+    });
 
     document.getElementById('input-p1').addEventListener('input', function (e) {
       state.player1Name = e.target.value.trim() || 'Jugador 1';
@@ -1710,9 +2430,8 @@
                       <span>${r.name}</span>
                       ${isSuper ? '<svg class="w-3 h-3 text-amber-400 fill-amber-400 inline" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>' : ''}
                       ${isVetoed ? '<svg class="w-3 h-3 text-rose-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>' : ''}
-                    </div>
                     <div class="text-[10px] text-neutral-400 truncate mt-0.5">
-                      ${r.branches ? r.branches.length + ' ubicaciones' : r.price}
+                      ${state.activeMode === 'food' && r.branches ? r.branches.length + ' ubicaciones' : (r.price || r.category)}
                     </div>
                   </div>
                 </div>
@@ -1855,7 +2574,7 @@
     document.getElementById('btn-confirm-turn').addEventListener('click', function () {
       if (currentSelections.size === 0) {
         sound.vibrate([50, 50, 50]);
-        showToast('Elige al menos 1 restaurante');
+        showToast('Elige al menos 1 ' + (state.activeMode === 'food' ? 'restaurante' : state.activeMode === 'movies' ? 'película o serie' : 'plan'));
         return;
       }
       sound.playWhoosh();
@@ -1896,8 +2615,8 @@
           </p>
         </div>
 
-        <div class="my-auto py-6">
-          <div class="ios-glass p-6 rounded-[26px] max-w-xs mx-auto text-center space-y-2">
+        <div class="my-auto py-4 space-y-3">
+          <div class="ios-glass p-5 rounded-[26px] max-w-xs mx-auto text-center space-y-2">
             <div class="w-8 h-8 rounded-full bg-indigo-500/20 text-[#5E5CE6] mx-auto flex items-center justify-center">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
@@ -1909,6 +2628,26 @@
             <div class="text-[11px] text-neutral-500">
               Ninguna opción será visible durante el siguiente turno.
             </div>
+          </div>
+
+          <!-- Tarjeta de votación a distancia para multidispositivo -->
+          <div class="ios-glass p-4 rounded-[24px] max-w-xs mx-auto text-left border border-indigo-500/25 bg-indigo-500/10 space-y-2.5">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-indigo-500/20 text-[#5E5CE6] border border-indigo-500/30 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+              </div>
+              <div>
+                <div class="text-xs font-bold text-white">¿Estáis a distancia?</div>
+                <div class="text-[10px] text-neutral-300">Vota cada uno en su propio móvil</div>
+              </div>
+            </div>
+            <button 
+              id="btn-share-p2-link" 
+              class="w-full py-2.5 px-3 rounded-xl bg-indigo-500/25 hover:bg-indigo-500/35 border border-indigo-500/40 text-xs font-bold text-indigo-200 flex items-center justify-center gap-2 active:scale-98 transition shadow-sm"
+            >
+              <svg class="w-3.5 h-3.5 text-indigo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+              <span>Copiar / Enviar enlace a ${state.player2Name}</span>
+            </button>
           </div>
         </div>
 
@@ -1935,6 +2674,24 @@
         </div>
       </div>
     `;
+
+    const btnShareP2 = document.getElementById('btn-share-p2-link');
+    if (btnShareP2) {
+      btnShareP2.addEventListener('click', function () {
+        const url = getRemoteP2ShareUrl();
+        if (navigator.share) {
+          navigator.share({
+            title: 'Duo - Te toca votar a ti',
+            text: state.player1Name + ' ya ha votado en secreto en Duo. ¡Entra aquí y vota tus opciones!',
+            url: url
+          }).catch(function () {
+            copyToClipboard(url);
+          });
+        } else {
+          copyToClipboard(url);
+        }
+      });
+    }
 
     document.getElementById('btn-ready-p2').addEventListener('click', function () {
       sound.playWhoosh();
@@ -2417,7 +3174,7 @@
           }
         </div>
 
-        <!-- Acciones Fijas Inferiores: Llamada a la acción primaria "CÓMO LLEGAR" + Reset -->
+        <!-- Acciones Fijas Inferiores: Llamada a la acción primaria + Compartir Resultado + Reset -->
         <div class="space-y-2.5 pb-4">
           <a 
             id="btn-navigate"
@@ -2426,9 +3183,23 @@
             rel="noopener noreferrer"
             class="w-full py-4 px-6 rounded-2xl font-bold text-base text-white bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 shadow-xl shadow-emerald-500/30 active:scale-[0.97] transition transform flex items-center justify-center gap-3 border-t border-white/20"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-            <span>Cómo llegar</span>
+            ${state.activeMode === 'movies' ? `
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg>
+              <span>Ver dónde reproducir</span>
+            ` : `
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+              <span>Cómo llegar</span>
+            `}
           </a>
+
+          <!-- Botón compartir resultado con el otro usuario -->
+          <button 
+            id="btn-share-result" 
+            class="w-full py-3 px-4 rounded-xl text-xs font-semibold text-neutral-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.1] active:scale-[0.98] transition flex items-center justify-center gap-2"
+          >
+            <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            <span>Compartir resultado con ${state.remoteRole === 'player2' ? state.player1Name : state.player2Name}</span>
+          </button>
 
           <button 
             id="btn-restart" 
@@ -2453,6 +3224,24 @@
         }
       });
     });
+
+    const btnShareRes = document.getElementById('btn-share-result');
+    if (btnShareRes) {
+      btnShareRes.addEventListener('click', function () {
+        const url = getRemoteResultShareUrl();
+        if (navigator.share) {
+          navigator.share({
+            title: 'Duo - ¡Tenemos resultado!',
+            text: '¡Ya tenemos elección en Duo! Abre el enlace para ver el resultado juntos:',
+            url: url
+          }).catch(function () {
+            copyToClipboard(url);
+          });
+        } else {
+          copyToClipboard(url);
+        }
+      });
+    }
 
     document.getElementById('btn-navigate').addEventListener('click', function () {
       sound.playPop();
@@ -2588,45 +3377,202 @@
   }
 
   // ==========================================
-  // 10. PANTALLAS DE DESEMPATE (NO MATCH)
+  // 10. RULETA INTERACTIVA & DESEMPATE (NO MATCH)
   // ==========================================
+  function initInteractiveTieWheel(containerEl, candidateItems, onWinnerChosen) {
+    const canvas = containerEl.querySelector('#tiebreak-wheel-canvas');
+    const spinBtn = containerEl.querySelector('#btn-spin-wheel');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const w = 280;
+    const h = 280;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.scale(dpr, dpr);
+
+    const cx = w / 2;
+    const cy = h / 2;
+    const radius = w / 2 - 8;
+    const count = candidateItems.length;
+    const sliceAngle = (2 * Math.PI) / count;
+
+    const sliceColors = [
+      '#FF2D55', '#5E5CE6', '#0A84FF', '#30D158', '#FF9F0A',
+      '#BF5AF2', '#FF375F', '#64D2FF', '#FF453A', '#32D74B'
+    ];
+
+    let currentAngle = 0;
+    let velocity = 0;
+    let isSpinning = false;
+    let animId = null;
+    let lastSegment = -1;
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+
+      for (let i = 0; i < count; i++) {
+        const startA = currentAngle + i * sliceAngle;
+        const endA = startA + sliceAngle;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radius, startA, endA);
+        ctx.closePath();
+        ctx.fillStyle = sliceColors[i % sliceColors.length];
+        ctx.fill();
+
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+        ctx.stroke();
+
+        ctx.translate(cx, cy);
+        ctx.rotate(startA + sliceAngle / 2);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+        ctx.shadowBlur = 3;
+        ctx.font = 'bold 11px -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif';
+        let name = candidateItems[i].name;
+        if (name.length > 13) name = name.substring(0, 12) + '…';
+        ctx.fillText(name, radius - 16, 4);
+        ctx.restore();
+      }
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function step() {
+      if (!isSpinning) return;
+      currentAngle += velocity;
+      velocity *= 0.987;
+
+      const normalized = ((currentAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      const seg = Math.floor(normalized / sliceAngle);
+      if (seg !== lastSegment) {
+        sound.playTick();
+        sound.vibrate([15]);
+        lastSegment = seg;
+      }
+
+      draw();
+
+      if (velocity < 0.0018) {
+        isSpinning = false;
+        cancelAnimationFrame(animId);
+
+        const topPointer = 1.5 * Math.PI;
+        const effective = ((topPointer - currentAngle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+        const winIdx = Math.floor(effective / sliceAngle) % count;
+        const winner = candidateItems[winIdx];
+
+        sound.playFanfare();
+        sound.vibrate([100, 50, 150]);
+
+        setTimeout(function () {
+          onWinnerChosen(winner);
+        }, 600);
+        return;
+      }
+
+      animId = requestAnimationFrame(step);
+    }
+
+    function startSpin(boost) {
+      if (isSpinning) return;
+      isSpinning = true;
+      sound.playWhoosh();
+      sound.vibrate([40]);
+      velocity = boost || (0.28 + Math.random() * 0.22);
+      step();
+    }
+
+    if (spinBtn) {
+      spinBtn.addEventListener('click', function () {
+        startSpin();
+      });
+    }
+
+    let isDragging = false;
+    let startY = 0;
+    let lastY = 0;
+    let lastTime = 0;
+
+    canvas.addEventListener('pointerdown', function (e) {
+      if (isSpinning) return;
+      isDragging = true;
+      startY = e.clientY;
+      lastY = e.clientY;
+      lastTime = Date.now();
+      canvas.setPointerCapture(e.pointerId);
+    });
+
+    canvas.addEventListener('pointermove', function (e) {
+      if (!isDragging || isSpinning) return;
+      const dy = e.clientY - lastY;
+      currentAngle += dy * 0.015;
+      lastY = e.clientY;
+      draw();
+    });
+
+    canvas.addEventListener('pointerup', function (e) {
+      if (!isDragging) return;
+      isDragging = false;
+      const dt = Math.max(1, Date.now() - lastTime);
+      const dy = lastY - startY;
+      const flickVelocity = Math.abs(dy / dt) * 0.08;
+      if (flickVelocity > 0.08) {
+        startSpin(Math.min(0.45, flickVelocity));
+      } else {
+        startSpin();
+      }
+    });
+
+    draw();
+  }
+
   function renderNoMatchScreen() {
     sound.vibrate([50, 50, 50]);
-    const isFirstAttempt = state.roundAttempt === 1;
+    const isFirstAttempt = state.roundAttempt === 1 && !state._showWheelEarly;
 
     if (isFirstAttempt) {
       app.innerHTML = `
         <div class="mobile-shell px-6 justify-between text-center animate-ios-pop">
-          <div class="pt-10">
-            <div class="w-20 h-20 rounded-[24px] bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center text-4xl mb-6 mx-auto shadow-lg shadow-amber-500/10">
-              <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="pt-8">
+            <div class="w-18 h-18 rounded-[24px] bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center text-4xl mb-4 mx-auto shadow-lg shadow-amber-500/10 p-4">
+              <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
               </svg>
             </div>
 
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.08] text-xs font-semibold text-amber-400 border border-amber-500/30 mb-3">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.08] text-xs font-semibold text-amber-400 border border-amber-500/30 mb-2">
               <span>Ronda 1 sin coincidencia</span>
             </div>
 
             <h2 class="text-3xl font-extrabold text-white mb-2 tracking-tight">
               No habéis coincidido
             </h2>
-            <p class="text-sm text-neutral-400 max-w-xs mx-auto leading-relaxed">
+            <p class="text-xs sm:text-sm text-neutral-400 max-w-xs mx-auto leading-relaxed">
               ${state.player1Name} eligió <strong class="text-[#FF2D55]">${state.player1Selections.size}</strong> y ${state.player2Name} eligió <strong class="text-[#5E5CE6]">${state.player2Selections.size}</strong>, pero ninguna opción en común.
             </p>
           </div>
 
-          <div class="ios-glass p-5 rounded-[26px] text-xs text-neutral-300 space-y-2 max-w-xs mx-auto text-left">
-            <div class="font-bold text-amber-400">Regla de desempate</div>
+          <div class="ios-glass p-4 rounded-[24px] text-xs text-neutral-300 space-y-1.5 max-w-xs mx-auto text-left">
+            <div class="font-bold text-amber-400">¿Qué preferís hacer?</div>
             <div class="text-neutral-300 leading-relaxed">
-              Vamos a repetir la votación en una <strong>segunda ronda</strong> para daros otra oportunidad de coincidir.
-            </div>
-            <div class="text-[11px] text-neutral-500 pt-1 border-t border-white/[0.06]">
-              Si tampoco coincidís en la ronda 2, el sistema sorteará automáticamente entre los que marque <strong>${state.player2Name}</strong>.
+              Podéis repetir la votación en una <strong>segunda ronda</strong>, o resolverlo directamente girando la <strong>ruleta táctil</strong> entre todas vuestras opciones.
             </div>
           </div>
 
-          <div class="space-y-3 pb-4">
+          <div class="space-y-2.5 pb-4">
             <button 
               id="btn-retry-round" 
               class="w-full py-4 px-6 rounded-2xl font-bold text-base text-white bg-gradient-to-r from-amber-500 via-orange-500 to-[#FF2D55] shadow-xl shadow-amber-500/25 active:scale-[0.97] transition transform flex items-center justify-center gap-2 border-t border-white/20"
@@ -2635,8 +3581,16 @@
             </button>
 
             <button 
+              id="btn-quick-wheel-r1" 
+              class="w-full py-3.5 px-5 rounded-2xl font-bold text-xs text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/35 active:scale-[0.98] transition flex items-center justify-center gap-2"
+            >
+              <svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2v20M2 12h20"/></svg>
+              <span>Desempatar con la Ruleta ahora</span>
+            </button>
+
+            <button 
               id="btn-restart-home" 
-              class="w-full py-3 px-4 rounded-2xl text-xs font-semibold text-neutral-400 hover:text-white bg-white/[0.06] border border-white/[0.1] active:scale-[0.98] transition flex items-center justify-center gap-1.5"
+              class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-neutral-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] active:scale-[0.98] transition flex items-center justify-center gap-1.5"
             >
               <span>Volver al inicio</span>
             </button>
@@ -2648,6 +3602,7 @@
 
       document.getElementById('btn-retry-round').addEventListener('click', function () {
         sound.playWhoosh();
+        state._showWheelEarly = false;
         state.roundAttempt = 2;
         state.player1Selections.clear();
         state.player2Selections.clear();
@@ -2655,55 +3610,81 @@
         render();
       });
 
+      document.getElementById('btn-quick-wheel-r1').addEventListener('click', function () {
+        sound.playPop();
+        sound.vibrate([30]);
+        state._showWheelEarly = true;
+        render();
+      });
+
       document.getElementById('btn-restart-home').addEventListener('click', function () {
         sound.playWhoosh();
+        state._showWheelEarly = false;
         state.roundAttempt = 1;
         state.screen = 'home';
         render();
       });
 
     } else {
-      const p2Options = Array.from(state.player2Selections);
+      // Ronda 2 o Ruleta express
+      const candidateIds = state._showWheelEarly
+        ? Array.from(new Set([].concat(Array.from(state.player1Selections), Array.from(state.player2Selections))))
+        : Array.from(state.player2Selections);
+
+      let candidateItems = candidateIds
+        .map(function (id) { return state.restaurants.find(function (r) { return r.id === id; }); })
+        .filter(Boolean);
+
+      if (candidateItems.length === 0) {
+        candidateItems = state.restaurants.slice(0, 6);
+      }
 
       app.innerHTML = `
-        <div class="mobile-shell px-6 justify-between text-center animate-ios-pop">
-          <div class="pt-10">
-            <div class="w-20 h-20 rounded-[24px] bg-indigo-500/15 border border-indigo-500/30 text-[#5E5CE6] flex items-center justify-center text-4xl mb-6 mx-auto shadow-lg shadow-indigo-500/15">
-              <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-              </svg>
+        <div class="mobile-shell px-5 justify-between text-center animate-ios-pop pb-6">
+          <div class="pt-6">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.08] text-xs font-semibold text-indigo-300 border border-indigo-500/30 mb-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
+              <span>${state._showWheelEarly ? 'Ruleta de desempate express' : 'Desempate final (Ronda 2)'}</span>
             </div>
 
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.08] text-xs font-semibold text-[#5E5CE6] border border-indigo-500/30 mb-3">
-              <span>Desempate definitivo (Ronda 2)</span>
-            </div>
-
-            <h2 class="text-2xl font-extrabold text-white mb-2 tracking-tight">
-              Desempate final
+            <h2 class="text-2xl font-extrabold text-white tracking-tight">
+              Ruleta de Desempate
             </h2>
-            <p class="text-sm text-neutral-400 max-w-xs mx-auto leading-relaxed">
-              Aplicando la regla pactada: el azar elegirá directamente entre los sitios que ha elegido el segundo usuario (<strong class="text-[#5E5CE6]">${state.player2Name}</strong>).
+            <p class="text-xs text-neutral-400 max-w-xs mx-auto mt-1 leading-relaxed">
+              Girad la ruleta o deslizad con el dedo para desempatar al azar entre las opciones en juego.
             </p>
           </div>
 
-          <div class="ios-glass p-5 rounded-[26px] text-xs text-neutral-300 space-y-1.5 max-w-xs mx-auto text-left">
-            <div class="font-bold text-[#5E5CE6]">Opciones de ${state.player2Name}:</div>
-            <div class="text-[12px] text-neutral-300 font-medium">
-              ${p2Options.length} restaurante${p2Options.length > 1 ? 's en juego' : ' en juego'}.
+          <!-- Canvas interactivo de la ruleta táctil -->
+          <div class="relative w-[280px] h-[280px] mx-auto my-3 flex items-center justify-center">
+            <!-- Aguja superior estilo visionOS -->
+            <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 z-30 filter drop-shadow-[0_2px_8px_rgba(255,214,10,0.7)] pointer-events-none">
+              <svg width="24" height="28" viewBox="0 0 24 28" fill="none">
+                <path d="M12 28L3 6C2 4 3.5 1 6 1H18C20.5 1 22 4 21 6L12 28Z" fill="#FFD60A" stroke="#FFFFFF" stroke-width="1.5"/>
+              </svg>
             </div>
+
+            <canvas id="tiebreak-wheel-canvas" class="w-[280px] h-[280px] rounded-full drop-shadow-2xl cursor-grab active:cursor-grabbing touch-none select-none"></canvas>
+
+            <!-- Botón central estilo visionOS Liquid Glass -->
+            <button 
+              id="btn-spin-wheel" 
+              class="absolute z-20 w-16 h-16 rounded-full bg-black/90 backdrop-blur-2xl border-2 border-white/40 text-white font-extrabold text-[11px] tracking-wider shadow-2xl flex flex-col items-center justify-center active:scale-90 transition transform"
+              title="Girar ruleta"
+            >
+              <svg class="w-4 h-4 text-amber-400 mb-0.5 animate-spin" style="animation-duration: 4s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              <span>GIRAR</span>
+            </button>
           </div>
 
-          <div class="space-y-3 pb-4">
-            <button 
-              id="btn-pick-p2" 
-              class="w-full py-4 px-6 rounded-2xl font-bold text-base text-white bg-gradient-to-r from-[#5E5CE6] via-[#0A84FF] to-[#30D158] shadow-xl shadow-indigo-500/30 active:scale-[0.97] transition transform flex items-center justify-center gap-2 border-t border-white/20"
-            >
-              <span>Sorteo entre las opciones de ${state.player2Name}</span>
-            </button>
+          <div class="space-y-2 pb-2">
+            <div class="text-[11px] text-neutral-400">
+              ${candidateItems.length} opciones en la ruleta
+            </div>
 
             <button 
               id="btn-restart-home" 
-              class="w-full py-3 px-4 rounded-2xl text-xs font-semibold text-neutral-400 hover:text-white bg-white/[0.06] border border-white/[0.1] active:scale-[0.98] transition flex items-center justify-center gap-1.5"
+              class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-neutral-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] active:scale-[0.98] transition flex items-center justify-center gap-1.5"
             >
               <span>Reiniciar desde cero</span>
             </button>
@@ -2713,11 +3694,9 @@
         </div>
       `;
 
-      document.getElementById('btn-pick-p2').addEventListener('click', async function () {
-        sound.playWhoosh();
-        const randomIndex = Math.floor(Math.random() * p2Options.length);
-        const winnerId = p2Options[randomIndex];
-        state.winningRestaurant = state.restaurants.find(function (r) { return r.id === winnerId; });
+      initInteractiveTieWheel(app, candidateItems, function (winner) {
+        state._showWheelEarly = false;
+        state.winningRestaurant = winner;
         state.winningBranch = findClosestBranch(state.winningRestaurant, state.userCoords);
         state.matchesCount = 1;
         state.isNameRevealed = false;
@@ -2730,6 +3709,7 @@
 
       document.getElementById('btn-restart-home').addEventListener('click', function () {
         sound.playWhoosh();
+        state._showWheelEarly = false;
         state.roundAttempt = 1;
         state.screen = 'home';
         render();
@@ -2945,6 +3925,16 @@
                             </span>
                             <span class="text-[10px] font-semibold text-neutral-400">${r.category}</span>
                             <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-md border border-emerald-500/20">${r.price}</span>
+                            ${(function () {
+                              const op = getOpeningStatus(r);
+                              if (op.status === 'open') {
+                                return '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span>' + op.label + '</span></span>';
+                              } else if (op.status === 'soon') {
+                                return '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg><span>' + op.label + '</span></span>';
+                              } else {
+                                return '<span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/[0.05] text-neutral-400 border border-white/[0.08]">' + op.label + ' (' + op.sub + ')</span>';
+                              }
+                            })()}
                           </div>
                           <h3 class="text-base font-bold text-white tracking-tight leading-snug pt-0.5">${r.name}</h3>
                         </div>
