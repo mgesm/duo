@@ -2430,6 +2430,7 @@
                       <span>${r.name}</span>
                       ${isSuper ? '<svg class="w-3 h-3 text-amber-400 fill-amber-400 inline" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>' : ''}
                       ${isVetoed ? '<svg class="w-3 h-3 text-rose-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>' : ''}
+                    </div>
                     <div class="text-[10px] text-neutral-400 truncate mt-0.5">
                       ${state.activeMode === 'food' && r.branches ? r.branches.length + ' ubicaciones' : (r.price || r.category)}
                     </div>
