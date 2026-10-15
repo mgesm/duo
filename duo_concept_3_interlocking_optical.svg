@@ -1,0 +1,145 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <clipPath id="squircle3">
+      <path d="M 0,256 C 0,59.39 59.39,0 256,0 C 452.61,0 512,59.39 512,256 C 512,452.61 452.61,512 256,512 C 59.39,512 0,452.61 0,256 Z" />
+    </clipPath>
+    <filter id="bloomOpt3" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="30" />
+    </filter>
+    <filter id="opticGlow3" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <radialGradient id="oledBg3" cx="50%" cy="30%" r="85%">
+      <stop offset="0%" stop-color="#120f20" />
+      <stop offset="50%" stop-color="#06050e" />
+      <stop offset="100%" stop-color="#000000" />
+    </radialGradient>
+
+    <!-- Cristal Rojo (Cuerpo de vidrio con estriaciones prismÃ¡ticas) -->
+    <linearGradient id="redCrystalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF375F" />
+      <stop offset="50%" stop-color="#FF2D55" />
+      <stop offset="100%" stop-color="#C00030" />
+    </linearGradient>
+
+    <!-- Cristal Azul (Cuerpo de vidrio Ã³ptico) -->
+    <linearGradient id="blueCrystalGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#5E5CE6" />
+      <stop offset="50%" stop-color="#0A84FF" />
+      <stop offset="100%" stop-color="#0052CC" />
+    </linearGradient>
+
+    <!-- FusiÃ³n Ã“ptica en Cruce Superior (Rojo delante, Azul detrÃ¡s = Violeta Profundo) -->
+    <linearGradient id="optMixTop" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#D946EF" />
+      <stop offset="50%" stop-color="#9333EA" />
+      <stop offset="100%" stop-color="#7C3AED" />
+    </linearGradient>
+
+    <!-- FusiÃ³n Ã“ptica en Cruce Inferior (Azul delante, Rojo detrÃ¡s = Magenta OrquÃ­dea) -->
+    <linearGradient id="optMixBottom" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6" />
+      <stop offset="50%" stop-color="#C026D3" />
+      <stop offset="100%" stop-color="#E11D48" />
+    </linearGradient>
+
+    <linearGradient id="rimSheen3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.38" />
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.02" />
+    </linearGradient>
+  </defs>
+  <g clip-path="url(#squircle3)">
+    <rect width="512" height="512" fill="url(#oledBg3)" />
+    <circle cx="196" cy="256" r="120" fill="#FF2D55" opacity="0.22" filter="url(#bloomOpt3)" />
+    <circle cx="316" cy="256" r="120" fill="#0A84FF" opacity="0.22" filter="url(#bloomOpt3)" />
+    <ellipse cx="256" cy="256" rx="70" ry="110" fill="#A855F7" opacity="0.36" filter="url(#bloomOpt3)" />
+    <!-- 1. Capas traseras del entrelazado 3D -->
+    <!-- Sombras de oclusiÃ³n ambiental 3D -->
+    <circle cx="196" cy="260" r="100" fill="none" stroke="#000000" stroke-width="32" opacity="0.5" />
+    <circle cx="316" cy="260" r="100" fill="none" stroke="#000000" stroke-width="32" opacity="0.5" />
+
+    <!-- Anillo Azul: Cuerpo completo de cristal Ã³ptico -->
+    <circle cx="316" cy="256" r="100" fill="none" stroke="url(#blueCrystalGrad)" stroke-width="30" stroke-linecap="round" />
+    <!-- Nervadura prismÃ¡tica interior del cristal azul (EstriaciÃ³n de cuarzo) -->
+    <circle cx="316" cy="256" r="100" fill="none" stroke="#40C8FF" stroke-width="6" stroke-dasharray="25 15" opacity="0.75" />
+    <circle cx="316" cy="256" r="114" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4" />
+    <circle cx="316" cy="256" r="86" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.25" />
+
+    <!-- 2. Anillo Rojo: Cuerpo completo excepto cruce inferior -->
+    <!-- Anillo Rojo: Pasa por DELANTE en el cruce superior (Y=176) -->
+    <circle cx="196" cy="256" r="100" fill="none" stroke="url(#redCrystalGrad)" stroke-width="30" stroke-linecap="round" />
+    <!-- Nervadura prismÃ¡tica interior del cristal rojo -->
+    <circle cx="196" cy="256" r="100" fill="none" stroke="#FFA0B5" stroke-width="6" stroke-dasharray="25 15" opacity="0.75" />
+    <circle cx="196" cy="256" r="114" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4" />
+    <circle cx="196" cy="256" r="86" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.25" />
+
+    <!-- 3. CRUCE SUPERIOR (Y=176): El cristal Rojo cruza por DELANTE del Azul -->
+    <!-- RefracciÃ³n fÃ­sica: Al ser cristal transparente, el azul se ve a travÃ©s del rojo formando VIOLETA -->
+    <g id="cross-top-3d">
+      <!-- RegiÃ³n de solapamiento superior -->
+      <path d="M 238,154 A 30 30 0 0 1 274,154 L 274,198 A 30 30 0 0 1 238,198 Z" 
+            fill="url(#optMixTop)" 
+            opacity="0.85" 
+            style="mix-blend-mode: hard-light;" />
+      
+      <!-- Cristal frontal rojo superpuesto translÃºcido -->
+      <path d="M 230,176 A 100 100 0 0 1 282,176" 
+            fill="none" stroke="url(#redCrystalGrad)" stroke-width="30" opacity="0.65" />
+      
+      <!-- Bisel especular anterior del cruce -->
+      <path d="M 236,162 A 100 100 0 0 1 276,162" 
+            fill="none" stroke="#FFFFFF" stroke-width="2.5" opacity="0.9" stroke-linecap="round" />
+      <circle cx="256" cy="176" r="2.5" fill="#FFFFFF" />
+    </g>
+
+    <!-- 4. CRUCE INFERIOR (Y=336): El cristal Azul cruza por DELANTE del Rojo -->
+    <!-- RefracciÃ³n fÃ­sica: El cristal azul pasa sobre el rojo formando MAGENTA ORQUÃDEA -->
+    <g id="cross-bottom-3d">
+      <!-- RegiÃ³n de solapamiento inferior -->
+      <path d="M 238,314 A 30 30 0 0 1 274,314 L 274,358 A 30 30 0 0 1 238,358 Z" 
+            fill="url(#optMixBottom)" 
+            opacity="0.85" 
+            style="mix-blend-mode: hard-light;" />
+      
+      <!-- Cristal frontal azul superpuesto translÃºcido -->
+      <path d="M 230,336 A 100 100 0 0 0 282,336" 
+            fill="none" stroke="url(#blueCrystalGrad)" stroke-width="30" opacity="0.65" />
+      
+      <!-- Bisel especular anterior del cruce -->
+      <path d="M 236,350 A 100 100 0 0 0 276,350" 
+            fill="none" stroke="#FFFFFF" stroke-width="2.5" opacity="0.9" stroke-linecap="round" />
+      <circle cx="256" cy="336" r="2.5" fill="#FFFFFF" />
+    </g>
+
+    <!-- 5. LENTE CENTRAL COINCIDENTE (Vesica Piscis de Cristal Puro) -->
+    <!-- En el centro geomÃ©trico, una lente Ã³ptica facetada que refracta la luz de ambos aros -->
+    <g id="central-optical-lens">
+      <path d="M 256,176 A 100 100 0 0 1 296,256 A 100 100 0 0 1 256,336 A 100 100 0 0 1 216,256 A 100 100 0 0 1 256,176 Z" 
+            fill="#BF5AF2" fill-opacity="0.25" 
+            stroke="#DA8FFF" stroke-width="2" stroke-opacity="0.6" />
+
+      <!-- Anillos concÃ©ntricos de refracciÃ³n Ã³ptica interna de cristal -->
+      <ellipse cx="256" cy="256" rx="20" ry="50" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-opacity="0.45" stroke-dasharray="80 15" />
+      <ellipse cx="256" cy="256" rx="10" ry="26" fill="none" stroke="#FFFFFF" stroke-width="1.2" stroke-opacity="0.65" />
+      <circle cx="256" cy="256" r="4" fill="#FFFFFF" opacity="0.9" />
+    </g>
+
+    <!-- 6. Biseles de curvatura de vidrio superior (Reflexiones especulares Apple) -->
+    <path d="M 112,210 A 100 100 0 0 1 196,156" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" opacity="0.8" />
+    <path d="M 316,156 A 100 100 0 0 1 400,210" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" opacity="0.8" />
+
+    <!-- Sheen especular superior global -->
+    <path d="M 0,0 L 512,0 L 512,220 Q 256,260 0,220 Z" fill="url(#rimSheen3)" opacity="0.32" pointer-events="none" />
+  </g>
+
+  <!-- Hairline Rim Apple Squircle -->
+  <path d="M 0,256 C 0,59.39 59.39,0 256,0 C 452.61,0 512,59.39 512,256 C 512,452.61 452.61,512 256,512 C 59.39,512 0,452.61 0,256 Z" 
+        fill="none" stroke="url(#rimSheen3)" stroke-width="2" />
+</svg>
+

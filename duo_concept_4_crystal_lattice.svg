@@ -1,0 +1,173 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <clipPath id="squircle4">
+      <path d="M 0,256 C 0,59.39 59.39,0 256,0 C 452.61,0 512,59.39 512,256 C 512,452.61 452.61,512 256,512 C 59.39,512 0,452.61 0,256 Z" />
+    </clipPath>
+    <filter id="bloomOpt4" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="30" />
+    </filter>
+    <filter id="latticeGlow4" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <radialGradient id="oledBg4" cx="50%" cy="30%" r="85%">
+      <stop offset="0%" stop-color="#141124" />
+      <stop offset="50%" stop-color="#070611" />
+      <stop offset="100%" stop-color="#000000" />
+    </radialGradient>
+
+    <linearGradient id="rimSheen4" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.38" />
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.02" />
+    </linearGradient>
+
+    <!-- Resplandor central de red mineral -->
+    <radialGradient id="mineralGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
+      <stop offset="30%" stop-color="#DA8FFF" stop-opacity="0.8" />
+      <stop offset="70%" stop-color="#A855F7" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#6B21A8" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <g clip-path="url(#squircle4)">
+    <rect width="512" height="512" fill="url(#oledBg4)" />
+    <circle cx="196" cy="256" r="120" fill="#FF2D55" opacity="0.20" filter="url(#bloomOpt4)" />
+    <circle cx="316" cy="256" r="120" fill="#0A84FF" opacity="0.20" filter="url(#bloomOpt4)" />
+    <ellipse cx="256" cy="256" rx="75" ry="110" fill="#BF5AF2" opacity="0.35" filter="url(#bloomOpt4)" />
+    <!-- 1. Envolventes exteriores de vidrio pulido visionOS -->
+    <circle cx="196" cy="260" r="100" fill="none" stroke="#000000" stroke-width="32" opacity="0.45" />
+    <circle cx="316" cy="260" r="100" fill="none" stroke="#000000" stroke-width="32" opacity="0.45" />
+
+    <circle cx="196" cy="256" r="100" fill="none" stroke="#FF2D55" stroke-opacity="0.25" stroke-width="30" />
+    <circle cx="316" cy="256" r="100" fill="none" stroke="#0A84FF" stroke-opacity="0.25" stroke-width="30" />
+    <!-- 2. Malla Cristalina Interior: Anillo Izquierdo (RubÃ­) -->
+    <g id="ruby-crystal-lattice" filter="url(#latticeGlow4)">
+      <line x1='230.202014332567' y1='349.969262078591' x2='187.284425725234' y2='355.619469809175' stroke='#FF2D55' stroke-width='2' />
+      <line x1='225.413732326008' y1='336.813565387588' x2='230.202014332567' y2='349.969262078591' stroke='#FF4D73' stroke-width='1.2' opacity='0.7' />
+      <line x1='230.202014332567' y1='349.969262078591' x2='186.064245326767' y2='369.566195582459' stroke='#FFA0B5' stroke-width='1' opacity='0.6' />
+      <circle cx='230.2' cy='349.97' r='3' fill='#FFFFFF' stroke='#FF2D55' stroke-width='1.5' />
+      <line x1='187.284425725234' y1='355.619469809175' x2='146' y2='342.602540378444' stroke='#FF2D55' stroke-width='2' />
+      <line x1='188.504606123701' y1='341.67274403589' x2='187.284425725234' y2='355.619469809175' stroke='#FF4D73' stroke-width='1.2' opacity='0.7' />
+      <line x1='187.284425725234' y1='355.619469809175' x2='139' y2='354.726896031426' stroke='#FFA0B5' stroke-width='1' opacity='0.6' />
+      <circle cx='187.28' cy='355.62' r='3' fill='#FFFFFF' stroke='#FF2D55' stroke-width='1.5' />
+      <line x1='146' y1='342.602540378444' x2='114.084795571101' y2='313.357643635105' stroke='#FF2D55' stroke-width='2' />
+      <line x1='153' y1='330.478184725462' x2='146' y2='342.602540378444' stroke='#FF4D73' stroke-width='1.2' opacity='0.7' />
+      <line x1='146' y1='342.602540378444' x2='102.616666951055' y2='321.387713744019' stroke='#FFA0B5' stroke-width='1' opacity='0.6' />
+      <circle cx='146' cy='342.6' r='3' fill='#FFFFFF' stroke='#FF2D55' stroke-width='1.5' />
+      <line x1='114.084795571101' y1='313.357643635105' x2='97.5192246987792' y2='273.364817766693' stroke='#FF2D55' stroke-width='2' />
+      <line x1='125.552924191147' y1='305.32757352619' x2='114.084795571101' y2='313.357643635105' stroke='#FF4D73' stroke-width='1.2' opacity='0.7' />
+      <line x1='114.084795571101' y1='313.357643635105' x2='83.7319161566083' y2='275.79589225403' stroke='#FFA0B5' stroke-width='1' opacity='0.6' />
+      <circle cx='114.08' cy='313.36' r='3' fill='#FFFFFF' stroke='#FF2D55' stroke-width='1.5' />
+      <line x1='97.5192246987792' y1='273.364817766693' x2='99.4074173710932' y2='230.118095489748' stroke='#FF2D55' stroke-width='2' />
+      <line x1='111.30653324095' y1='270.933743279356' x2='97.5192246987792' y2='273.364817766693' stroke='#FF4D73' stroke-width='1.2' opacity='0.7' />
+      <line x1='97.5192246987792' y1='273.364817766693' x2='85.8844558030462' y2='226.494628858313' stroke='#FFA0B5' stroke-width='1' opacity='0.6' />
+      <circle cx='97.52' cy='273.36' r='3' fill='#FFFFFF' stroke='#FF2D55' stroke-width='1.5' />
+      <line x1='99.4074173710932' y1='230.118095489748' x2='119.395555688102' y2='191.721239031346' stroke='#FF2D55' stroke-width='2' />
+      <line x1='112.93037893914' y1='233.741562121183' x2='99.4074173710932' y2='230.118095489748' stroke='#FF4D73' stroke-width='1.2' opacity='0.7' />
+      <line x1='99.4074173710932' y1='230.118095489748' x2='108.670933484437' y2='182.722212495735' stroke='#FFA0B5' stroke-width='1' opacity='0.6' />
+      <circle cx='99.41' cy='230.12' r='3' fill='#FFFFFF' stroke='#FF2D55' stroke-width='1.5' />
+      <line x1='119.395555688102' y1='191.721239031346' x2='153.73817382593' y2='165.369221296335' stroke='#FF2D55' stroke-width='2' />
+      <line x1='130.120177891768' y1='200.720265566958' x2='119.395555688102' y2='191.721239031346' stroke='#FF4D73' stroke-width='1.2' opacity='0.7' />
+      <line x1='119.395555688102' y1='191.721239031346' x2='147.82151816156' y2='152.680912277822' stroke='#FFA0B5' stroke-width='1' opacity='0.6' />
+      <circle cx='119.4' cy='191.72' r='3' fill='#FFFFFF' stroke='#FF2D55' stroke-width='1.5' />
+      <line x1='153.73817382593' y1='165.369221296335' x2='196' y2='156' stroke='#FF2D55' stroke-width='2' />
+      <line x1='159.6548294903' y1='178.057530314848' x2='153.73817382593' y2='165.369221296335' stroke='#FF4D73' stroke-width='1.2' opacity='0.7' />
+      <line x1='153.73817382593' y1='165.369221296335' x2='196' y2='142' stroke='#FFA0B5' stroke-width='1' opacity='0.6' />
+      <circle cx='153.74' cy='165.37' r='3' fill='#FFFFFF' stroke='#FF2D55' stroke-width='1.5' />
+      <line x1='196' y1='156' x2='230.202014332567' y2='162.030737921409' stroke='#FF2D55' stroke-width='2' />
+      <line x1='196' y1='170' x2='196' y2='156' stroke='#FF4D73' stroke-width='1.2' opacity='0.7' />
+      <line x1='196' y1='156' x2='234.990296339126' y2='148.875041230406' stroke='#FFA0B5' stroke-width='1' opacity='0.6' />
+      <circle cx='196' cy='156' r='3' fill='#FFFFFF' stroke='#FF2D55' stroke-width='1.5' />
+    </g>
+    <!-- 3. Malla Cristalina Interior: Anillo Derecho (Zafiro) -->
+    <g id="sapphire-crystal-lattice" filter="url(#latticeGlow4)">
+      <line x1='281.797985667433' y1='162.030737921409' x2='324.715574274766' y2='156.380530190825' stroke='#0A84FF' stroke-width='2' />
+      <line x1='286.586267673992' y1='175.186434612412' x2='281.797985667433' y2='162.030737921409' stroke='#40C8FF' stroke-width='1.2' opacity='0.7' />
+      <line x1='281.797985667433' y1='162.030737921409' x2='325.935754673233' y2='142.433804417541' stroke='#80E0FF' stroke-width='1' opacity='0.6' />
+      <circle cx='281.8' cy='162.03' r='3' fill='#FFFFFF' stroke='#0A84FF' stroke-width='1.5' />
+      <line x1='324.715574274766' y1='156.380530190825' x2='366' y2='169.397459621556' stroke='#0A84FF' stroke-width='2' />
+      <line x1='323.495393876299' y1='170.32725596411' x2='324.715574274766' y2='156.380530190825' stroke='#40C8FF' stroke-width='1.2' opacity='0.7' />
+      <line x1='324.715574274766' y1='156.380530190825' x2='373' y2='157.273103968574' stroke='#80E0FF' stroke-width='1' opacity='0.6' />
+      <circle cx='324.72' cy='156.38' r='3' fill='#FFFFFF' stroke='#0A84FF' stroke-width='1.5' />
+      <line x1='366' y1='169.397459621556' x2='397.915204428899' y2='198.642356364895' stroke='#0A84FF' stroke-width='2' />
+      <line x1='359' y1='181.521815274538' x2='366' y2='169.397459621556' stroke='#40C8FF' stroke-width='1.2' opacity='0.7' />
+      <line x1='366' y1='169.397459621556' x2='409.383333048945' y2='190.612286255981' stroke='#80E0FF' stroke-width='1' opacity='0.6' />
+      <circle cx='366' cy='169.4' r='3' fill='#FFFFFF' stroke='#0A84FF' stroke-width='1.5' />
+      <line x1='397.915204428899' y1='198.642356364895' x2='414.480775301221' y2='238.635182233307' stroke='#0A84FF' stroke-width='2' />
+      <line x1='386.447075808853' y1='206.67242647381' x2='397.915204428899' y2='198.642356364895' stroke='#40C8FF' stroke-width='1.2' opacity='0.7' />
+      <line x1='397.915204428899' y1='198.642356364895' x2='428.268083843392' y2='236.20410774597' stroke='#80E0FF' stroke-width='1' opacity='0.6' />
+      <circle cx='397.92' cy='198.64' r='3' fill='#FFFFFF' stroke='#0A84FF' stroke-width='1.5' />
+      <line x1='414.480775301221' y1='238.635182233307' x2='412.592582628907' y2='281.881904510252' stroke='#0A84FF' stroke-width='2' />
+      <line x1='400.69346675905' y1='241.066256720644' x2='414.480775301221' y2='238.635182233307' stroke='#40C8FF' stroke-width='1.2' opacity='0.7' />
+      <line x1='414.480775301221' y1='238.635182233307' x2='426.115544196954' y2='285.505371141687' stroke='#80E0FF' stroke-width='1' opacity='0.6' />
+      <circle cx='414.48' cy='238.64' r='3' fill='#FFFFFF' stroke='#0A84FF' stroke-width='1.5' />
+      <line x1='412.592582628907' y1='281.881904510252' x2='392.604444311898' y2='320.278760968654' stroke='#0A84FF' stroke-width='2' />
+      <line x1='399.06962106086' y1='278.258437878817' x2='412.592582628907' y2='281.881904510252' stroke='#40C8FF' stroke-width='1.2' opacity='0.7' />
+      <line x1='412.592582628907' y1='281.881904510252' x2='403.329066515564' y2='329.277787504265' stroke='#80E0FF' stroke-width='1' opacity='0.6' />
+      <circle cx='412.59' cy='281.88' r='3' fill='#FFFFFF' stroke='#0A84FF' stroke-width='1.5' />
+      <line x1='392.604444311898' y1='320.278760968654' x2='358.26182617407' y2='346.630778703665' stroke='#0A84FF' stroke-width='2' />
+      <line x1='381.879822108232' y1='311.279734433042' x2='392.604444311898' y2='320.278760968654' stroke='#40C8FF' stroke-width='1.2' opacity='0.7' />
+      <line x1='392.604444311898' y1='320.278760968654' x2='364.17848183844' y2='359.319087722178' stroke='#80E0FF' stroke-width='1' opacity='0.6' />
+      <circle cx='392.6' cy='320.28' r='3' fill='#FFFFFF' stroke='#0A84FF' stroke-width='1.5' />
+      <line x1='358.26182617407' y1='346.630778703665' x2='316' y2='356' stroke='#0A84FF' stroke-width='2' />
+      <line x1='352.3451705097' y1='333.942469685152' x2='358.26182617407' y2='346.630778703665' stroke='#40C8FF' stroke-width='1.2' opacity='0.7' />
+      <line x1='358.26182617407' y1='346.630778703665' x2='316' y2='370' stroke='#80E0FF' stroke-width='1' opacity='0.6' />
+      <circle cx='358.26' cy='346.63' r='3' fill='#FFFFFF' stroke='#0A84FF' stroke-width='1.5' />
+      <line x1='316' y1='356' x2='281.797985667433' y2='349.969262078591' stroke='#0A84FF' stroke-width='2' />
+      <line x1='316' y1='342' x2='316' y2='356' stroke='#40C8FF' stroke-width='1.2' opacity='0.7' />
+      <line x1='316' y1='356' x2='277.009703660874' y2='363.124958769594' stroke='#80E0FF' stroke-width='1' opacity='0.6' />
+      <circle cx='316' cy='356' r='3' fill='#FFFFFF' stroke='#0A84FF' stroke-width='1.5' />
+    </g>
+    <!-- 4. UNIÃ“N: RED MINERAL FUSIONADA (ROSETA ISOMÃ‰TRICA DE AMATISTA CON DESTELLO DE CAÃšSTICA) -->
+    <g id="mineral-union-lattice" filter="url(#latticeGlow4)">
+      <!-- Aura caÃºstica central -->
+      <circle cx="256" cy="256" r="46" fill="url(#mineralGlow)" />
+
+      <!-- LÃ­neas de refracciÃ³n entrecruzadas (Malla de diamante en la uniÃ³n) -->
+      <!-- VÃ©rtices principales: (256,176), (296,256), (256,336), (216,256) -->
+      <polygon points="256,176 296,256 256,336 216,256" fill="none" stroke="#BF5AF2" stroke-width="2" />
+      <polygon points="256,206 281,256 256,306 231,256" fill="#8B5CF6" fill-opacity="0.3" stroke="#DA8FFF" stroke-width="1.8" />
+      <polygon points="256,226 268,256 256,286 244,256" fill="#D946EF" fill-opacity="0.45" stroke="#FFFFFF" stroke-width="1.2" />
+
+      <!-- RadiaciÃ³n de lÃ­neas geomÃ©tricas desde el nÃºcleo central -->
+      <line x1="256" y1="176" x2="256" y2="336" stroke="#FFFFFF" stroke-width="1.5" opacity="0.8" />
+      <line x1="216" y1="256" x2="296" y2="256" stroke="#FFFFFF" stroke-width="1.5" opacity="0.8" />
+      <line x1="231" y1="226" x2="281" y2="286" stroke="#E879F9" stroke-width="1" opacity="0.7" />
+      <line x1="231" y1="286" x2="281" y2="226" stroke="#818CF8" stroke-width="1" opacity="0.7" />
+
+      <!-- Nodos de cristal fusionados en la uniÃ³n -->
+      <circle cx="256" cy="176" r="4" fill="#FFFFFF" stroke="#FF2D55" stroke-width="1.5" />
+      <circle cx="256" cy="336" r="4" fill="#FFFFFF" stroke="#0A84FF" stroke-width="1.5" />
+      <circle cx="216" cy="256" r="3.5" fill="#FFFFFF" stroke="#FF2D55" stroke-width="1.5" />
+      <circle cx="296" cy="256" r="3.5" fill="#FFFFFF" stroke="#0A84FF" stroke-width="1.5" />
+
+      <!-- Nodos interiores de la roseta -->
+      <circle cx="256" cy="206" r="3" fill="#FFFFFF" stroke="#BF5AF2" stroke-width="1.2" />
+      <circle cx="256" cy="306" r="3" fill="#FFFFFF" stroke="#BF5AF2" stroke-width="1.2" />
+      <circle cx="231" cy="256" r="3" fill="#FFFFFF" stroke="#BF5AF2" stroke-width="1.2" />
+      <circle cx="281" cy="256" r="3" fill="#FFFFFF" stroke="#BF5AF2" stroke-width="1.2" />
+
+      <!-- NODO MAESTRO: CorazÃ³n de diamante blanco puro -->
+      <circle cx="256" cy="256" r="5" fill="#FFFFFF" />
+      <polygon points="256,242 260,256 256,270 252,256" fill="#FFFFFF" opacity="0.9" />
+      <polygon points="242,256 256,260 270,256 256,252" fill="#FFFFFF" opacity="0.9" />
+    </g>
+
+    <!-- 5. Biseles especulares de vidrio exterior Apple -->
+    <path d="M 112,210 A 100 100 0 0 1 196,156" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" opacity="0.75" />
+    <path d="M 316,156 A 100 100 0 0 1 400,210" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" opacity="0.75" />
+
+    <!-- Sheen especular superior -->
+    <path d="M 0,0 L 512,0 L 512,220 Q 256,260 0,220 Z" fill="url(#rimSheen4)" opacity="0.32" pointer-events="none" />
+  </g>
+
+  <!-- Hairline Rim Apple Squircle -->
+  <path d="M 0,256 C 0,59.39 59.39,0 256,0 C 452.61,0 512,59.39 512,256 C 512,452.61 452.61,512 256,512 C 59.39,512 0,452.61 0,256 Z" 
+        fill="none" stroke="url(#rimSheen4)" stroke-width="2" />
+</svg>
+

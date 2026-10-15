@@ -1820,10 +1820,33 @@
   }
 
   function init() {
+    initSplashScreen();
     loadModeCatalogue();
     checkRemoteHash();
     setupPwaBanner();
     render();
+  }
+
+  function initSplashScreen() {
+    const splash = document.getElementById('duo-splash-screen');
+    if (!splash) return;
+
+    function dismissSplash() {
+      if (splash.classList.contains('splash-hidden')) return;
+      splash.classList.add('splash-hidden');
+      setTimeout(function () {
+        splash.style.display = 'none';
+      }, 650);
+    }
+
+    // Auto-desvanecer tras completarse el trazado y eclosión de la unión (~1.85s)
+    const timer = setTimeout(dismissSplash, 1850);
+
+    // Omitir inmediatamente al tocar la pantalla
+    splash.addEventListener('click', function () {
+      clearTimeout(timer);
+      dismissSplash();
+    });
   }
 
   function setupPwaBanner() {

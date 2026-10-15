@@ -191,6 +191,19 @@ La app cuenta con coordenadas reales precargadas para la zona de **Cartagena y M
 - **Service Worker v4**:
   - Actualizada la caché con los nuevos ficheros PNG para acceso 100% offline.
 
+### [v1.9.4] - 2026-10-15
+- **Icono Oficial "Duo" Opción A (Pureza Minimalista & Lente Púrpura)**:
+  - Recuperada la silueta esbelta y limpia de los dos aros originales (Rojo/Rose y Azul/Cyan) en alta resolución.
+  - Retirada completamente la chispa/estrella amarilla artificial del centro.
+  - Implementada el área de unión como una lente translúcida biconvexa con el color combinado de ambos espectros (púrpura/magenta radiante `#D946EF` a `#7C3AED` con `mix-blend-mode: screen`).
+- **Pantalla de Inicio / Splash Screen OLED con Animación de Trazado**:
+  - Al abrir o recargar la app (cold start), se despliega una pantalla de presentación a pantalla completa sobre negro OLED puro (`#000000`).
+  - Muestra exclusivamente el logotipo de Duo en gran tamaño (hasta 224px en responsive) con animación de trazado vectorial nativa en los dos aros (`stroke-dasharray` / `stroke-dashoffset`).
+  - Al unirse los dos trazos en el centro, la lente púrpura eclosiona con un suave resplandor caústico.
+  - Transición fluida con desvanecimiento (`opacity: 0`, `scale(1.05)`) hacia la pantalla principal tras ~1.85 segundos o inmediatamente al tocar la pantalla.
+- **Service Worker v22**:
+  - Actualización de caché para propagación instantánea a dispositivos móviles y GitHub Pages.
+
 ### [v1.9.3] - 2026-10-15
 - **Rediseño del Icono Oficial "Duo" — Liquid Glass & Fusión Cromática**:
   - Eliminada la chispa/estrella de 4 puntas de la intersección.
