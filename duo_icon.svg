@@ -1,108 +1,109 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
   <defs>
-    <!-- ClipPath: Apple Superellipse G2 Continuous Curvature Squircle (512x512) -->
+    <!-- Curvatura G2 Continua Apple Squircle (512x512) -->
     <clipPath id="squircleClip">
       <path d="M 0,256 C 0,59.39 59.39,0 256,0 C 452.61,0 512,59.39 512,256 C 512,452.61 452.61,512 256,512 C 59.39,512 0,452.61 0,256 Z" />
     </clipPath>
 
-    <!-- Deep OLED Glass Canvas Gradient -->
-    <radialGradient id="oledBg" cx="50%" cy="20%" r="90%">
-      <stop offset="0%" stop-color="#181524" />
-      <stop offset="45%" stop-color="#0a0812" />
-      <stop offset="100%" stop-color="#020204" />
+    <!-- Fondo OLED Profundo con halo atmosférico -->
+    <radialGradient id="oledBg" cx="50%" cy="28%" r="88%">
+      <stop offset="0%" stop-color="#141122" />
+      <stop offset="45%" stop-color="#080710" />
+      <stop offset="100%" stop-color="#000000" />
     </radialGradient>
 
-    <!-- Specular Overhead Sheen (visionOS Liquid Glass) -->
-    <linearGradient id="topSheen" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.16" />
-      <stop offset="35%" stop-color="#ffffff" stop-opacity="0.03" />
-      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
-    </linearGradient>
-
-    <!-- Inner Border Specular Ring -->
-    <linearGradient id="innerStroke" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28" />
-      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.08" />
-      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.02" />
-    </linearGradient>
-
-    <!-- Ring 1: Player 1 Vibrant Rose / Neon Coral -->
-    <linearGradient id="gradP1" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- Acento Jugador 1 (Rose Neón Vidrio Líquido) -->
+    <linearGradient id="p1Liquid" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#FF375F" />
       <stop offset="50%" stop-color="#FF2D55" />
-      <stop offset="100%" stop-color="#E00034" />
+      <stop offset="100%" stop-color="#D90038" />
     </linearGradient>
 
-    <!-- Ring 2: Player 2 Vibrant Indigo / Electric Cyan -->
-    <linearGradient id="gradP2" x1="0%" y1="100%" x2="100%" y2="0%">
+    <!-- Acento Jugador 2 (Electric Cyan / Indigo Vidrio Líquido) -->
+    <linearGradient id="p2Liquid" x1="0%" y1="100%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#5E5CE6" />
-      <stop offset="60%" stop-color="#0A84FF" />
+      <stop offset="45%" stop-color="#0A84FF" />
       <stop offset="100%" stop-color="#40C8FF" />
     </linearGradient>
 
-    <!-- Intersection Caustic Light -->
-    <radialGradient id="causticGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
-      <stop offset="25%" stop-color="#FFEFA6" stop-opacity="0.8" />
-      <stop offset="55%" stop-color="#FF9F0A" stop-opacity="0.4" />
-      <stop offset="100%" stop-color="#FF2D55" stop-opacity="0" />
+    <!-- FUSIÓN CROMÁTICA NATURAL: Rose + Cyan = Violeta / Magenta Radiante -->
+    <linearGradient id="fusionBorder" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E056FD" />
+      <stop offset="50%" stop-color="#BF5AF2" />
+      <stop offset="100%" stop-color="#8B5CF6" />
+    </linearGradient>
+
+    <!-- Caústica interna de la Lente Coincidente -->
+    <radialGradient id="causticLens" cx="50%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.65" />
+      <stop offset="35%" stop-color="#E056FD" stop-opacity="0.45" />
+      <stop offset="70%" stop-color="#AF52DE" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#5E5CE6" stop-opacity="0.05" />
     </radialGradient>
 
-    <!-- Precision Optical Filters for Apple Liquid Glass -->
-    <filter id="atmosphericGlow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="36" result="blur" />
-    </filter>
+    <!-- Reflejo curvo especular blanco puro (Liquid Glass Highlight) -->
+    <linearGradient id="specularCurve" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.85" />
+      <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </linearGradient>
 
-    <filter id="coreSparkGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="5" result="glow" />
-      <feMerge>
-        <feMergeNode in="glow" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
+    <!-- Bisel de cristal periférico Apple visionOS -->
+    <linearGradient id="rimSheen" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.32" />
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.02" />
+    </linearGradient>
+
+    <filter id="atmosphericBloom" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="32" />
     </filter>
   </defs>
 
-  <!-- Squircle Clipped Content -->
   <g clip-path="url(#squircleClip)">
-    <!-- 1. Background OLED -->
+    <!-- 1. Fondo OLED -->
     <rect width="512" height="512" fill="url(#oledBg)" />
 
-    <!-- 2. Ambient Deep Caustic Glows behind the rings -->
-    <circle cx="204" cy="256" r="130" fill="#FF2D55" opacity="0.22" filter="url(#atmosphericGlow)" />
-    <circle cx="308" cy="256" r="130" fill="#0A84FF" opacity="0.22" filter="url(#atmosphericGlow)" />
-    <circle cx="256" cy="256" r="60" fill="#FFD60A" opacity="0.30" filter="url(#atmosphericGlow)" />
+    <!-- 2. Halos de refracción atmosférica traseros -->
+    <circle cx="196" cy="256" r="125" fill="#FF2D55" opacity="0.26" filter="url(#atmosphericBloom)" />
+    <circle cx="316" cy="256" r="125" fill="#0A84FF" opacity="0.26" filter="url(#atmosphericBloom)" />
+    <!-- Fusión violeta proyectada al fondo -->
+    <ellipse cx="256" cy="256" rx="70" ry="110" fill="#AF52DE" opacity="0.35" filter="url(#atmosphericBloom)" />
 
-    <!-- 3. Interlocking Apple visionOS Rings (Venn Symmetry) -->
-    <!-- Shadow for depth underneath Ring 1 -->
-    <circle cx="204" cy="256" r="98" fill="none" stroke="#000000" stroke-width="26" opacity="0.4" />
+    <!-- 3. Sombras de oclusión para volumen 3D -->
+    <circle cx="196" cy="262" r="102" fill="none" stroke="#000000" stroke-width="34" opacity="0.45" />
+    <circle cx="316" cy="262" r="102" fill="none" stroke="#000000" stroke-width="34" opacity="0.45" />
 
-    <!-- Left Ring: Player 1 (Rose) -->
-    <circle cx="204" cy="256" r="98" fill="none" stroke="url(#gradP1)" stroke-width="24" stroke-linecap="round" />
-    <!-- Specular highlight on upper left curve of Ring 1 -->
-    <path d="M 125,215 A 98 98 0 0 1 204,158" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" opacity="0.5" />
+    <!-- 4. Anillo Izquierdo: Jugador 1 (Rose Cristal) -->
+    <circle cx="196" cy="256" r="102" fill="none" stroke="url(#p1Liquid)" stroke-width="30" stroke-linecap="round" />
+    <!-- Refracción de bisel de vidrio superior izquierda -->
+    <path d="M 115,210 A 102 102 0 0 1 196,154" fill="none" stroke="url(#specularCurve)" stroke-width="6" stroke-linecap="round" opacity="0.8" />
 
-    <!-- Right Ring: Player 2 (Indigo/Cyan) with additive lighting -->
-    <circle cx="308" cy="256" r="98" fill="none" stroke="url(#gradP2)" stroke-width="24" stroke-linecap="round" style="mix-blend-mode: screen;" />
-    <!-- Specular highlight on upper right curve of Ring 2 -->
-    <path d="M 308,158 A 98 98 0 0 1 387,215" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" opacity="0.6" />
+    <!-- 5. Anillo Derecho: Jugador 2 (Indigo/Cyan Cristal) -->
+    <circle cx="316" cy="256" r="102" fill="none" stroke="url(#p2Liquid)" stroke-width="30" stroke-linecap="round" />
+    <!-- Refracción de bisel de vidrio superior derecha -->
+    <path d="M 316,154 A 102 102 0 0 1 397,210" fill="none" stroke="url(#specularCurve)" stroke-width="6" stroke-linecap="round" opacity="0.8" />
 
-    <!-- 4. Intersection Harmonic Glow (The Coincidence Lens) -->
-    <ellipse cx="256" cy="256" rx="44" ry="74" fill="url(#causticGlow)" opacity="0.55" style="mix-blend-mode: screen;" />
+    <!-- 6. LA UNIÓN COINCIDENTE (Fusión Óptica sin Chispas) -->
+    <!-- Lente de intersección: Vidrio líquido coloreado por la mezcla de ambos colores -->
+    <g>
+      <!-- Relleno de la lente central con refracción caústica -->
+      <path d="M 256,173 A 102 102 0 0 1 298,256 A 102 102 0 0 1 256,339 A 102 102 0 0 1 214,256 A 102 102 0 0 1 256,173 Z" 
+            fill="url(#causticLens)" 
+            stroke="url(#fusionBorder)" 
+            stroke-width="14" 
+            style="backdrop-filter: blur(10px); mix-blend-mode: screen;" />
 
-    <!-- 5. Central Diamond Spark (The Match Sparkle - 4-Point Optical Brilliance) -->
-    <g transform="translate(256, 256)" filter="url(#coreSparkGlow)">
-      <!-- Soft diamond halo -->
-      <polygon points="0,-46 11,-11 46,0 11,11 0,46 -11,11 -46,0 -11,-11" fill="#FFD60A" opacity="0.35" />
-      <!-- Sharp core star -->
-      <polygon points="0,-36 7,-7 36,0 7,7 0,36 -7,7 -36,0 -7,-7" fill="#FFFFFF" />
-      <!-- Center intense micro-bead -->
-      <circle cx="0" cy="0" r="4.5" fill="#FFFFFF" />
+      <!-- Bisel de reflexión especular interior (luz de curvatura del cristal) -->
+      <ellipse cx="256" cy="244" rx="16" ry="52" fill="none" stroke="#FFFFFF" stroke-width="2.5" opacity="0.55" stroke-dasharray="140 25" />
+      <ellipse cx="256" cy="242" rx="6" ry="24" fill="#FFFFFF" fill-opacity="0.18" />
     </g>
 
-    <!-- 6. Overhead Specular Light Beam (Apple Glass Bevel) -->
-    <rect width="512" height="256" fill="url(#topSheen)" pointer-events="none" />
+    <!-- 7. Sheen especular superior (Reflejo global de cubierta de vidrio) -->
+    <path d="M 0,0 L 512,0 L 512,230 Q 256,275 0,230 Z" fill="url(#rimSheen)" opacity="0.38" pointer-events="none" />
   </g>
 
-  <!-- 7. Outer Specular Edge (1.5px Hairline Rim) -->
-  <path d="M 0,256 C 0,59.39 59.39,0 256,0 C 452.61,0 512,59.39 512,256 C 512,452.61 452.61,512 256,512 C 59.39,512 0,452.61 0,256 Z" fill="none" stroke="url(#innerStroke)" stroke-width="2" />
+  <!-- 8. Contorno exterior de precisión Apple (1.5px Hairline Glass Rim) -->
+  <path d="M 0,256 C 0,59.39 59.39,0 256,0 C 452.61,0 512,59.39 512,256 C 512,452.61 452.61,512 256,512 C 59.39,512 0,452.61 0,256 Z" 
+        fill="none" stroke="url(#rimSheen)" stroke-width="2" />
 </svg>

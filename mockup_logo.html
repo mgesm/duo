@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockups Nuevo Logo Duo - Liquid Glass</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #000000;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    }
+  </style>
+</head>
+<body class="min-h-screen p-6 md:p-12 flex flex-col items-center">
+  <div class="max-w-4xl w-full">
+    <div class="text-center mb-10">
+      <div class="inline-block px-3 py-1 rounded-full bg-white/10 text-xs font-semibold tracking-wider text-neutral-400 uppercase mb-3 border border-white/10">
+        Propuesta de Diseño de Marca
+      </div>
+      <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">Nuevo Icono Duo — Liquid Glass & Mezcla Cromática</h1>
+      <p class="text-neutral-400 text-sm md:text-base max-w-xl mx-auto">
+        Sin chispa artificial. La unión se forma de manera pura y orgánica mediante la fusión y refracción física de los dos colores (Rose + Indigo/Cyan &rarr; Magenta/Violeta luminoso), con un acabado 100% vidrio translúcido visionOS.
+      </p>
+    </div>
+
+    <!-- Comparativa: Actual vs Nuevas Opciones -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+      
+      <!-- Opción 1: Actual (Referencia) -->
+      <div class="bg-white/[0.03] border border-white/10 rounded-3xl p-6 flex flex-col items-center text-center">
+        <span class="text-xs font-medium text-neutral-500 mb-4">Versión Actual (Con Chispa)</span>
+        <div class="w-40 h-40 rounded-[36px] overflow-hidden shadow-2xl relative border border-white/10 mb-6 bg-black flex items-center justify-center">
+          <img src="./duo_icon.svg" class="w-full h-full object-cover" alt="Actual">
+        </div>
+        <p class="text-xs text-neutral-400">
+          Usa una estrella/chispa dorada en la intersección que rompe la continuidad del cristal y satura el centro.
+        </p>
+      </div>
+
+      <!-- Opción 2: Pure Liquid Glass Blending (Recomendada) -->
+      <div class="bg-gradient-to-b from-white/[0.08] to-white/[0.02] border-2 border-indigo-500/40 rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden shadow-[0_0_50px_rgba(139,92,246,0.15)]">
+        <div class="absolute top-3 right-3 bg-gradient-to-r from-rose-500 to-indigo-500 text-[10px] font-bold px-2 py-0.5 rounded-full text-white">
+          RECOMENDADO
+        </div>
+        <span class="text-xs font-semibold text-neutral-300 mb-4">Opción A: Liquid Glass Caustics</span>
+        <div class="w-40 h-40 rounded-[36px] overflow-hidden shadow-2xl relative border border-white/20 mb-6 bg-black flex items-center justify-center group hover:scale-105 transition-transform duration-300">
+          
+          <!-- SVG Mockup Opción A -->
+          <svg viewBox="0 0 512 512" class="w-full h-full">
+            <defs>
+              <radialGradient id="mockOledA" cx="50%" cy="25%" r="85%">
+                <stop offset="0%" stop-color="#141122" />
+                <stop offset="40%" stop-color="#080710" />
+                <stop offset="100%" stop-color="#000000" />
+              </radialGradient>
+
+              <!-- Vidrio Espejo Borde -->
+              <linearGradient id="mockRimA" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35" />
+                <stop offset="40%" stop-color="#ffffff" stop-opacity="0.08" />
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0.02" />
+              </linearGradient>
+
+              <!-- Tubo Rose / Coral Líquido -->
+              <linearGradient id="mockRoseA" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FF375F" />
+                <stop offset="50%" stop-color="#FF2D55" />
+                <stop offset="100%" stop-color="#D90038" />
+              </linearGradient>
+
+              <!-- Tubo Indigo / Cyan Líquido -->
+              <linearGradient id="mockCyanA" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#5E5CE6" />
+                <stop offset="50%" stop-color="#0A84FF" />
+                <stop offset="100%" stop-color="#30D158" stop-opacity="0" />
+              </linearGradient>
+
+              <!-- Gradiente de la Unión (Fusión de ambos: Rose + Indigo/Cyan = Violeta Magenta Eléctrico Líquido) -->
+              <linearGradient id="mockBlendA" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#BF5AF2" />
+                <stop offset="50%" stop-color="#AF52DE" />
+                <stop offset="100%" stop-color="#9A30E6" />
+              </linearGradient>
+
+              <!-- Caústica interna del cristal en la unión -->
+              <radialGradient id="mockLensA" cx="50%" cy="40%" r="65%">
+                <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.65" />
+                <stop offset="45%" stop-color="#DA8FFF" stop-opacity="0.5" />
+                <stop offset="100%" stop-color="#7B2CBF" stop-opacity="0.1" />
+              </radialGradient>
+
+              <!-- Reflejo curvo de luz (Liquid Glass) -->
+              <linearGradient id="glassSheen" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.7" />
+                <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+              </linearGradient>
+
+              <filter id="softGlowA" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="30" />
+              </filter>
+
+              <filter id="glassInnerBevel" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.6"/>
+              </filter>
+            </defs>
+
+            <!-- Fondo OLED -->
+            <rect width="512" height="512" fill="url(#mockOledA)" />
+
+            <!-- Resplandor ambiental de fondo difuso -->
+            <circle cx="196" cy="256" r="120" fill="#FF2D55" opacity="0.25" filter="url(#softGlowA)" />
+            <circle cx="316" cy="256" r="120" fill="#0A84FF" opacity="0.25" filter="url(#softGlowA)" />
+            <!-- Resplandor violeta en el centro -->
+            <ellipse cx="256" cy="256" rx="60" ry="100" fill="#AF52DE" opacity="0.35" filter="url(#softGlowA)" />
+
+            <!-- Sombra de profundidad de los anillos -->
+            <circle cx="196" cy="260" r="102" fill="none" stroke="#000000" stroke-width="32" opacity="0.45" />
+            <circle cx="316" cy="260" r="102" fill="none" stroke="#000000" stroke-width="32" opacity="0.45" />
+
+            <!-- Anillo Izquierdo: Rose (Vidrio con grosor 30px) -->
+            <circle cx="196" cy="256" r="102" fill="none" stroke="url(#mockRoseA)" stroke-width="30" stroke-linecap="round" />
+            <!-- Refracción interna superior izquierda -->
+            <path d="M 115,210 A 102 102 0 0 1 196,154" fill="none" stroke="url(#glassSheen)" stroke-width="6" stroke-linecap="round" opacity="0.75" />
+
+            <!-- Anillo Derecho: Indigo/Cyan (Vidrio con grosor 30px) -->
+            <circle cx="316" cy="256" r="102" fill="none" stroke="#0A84FF" stroke-width="30" stroke-linecap="round" />
+            <!-- Refracción interna superior derecha -->
+            <path d="M 316,154 A 102 102 0 0 1 397,210" fill="none" stroke="url(#glassSheen)" stroke-width="6" stroke-linecap="round" opacity="0.75" />
+
+            <!-- LENTE DE INTERSECCIÓN (UNIÓN FUSIONADA DE AMBOS) -->
+            <!-- Máscara de lente ovalada común -->
+            <g>
+              <!-- Lente de fondo coloreada en la fusión violeta / magenta eléctrico -->
+              <!-- Arcos coincidentes coloreados en púrpura / violeta líquido -->
+              <!-- Intersección de los aros -->
+              <path d="M 256,174 A 102 102 0 0 1 298,256 A 102 102 0 0 1 256,338 A 102 102 0 0 1 214,256 A 102 102 0 0 1 256,174 Z" 
+                    fill="url(#mockLensA)" 
+                    stroke="url(#mockBlendA)" 
+                    stroke-width="14" 
+                    style="backdrop-filter: blur(8px); mix-blend-mode: screen;" />
+
+              <!-- Filete de luz especular en el centro del cristal (efecto bisel visionOS) -->
+              <ellipse cx="256" cy="246" rx="16" ry="54" fill="none" stroke="#FFFFFF" stroke-width="2.5" opacity="0.5" stroke-dasharray="140 30" />
+            </g>
+
+            <!-- Brillo de vidrio general superior (Specular Sheen) -->
+            <path d="M 0,0 L 512,0 L 512,230 Q 256,270 0,230 Z" fill="url(#mockRimA)" opacity="0.4" pointer-events="none" />
+            
+            <!-- Bisel perimetral ultrafino de cristal Apple -->
+            <rect x="1" y="1" width="510" height="510" rx="112" fill="none" stroke="url(#mockRimA)" stroke-width="2" />
+          </svg>
+
+        </div>
+        <p class="text-xs text-neutral-300 font-medium mb-1">
+          Lente Caústica Violeta / Magenta
+        </p>
+        <p class="text-[11px] text-neutral-500">
+          Los aros de cristal se entrecruzan naturalmente. La lente central absorbe ambos espectros emitiendo un tono magenta/orquídea radiante sin artificios.
+        </p>
+      </div>
+
+      <!-- Opción 3: Continuous Glass Ribbon (Infinity Fused) -->
+      <div class="bg-white/[0.03] border border-white/10 rounded-3xl p-6 flex flex-col items-center text-center">
+        <span class="text-xs font-medium text-neutral-400 mb-4">Opción B: Fusión en Degradado Continuo</span>
+        <div class="w-40 h-40 rounded-[36px] overflow-hidden shadow-2xl relative border border-white/10 mb-6 bg-black flex items-center justify-center hover:scale-105 transition-transform duration-300">
+          
+          <!-- SVG Mockup Opción B -->
+          <svg viewBox="0 0 512 512" class="w-full h-full">
+            <defs>
+              <linearGradient id="ribbonGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+                <stop offset="0%" stop-color="#FF2D55" />
+                <stop offset="35%" stop-color="#FF375F" />
+                <stop offset="50%" stop-color="#BF5AF2" />
+                <stop offset="65%" stop-color="#5E5CE6" />
+                <stop offset="100%" stop-color="#0A84FF" />
+              </linearGradient>
+
+              <filter id="softGlowB" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="24" />
+              </filter>
+            </defs>
+
+            <!-- Fondo OLED -->
+            <rect width="512" height="512" fill="#040308" />
+
+            <!-- Resplandor -->
+            <circle cx="256" cy="256" r="110" fill="#AF52DE" opacity="0.3" filter="url(#softGlowB)" />
+
+            <!-- Anillo 1 y Anillo 2 fusionados en cinta continua con gradiente suave -->
+            <circle cx="196" cy="256" r="102" fill="none" stroke="url(#ribbonGrad)" stroke-width="28" stroke-linecap="round" />
+            <circle cx="316" cy="256" r="102" fill="none" stroke="url(#ribbonGrad)" stroke-width="28" stroke-linecap="round" />
+
+            <!-- Núcleo central intersectado de vidrio -->
+            <ellipse cx="256" cy="256" rx="34" ry="76" fill="#BF5AF2" fill-opacity="0.3" stroke="#FFFFFF" stroke-opacity="0.4" stroke-width="2" />
+            <ellipse cx="256" cy="256" rx="18" ry="46" fill="#FFFFFF" fill-opacity="0.15" />
+
+            <!-- Bisel de cristal -->
+            <rect x="1" y="1" width="510" height="510" rx="112" fill="none" stroke="#ffffff" stroke-opacity="0.15" stroke-width="2" />
+          </svg>
+
+        </div>
+        <p class="text-xs text-neutral-400">
+          Cinta continua de color que pasa fluidamente de Rose &rarr; Violeta &rarr; Azul, dando sensación de infinito o lazo conectado.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Detalles Técnicos del Acabado Liquid Glass -->
+    <div class="bg-white/[0.02] border border-white/10 rounded-2xl p-6">
+      <h3 class="text-base font-bold text-white mb-3 flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-rose-500 to-indigo-500 inline-block"></span>
+        Mejoras aplicadas al diseño Liquid Glass:
+      </h3>
+      <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-neutral-400">
+        <li class="flex items-start gap-2">
+          <span class="text-indigo-400 font-bold">&bull;</span>
+          <span><strong class="text-neutral-200">Mezcla Óptica Física (Rose + Cyan = Violeta/Orquídea):</strong> En lugar de una estrella artificial pegada encima, los dos aros de luz interactúan como dos tubos de vidrio translúcido que al superponerse multiplican su luminosidad generando un tono magenta eléctrico natural.</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-indigo-400 font-bold">&bull;</span>
+          <span><strong class="text-neutral-200">Refracción y Bisel Especular:</strong> Añadidos filetes curvos de reflexión blanca pura en la curvatura superior de los aros, simulando el pulido de cristal líquido de Apple visionOS.</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-indigo-400 font-bold">&bull;</span>
+          <span><strong class="text-neutral-200">Mayor Grosor y Presencia:</strong> Los aros pasan de 24px a 30px con esquinas orgánicas, mejorando drásticamente la legibilidad en pantallas de móvil de alta densidad (Retina) en tamaños pequeños (32px a 64px).</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-indigo-400 font-bold">&bull;</span>
+          <span><strong class="text-neutral-200">Profundidad Caústica OLED:</strong> Luces ambientales difusas traseras que iluminan suavemente la carcasa de cristal oscuro sin romper el negro absoluto del fondo.</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

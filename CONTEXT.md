@@ -191,6 +191,15 @@ La app cuenta con coordenadas reales precargadas para la zona de **Cartagena y M
 - **Service Worker v4**:
   - Actualizada la caché con los nuevos ficheros PNG para acceso 100% offline.
 
+### [v1.9.3] - 2026-10-15
+- **Rediseño del Icono Oficial "Duo" — Liquid Glass & Fusión Cromática**:
+  - Eliminada la chispa/estrella de 4 puntas de la intersección.
+  - La unión de los dos aros ahora se resuelve mediante una lente caústica óptica natural, donde la mezcla aditiva del color Rose (Jugador 1) y Cyan/Indigo (Jugador 2) produce un tono violeta/magenta translúcido radiante.
+  - Estética **Liquid Glass** mejorada: aros volumétricos de cristal de 30px con refracción especular curva en los bordes superiores, sombras de oclusión 3D y resplandor atmosférico OLED.
+  - Actualizado `duo_icon.svg`.
+- **Service Worker v21**:
+  - Actualizada la versión de caché para propagación instantánea a dispositivos móviles.
+
 ### [v1.9.2] - 2026-10-15
 - **Eliminación del Indicador Estático Home Bar**:
   - Eliminado el elemento simulado de la barra de inicio inferior (`.ios-home-indicator`) en todas las pantallas (`home`, `voting`, `handover`, `result`, `no-match`, `recommended`).
