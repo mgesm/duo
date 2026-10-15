@@ -2002,8 +2002,6 @@
             <span>Más opciones y modos rápidos</span>
             <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </button>
-
-          <div class="ios-home-indicator"></div>
         </div>
       </div>
 
@@ -2449,7 +2447,6 @@
             <span>Confirmar selecciones</span>
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
           </button>
-          <div class="ios-home-indicator"></div>
         </div>
       </div>
     `;
@@ -2670,8 +2667,6 @@
             </svg>
             <span>Volver a la selección de ${state.player1Name}</span>
           </button>
-
-          <div class="ios-home-indicator"></div>
         </div>
       </div>
     `;
@@ -3208,8 +3203,6 @@
           >
             <span>Nueva votación</span>
           </button>
-
-          <div class="ios-home-indicator"></div>
         </div>
       </div>
     `;
@@ -3595,8 +3588,6 @@
             >
               <span>Volver al inicio</span>
             </button>
-
-            <div class="ios-home-indicator"></div>
           </div>
         </div>
       `;
@@ -3689,8 +3680,6 @@
             >
               <span>Reiniciar desde cero</span>
             </button>
-
-            <div class="ios-home-indicator"></div>
           </div>
         </div>
       `;
@@ -4023,8 +4012,6 @@
           >
             <span>Volver al inicio</span>
           </button>
-
-          <div class="ios-home-indicator"></div>
         </div>
       </div>
     `;

@@ -191,6 +191,18 @@ La app cuenta con coordenadas reales precargadas para la zona de **Cartagena y M
 - **Service Worker v4**:
   - Actualizada la caché con los nuevos ficheros PNG para acceso 100% offline.
 
+### [v1.9.2] - 2026-10-15
+- **Eliminación del Indicador Estático Home Bar**:
+  - Eliminado el elemento simulado de la barra de inicio inferior (`.ios-home-indicator`) en todas las pantallas (`home`, `voting`, `handover`, `result`, `no-match`, `recommended`).
+  - En dispositivos iOS reales, la barra inferior es un elemento nativo del sistema operativo; la barra artificial era redundante y ocupaba espacio visual vertical.
+  - La interfaz respeta los márgenes inferiores seguros nativos (`safe-area-inset-bottom`) sin elementos inertes superpuestos.
+- **Service Worker v20**:
+  - Actualizada la caché a `donde-comemos-v20` para propagación instantánea a dispositivos móviles y GitHub Pages.
+
+### [v1.9.1] - 2026-10-15
+- **Corrección de Cuadrícula y Renderizado de Tarjetas de Votación**:
+  - Restaurada la estructura de cuadrícula de 2 columnas (`grid-cols-2`) en los modos de Cine/Series y Planes, asegurando una visualización consistente y adaptativa sin desbordamientos.
+
 ### [v1.9.0] - 2026-10-15
 - **Selector de Modo Tripartito (Comer / Películas y Series / Planes y Citas)**:
   - Nuevo control segmentado visionOS Liquid Glass en la pantalla de inicio con 3 modos:
