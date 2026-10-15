@@ -191,6 +191,14 @@ La app cuenta con coordenadas reales precargadas para la zona de **Cartagena y M
 - **Service Worker v4**:
   - Actualizada la caché con los nuevos ficheros PNG para acceso 100% offline.
 
+### [v1.9.5] - 2026-10-15
+- **Eliminación de la Pantalla de Carga (Splash Screen)**:
+  - Retirada la pantalla de carga intermedia con animación de trazado para permitir un acceso inmediato e instantáneo a la pantalla principal al abrir la aplicación.
+  - Limpieza de marcado en `index.html`, estilos CSS en `style.css` y lógica de arranque en `bundle.js`.
+  - Mantenido el nuevo logotipo oficial (Opción A: pureza minimalista con unión púrpura/magenta translúcida y sin chispa).
+- **Service Worker v23**:
+  - Actualización de versión de caché para propagación inmediata a dispositivos móviles.
+
 ### [v1.9.4] - 2026-10-15
 - **Icono Oficial "Duo" Opción A (Pureza Minimalista & Lente Púrpura)**:
   - Recuperada la silueta esbelta y limpia de los dos aros originales (Rojo/Rose y Azul/Cyan) en alta resolución.
