@@ -3723,10 +3723,18 @@
             category: rec.category,
             price: rec.price,
             rating: rec.rating,
+            reviewsCount: rec.reviewsCount,
+            city: rec.city,
+            zone: rec.zone,
+            accolades: rec.accolades,
+            description: rec.description,
+            googleUrl: rec.googleUrl,
+            lat: rec.lat,
+            lng: rec.lng,
+            computedDistanceKm: rec.computedDistanceKm,
             isRecommended: true,
             logo: makeRestaurantSvg('#F59E0B'),
             image: makeRestaurantSvg('#F59E0B'),
-            description: rec.description,
             branches: [
               { name: rec.name, address: rec.zone, lat: rec.lat, lng: rec.lng }
             ]
@@ -3897,7 +3905,7 @@
           </div>
         ` : ''}
 
-        <div class="px-4 py-4 grid grid-cols-2 gap-3.5 flex-1 content-start pb-28">
+        <div class="px-4 py-4 ${(isFood && state.foodCategoryFilter === 'recommended') ? 'flex flex-col gap-3.5' : 'grid grid-cols-2 gap-3.5'} flex-1 content-start pb-28">
           ${displayedRestaurants
             .map(function (r) {
               const isSelected = currentSelections.has(r.id);
@@ -3989,6 +3997,116 @@
                     <p class="text-[10px] text-neutral-300 line-clamp-2 leading-tight text-left mt-1 pointer-events-none opacity-85">
                       ${r.synopsis || r.description}
                     </p>
+                  </div>
+                `;
+              }
+
+              if (isFood && state.foodCategoryFilter === 'recommended') {
+                const distFormatted = (typeof r.computedDistanceKm === 'number') 
+                  ? (r.computedDistanceKm < 1 ? Math.round(r.computedDistanceKm * 1000) + ' m' : r.computedDistanceKm.toFixed(1) + ' km') 
+                  : null;
+                const op = getOpeningStatus(r);
+
+                return `
+                  <div 
+                    data-id="${r.id}"
+                    class="ios-glass-card p-4 rounded-[26px] space-y-3 transition cursor-pointer relative ${cardClass}"
+                  >
+                    <!-- Barra superior de la tarjeta con acciones e indicadores -->
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="flex items-center gap-1.5 flex-wrap">
+                        ${r.city ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/[0.08] text-neutral-300 border border-white/[0.1]">${r.city}</span>` : ''}
+                        ${distFormatted ? `
+                          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 flex items-center gap-1">
+                            <svg class="w-2.5 h-2.5 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+                            <span>~${distFormatted}</span>
+                          </span>
+                        ` : ''}
+                        <span class="text-[10px] font-semibold text-neutral-400">${r.category}</span>
+                        ${r.price ? `<span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-md border border-emerald-500/20">${r.price}</span>` : ''}
+                        ${op.status === 'open' ? `
+                          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span>${op.label}</span></span>
+                        ` : op.status === 'soon' ? `
+                          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg><span>${op.label}</span></span>
+                        ` : `
+                          <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/[0.05] text-neutral-400 border border-white/[0.08]">${op.label} (${op.sub})</span>
+                        `}
+                      </div>
+
+                      <div class="flex items-center gap-1.5 shrink-0">
+                        <button 
+                          data-action="superlike" 
+                          data-id="${r.id}" 
+                          title="Superlike (Doble probabilidad)"
+                          class="btn-card-superlike w-7 h-7 rounded-full flex items-center justify-center text-xs transition active:scale-90 ${isSuper ? 'bg-amber-500 text-black shadow-md font-bold' : 'bg-white/10 text-neutral-400 hover:text-amber-400'}"
+                        >
+                          <svg class="w-3.5 h-3.5 ${isSuper ? 'fill-black stroke-black' : 'fill-none stroke-current'}" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        </button>
+                        <button 
+                          data-action="veto" 
+                          data-id="${r.id}" 
+                          title="Veto (Bloquear)"
+                          class="btn-card-veto w-7 h-7 rounded-full flex items-center justify-center text-xs transition active:scale-90 ${isVetoed ? 'bg-rose-500 text-white shadow-md font-bold' : 'bg-white/10 text-neutral-400 hover:text-rose-400'}"
+                        >
+                          <svg class="w-3.5 h-3.5 stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+                        </button>
+                        <div class="ios-check ${isSelected ? theme.checkClass : 'ios-check-unselected'} check-badge pointer-events-none">
+                          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Nombre y nota Google -->
+                    <div class="flex items-start justify-between gap-2 pointer-events-none">
+                      <h3 class="text-base font-bold text-white tracking-tight leading-snug">
+                        ${r.name}
+                        ${isSuper ? '<svg class="w-3.5 h-3.5 text-amber-400 fill-amber-400 inline ml-1 align-baseline" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>' : ''}
+                        ${isVetoed ? '<svg class="w-3.5 h-3.5 text-rose-400 inline ml-1 align-baseline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>' : ''}
+                      </h3>
+                      ${r.rating ? `
+                        <div class="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold shrink-0">
+                          <svg class="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                          <span>${r.rating}</span>
+                          ${r.reviewsCount ? `<span class="text-[10px] text-amber-300/60 font-normal">(${r.reviewsCount})</span>` : ''}
+                        </div>
+                      ` : ''}
+                    </div>
+
+                    ${r.accolades ? `
+                      <div class="text-[11px] font-semibold text-amber-400/90 flex items-center gap-1.5 pl-0.5 pointer-events-none">
+                        <svg class="w-3 h-3 text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                        <span>${r.accolades}</span>
+                      </div>
+                    ` : ''}
+
+                    <!-- Descripción explicativa del restaurante -->
+                    ${r.description ? `
+                      <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs text-neutral-300 leading-relaxed italic pointer-events-none">
+                        "${r.description}"
+                      </div>
+                    ` : ''}
+
+                    <!-- Zona / Ubicación y enlace a Google -->
+                    <div class="flex items-center justify-between text-[11px] text-neutral-400 pt-1 border-t border-white/[0.06]">
+                      <div class="flex items-center gap-1.5 truncate max-w-[210px] pointer-events-none">
+                        <svg class="w-3 h-3 text-neutral-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span class="truncate">${r.zone || (r.branches && r.branches[0] && r.branches[0].address) || ''}</span>
+                      </div>
+                      ${r.googleUrl ? `
+                        <a 
+                          href="${r.googleUrl}" 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          onclick="event.stopPropagation();"
+                          class="text-[11px] text-amber-300 hover:text-amber-200 font-semibold flex items-center gap-1 px-2 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] transition"
+                        >
+                          <span>Google</span>
+                          <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                        </a>
+                      ` : ''}
+                    </div>
                   </div>
                 `;
               }

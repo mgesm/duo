@@ -427,6 +427,20 @@ La app cuenta con coordenadas reales precargadas para la zona de **Cartagena y M
 - **Service Worker v31**:
   - Bump de caché en `sw.js` para propagar instantáneamente las mejoras sin problemas de assets cacheados.
 
+### [v1.9.16] - 2026-10-16
+- **Tarjetas Detalladas a 1 por Fila en Pestaña 'Recomendados' de Comida**:
+  - En la pestaña "Recomendados", las opciones ahora se muestran a **una tarjeta grande por fila** (`flex flex-col gap-3.5`) en lugar de cuadrícula 2x2.
+  - Cada tarjeta incluye toda la información rica que existía en el explorador original de recomendaciones:
+    - Insignias de ciudad, distancia aproximada calculada, categoría y rango de precio (`€`, `€€`, `€€€`).
+    - Estado de apertura en vivo (abierto/cierra pronto/cerrado).
+    - Nombre del restaurante con nota media de Google, estrellas e indicador del número de reseñas entre paréntesis.
+    - Reconocimientos gastronómicos (Soles Repsol, Recomendados Michelin, etc.).
+    - Cuadro explicativo con la descripción del local y su propuesta culinaria.
+    - Zona/dirección de la sucursal y botón de enlace directo a Google Maps.
+    - Controles interactivos completos de votación (Superlike, Veto y selección con checkmark iOS).
+  - En la pestaña "Mis Restaurantes", se conserva intacta la cuadrícula limpia 2x2.
+  - Service Worker actualizado a `donde-comemos-v35`.
+
 ### [v1.9.15] - 2026-10-16
 - **Pestaña integrada de Recomendados en Comida (estilo Películas) sin saturar el menú superior**:
   - Eliminado el botón de ventana externa de la cabecera, despejando la barra superior que ahora solo conserva el turno, el botón "Al azar" y el contador de elegidos.
