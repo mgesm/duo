@@ -442,6 +442,17 @@ Ideas aprobadas para incorporar progresivamente en futuras iteraciones de Duo:
 - **Service Worker v31**:
   - Bump de caché en `sw.js` para propagar instantáneamente las mejoras sin problemas de assets cacheados.
 
+### [v1.9.18] - 2026-10-16
+- **Filtros Avanzados en Modo Películas / Series y Categorías en Modo Planes**:
+  - **Películas y Series**:
+    - **Filtro de Plataformas de Streaming**: Selector visionOS para filtrar al instante por suscripción activa (`Todas`, `Netflix`, `Prime`, `Max`, `Disney+`, `Apple TV+`).
+    - **Filtro de Duración**: Selector para alternar entre `Cualquiera`, `Corta (< 1h 45m)` y `Larga (> 2h)`.
+  - **Planes y Citas**:
+    - **Barra de Pestañas y Categorías**: Chips de filtro superior idénticos al resto de la app (`Todos los Planes`, `Al Aire Libre`, `En Casa & Relax`, `Aventura & Ocio`, `Noche & Gourmet`).
+    - **Filtro de Duración del Plan**: Selector para filtrar entre planes `Exprés (≤ 1h 30m)` o `Tarde entera (> 2h)` con contador en vivo de opciones disponibles.
+  - **Service Worker v37**:
+    - Incremento de versión de caché para sincronización offline inmediata.
+
 ### [v1.9.17] - 2026-10-16
 - **Ampliación Completa de Filtros en Pestaña 'Recomendados'**:
   - Restablecido el selector de **Rango de Precio** (`Todos`, `€`, `€€`, `€€€`, `€€€€`) con feedback activo y badge dinámico en color esmeralda.

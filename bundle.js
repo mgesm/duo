@@ -2489,6 +2489,10 @@
     foodCategoryLimit: 6,
     movieCategoryFilter: 'all',
     movieCategoryLimits: {},
+    moviePlatformFilter: 'all', // 'all' | 'netflix' | 'prime' | 'hbo' | 'disney' | 'apple'
+    movieDurationFilter: 'all', // 'all' | 'short' (<105m) | 'long' (>120m)
+    plansCategoryFilter: 'all', // 'all' | 'outdoor' | 'home' | 'fun' | 'night'
+    plansDurationFilter: 'all', // 'all' | 'quick' (<=1.5h) | 'long' (>2h)
     winningRestaurant: null,
     winningBranch: null,
     userCoords: null,
@@ -3660,6 +3664,14 @@
       { id: 'animation', label: 'Animación' }
     ];
 
+    const PLANS_CATEGORIES = [
+      { id: 'all', label: 'Todos los Planes' },
+      { id: 'outdoor', label: 'Al Aire Libre' },
+      { id: 'home', label: 'En Casa & Relax' },
+      { id: 'fun', label: 'Aventura & Ocio' },
+      { id: 'night', label: 'Noche & Gourmet' }
+    ];
+
   function renderPlayerScreen(playerNum) {
     const isP1 = playerNum === 1;
     const playerName = isP1 ? state.player1Name : state.player2Name;
@@ -3696,15 +3708,45 @@
     let movieCategoryLimit = 6;
     let hasMoreInCat = false;
 
+    const isPlans = state.activeMode === 'plans';
+
     if (isMovies) {
       const cat = state.movieCategoryFilter || 'all';
+      const plat = state.moviePlatformFilter || 'all';
+      const dur = state.movieDurationFilter || 'all';
+
       displayedRestaurants = displayedRestaurants.filter(function (r) {
-        if (cat === 'all') return r.type === 'movie';
-        if (cat === 'recommended') return r.type === 'movie' && !!r.isRecommended;
-        if (cat === 'niche') return r.type === 'movie' && (r.genre === 'niche' || !!r.isNiche);
-        if (cat === 'romance') return r.type === 'movie' && (r.genre === 'romance' || !!r.isRomance);
-        if (cat === 'series') return r.type === 'series';
-        return r.type === 'movie' && r.genre === cat;
+        if (cat === 'all') {
+          // Permite tanto películas como series
+        } else if (cat === 'recommended') {
+          if (!r.isRecommended) return false;
+        } else if (cat === 'niche') {
+          if (!(r.genre === 'niche' || !!r.isNiche)) return false;
+        } else if (cat === 'romance') {
+          if (!(r.genre === 'romance' || !!r.isRomance)) return false;
+        } else if (cat === 'series') {
+          if (r.type !== 'series') return false;
+        } else {
+          if (r.type !== 'movie' || r.genre !== cat) return false;
+        }
+
+        // Filtro por plataforma de streaming
+        if (plat !== 'all') {
+          if (!r.streaming || !r.streaming.includes(plat)) return false;
+        }
+
+        // Filtro por duración
+        if (dur !== 'all') {
+          if (r.type === 'series') {
+            if (dur === 'short') return false; // Las series se excluyen de "Corta < 105 min"
+          } else {
+            const minutes = parseInt(r.duration || r.price, 10) || 120;
+            if (dur === 'short' && minutes > 105) return false;
+            if (dur === 'long' && minutes <= 120) return false;
+          }
+        }
+
+        return true;
       });
 
       totalCategoryCount = displayedRestaurants.length;
@@ -3712,6 +3754,35 @@
       movieCategoryLimit = state.movieCategoryLimits[cat] || 6;
       hasMoreInCat = totalCategoryCount > movieCategoryLimit;
       displayedRestaurants = displayedRestaurants.slice(0, movieCategoryLimit);
+    } else if (isPlans) {
+      const pcat = state.plansCategoryFilter || 'all';
+      const pdur = state.plansDurationFilter || 'all';
+
+      displayedRestaurants = displayedRestaurants.filter(function (r) {
+        if (pcat !== 'all') {
+          if (pcat === 'outdoor') {
+            if (!['plan-paseo-helado', 'plan-picnic', 'plan-senderismo'].includes(r.id)) return false;
+          } else if (pcat === 'home') {
+            if (!['plan-juegos-mesa', 'plan-cocinar-juntos', 'plan-spa'].includes(r.id)) return false;
+          } else if (pcat === 'fun') {
+            if (!['plan-bolera', 'plan-escape-room', 'plan-museo'].includes(r.id)) return false;
+          } else if (pcat === 'night') {
+            if (!['plan-cine', 'plan-cata-vinos', 'plan-concierto'].includes(r.id)) return false;
+          }
+        }
+
+        if (pdur !== 'all') {
+          // Duración rápida (<= 1.5h) o larga (> 2h)
+          const isQuick = ['plan-escape-room', 'plan-paseo-helado', 'plan-museo'].includes(r.id);
+          const isLong = ['plan-cine', 'plan-picnic', 'plan-senderismo', 'plan-concierto', 'plan-cocinar-juntos'].includes(r.id);
+          if (pdur === 'quick' && !isQuick) return false;
+          if (pdur === 'long' && !isLong) return false;
+        }
+
+        return true;
+      });
+
+      totalCategoryCount = displayedRestaurants.length;
     } else if (isFood) {
       const ftab = state.foodCategoryFilter || 'all';
       if (ftab === 'recommended') {
@@ -3947,6 +4018,62 @@
                 </button>
               `;
             }).join('')}
+          </div>
+
+          <!-- Barra secundaria de filtros de Películas: Plataforma & Duración -->
+          <div class="px-3 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-black/40 backdrop-blur-md text-[11px]">
+            <!-- Selector Plataforma -->
+            <div class="flex items-center gap-1 shrink-0">
+              <span class="text-[10px] uppercase font-bold text-neutral-500 tracking-wider">Ver en:</span>
+              <button data-movie-plat="all" class="px-2 py-0.5 rounded-lg font-semibold transition ${state.moviePlatformFilter === 'all' ? 'bg-white/20 text-white shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white'}">Todas</button>
+              <button data-movie-plat="netflix" class="px-2 py-0.5 rounded-lg font-bold transition ${state.moviePlatformFilter === 'netflix' ? 'bg-[#E50914] text-white shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white'}">Netflix</button>
+              <button data-movie-plat="prime" class="px-2 py-0.5 rounded-lg font-bold transition ${state.moviePlatformFilter === 'prime' ? 'bg-[#00A8E1] text-black shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white'}">Prime</button>
+              <button data-movie-plat="hbo" class="px-2 py-0.5 rounded-lg font-bold transition ${state.moviePlatformFilter === 'hbo' ? 'bg-[#002BE7] text-white shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white'}">Max</button>
+              <button data-movie-plat="disney" class="px-2 py-0.5 rounded-lg font-bold transition ${state.moviePlatformFilter === 'disney' ? 'bg-[#00D6FF]/20 text-[#00D6FF] border border-[#00D6FF]/40 shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white'}">Disney+</button>
+              <button data-movie-plat="apple" class="px-2 py-0.5 rounded-lg font-bold transition ${state.moviePlatformFilter === 'apple' ? 'bg-white/20 text-white shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white'}">tv+</button>
+            </div>
+
+            <div class="w-px h-4 bg-white/10 shrink-0"></div>
+
+            <!-- Selector Duración -->
+            <div class="flex items-center gap-1 shrink-0">
+              <span class="text-[10px] uppercase font-bold text-neutral-500 tracking-wider">Duración:</span>
+              <button data-movie-dur="all" class="px-2 py-0.5 rounded-lg font-semibold transition ${state.movieDurationFilter === 'all' ? 'bg-white/20 text-white shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white'}">Cualquiera</button>
+              <button data-movie-dur="short" class="px-2 py-0.5 rounded-lg font-semibold transition ${state.movieDurationFilter === 'short' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white'}">Corta (&lt;1h 45m)</button>
+              <button data-movie-dur="long" class="px-2 py-0.5 rounded-lg font-semibold transition ${state.movieDurationFilter === 'long' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white'}">Larga (&gt;2h)</button>
+            </div>
+          </div>
+        ` : ''}
+
+        ${isPlans ? `
+          <!-- Barra de categorías de planes y citas estilo visionOS -->
+          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-black/60 backdrop-blur-xl sticky top-[108px] z-10">
+            ${PLANS_CATEGORIES.map(function(c) {
+              const isAct = (state.plansCategoryFilter || 'all') === c.id;
+              return `
+                <button 
+                  data-plan-cat="${c.id}" 
+                  class="plan-cat-chip px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 transition ${
+                    isAct 
+                      ? 'bg-white text-black font-bold shadow-lg shadow-white/10 scale-[1.02]' 
+                      : 'bg-white/[0.06] text-neutral-400 hover:text-white border border-white/[0.08] active:scale-95'
+                  }"
+                >
+                  ${c.label}
+                </button>
+              `;
+            }).join('')}
+          </div>
+
+          <!-- Barra secundaria de filtros de Planes: Duración / Ritmo -->
+          <div class="px-3 py-2 flex items-center justify-between border-b border-white/[0.08] bg-black/40 backdrop-blur-md text-[11px]">
+            <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+              <span class="text-[10px] uppercase font-bold text-neutral-500 tracking-wider">Duración:</span>
+              <button data-plan-dur="all" class="px-2.5 py-0.5 rounded-lg font-semibold transition ${state.plansDurationFilter === 'all' ? 'bg-white/20 text-white shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white'}">Cualquiera</button>
+              <button data-plan-dur="quick" class="px-2.5 py-0.5 rounded-lg font-semibold transition ${state.plansDurationFilter === 'quick' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white'}">Exprés (&le;1h 30m)</button>
+              <button data-plan-dur="long" class="px-2.5 py-0.5 rounded-lg font-semibold transition ${state.plansDurationFilter === 'long' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white'}">Tarde entera (&gt;2h)</button>
+            </div>
+            <span class="text-[10px] text-neutral-400 shrink-0 ml-2 font-medium">${displayedRestaurants.length} planes</span>
           </div>
         ` : ''}
 
@@ -4412,6 +4539,46 @@
         e.stopPropagation();
         sound.playPop();
         state.movieCategoryFilter = chip.dataset.cat;
+        renderPlayerScreen(playerNum);
+      });
+    });
+
+    document.querySelectorAll('[data-movie-plat]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        sound.playPop();
+        sound.vibrate([15]);
+        state.moviePlatformFilter = btn.dataset.moviePlat;
+        renderPlayerScreen(playerNum);
+      });
+    });
+
+    document.querySelectorAll('[data-movie-dur]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        sound.playPop();
+        sound.vibrate([15]);
+        state.movieDurationFilter = btn.dataset.movieDur;
+        renderPlayerScreen(playerNum);
+      });
+    });
+
+    document.querySelectorAll('.plan-cat-chip').forEach(function (chip) {
+      chip.addEventListener('click', function (e) {
+        e.stopPropagation();
+        sound.playPop();
+        sound.vibrate([15]);
+        state.plansCategoryFilter = chip.dataset.planCat;
+        renderPlayerScreen(playerNum);
+      });
+    });
+
+    document.querySelectorAll('[data-plan-dur]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        sound.playPop();
+        sound.vibrate([15]);
+        state.plansDurationFilter = btn.dataset.planDur;
         renderPlayerScreen(playerNum);
       });
     });
