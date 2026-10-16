@@ -348,6 +348,16 @@ La app cuenta con coordenadas reales precargadas para la zona de **Cartagena y M
 - **Service Worker v10**:
   - Actualización de caché para propagar los cambios inmediatamente.
 
+### [v1.9.7] - 2026-10-16
+- **Corrección de Codificación UTF-8 (Tildes y Caracteres Especiales)**:
+  - Eliminado el problema de doble codificación UTF-8 / mojibake (`Ã³`, `Ã­`, `Ã±`, `â€¢`).
+  - Restauradas todas las tildes y caracteres del español en títulos, sinopsis, categorías y curiosidades de las películas y series (*misión*, *librería*, *años*, *ciencia ficción*, *película*, *sofá*, etc.).
+- **Notas de FilmAffinity**:
+  - Reemplazadas todas las valoraciones por las notas oficiales medias de **FilmAffinity** (ej. *El Padrino* 9.0, *Breaking Bad* 8.8, *Pulp Fiction* 8.7, *Juego de Tronos* 8.6, *Cadena Perpetua* 8.6, *El Resplandor* 8.2, *El Club de la Lucha* 8.2, *El Caballero Oscuro* 8.1, *Succession* 8.1, *El Viaje de Chihiro* 8.1, *Origen* 8.0, *Parásitos* 8.0, *Interstellar* 7.9, *Whiplash* 7.9, *Coco* 7.9, *The Bear* 7.8, *Ted Lasso* 7.8, *Spider-Man Multiverso* 7.8, *Dune: Parte Dos* 7.6, *The Last of Us* 7.6, *Oppenheimer* 7.6, *Shōgun* 7.5, *Stranger Things* 7.5, etc.).
+  - Etiqueta explícita de `FilmAffinity` añadida en el modal de detalles y en la pantalla de resultado.
+- **Service Worker v25**:
+  - Actualización de caché para reflejar los textos limpios en todos los dispositivos.
+
 ### [v1.9.6] - 2026-10-16
 - **Overhaul Integral de Películas y Series**:
   - **Servicios de Streaming**: Badges oficiales integrados en cada tarjeta y en la pantalla de resultado para Netflix, Max (HBO), Apple TV+, Disney+, Movistar+ y Prime Video, con enlaces directos para reproducir en un clic.
