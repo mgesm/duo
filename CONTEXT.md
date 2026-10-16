@@ -407,6 +407,15 @@ La app cuenta con coordenadas reales precargadas para la zona de **Cartagena y M
 - **Service Worker v24**:
   - Actualización de caché para propagación instantánea offline.
 
+### [v1.9.13] - 2026-10-16
+- **Integración de Recomendados y 'Al Azar' dentro de la Votación de Comida**:
+  - Trasladados los accesos directos de "Sitios recomendados" y "Sorpréndenos" del menú de opciones rápidas a la propia pantalla de votación del modo Comida.
+  - **Barra de Categorías de Comida**: Chips horizontales deslizables (`Todos`, `Recomendados`, `Hamburguesas`, `Pollo`, `Pizza`, `Kebab`) idénticos a los del modo Películas.
+  - **Pestaña Recomendados en Comida**: Muestra los restaurantes gastronómicos top con insignia de Google Rating (+4.5), reseñas y precio, con botón dinámico "Ver más restaurantes" para cargar el catálogo completo en cascada.
+  - **Botón "Al Azar" en Cabecera**: Acceso directo estilo Apple visionOS en la cabecera de la votación de comida para sortear y resolver de inmediato un restaurante sin esperar a terminar los turnos.
+- **Service Worker v32**:
+  - Bump de versión de caché para actualización instantánea.
+
 ### [v1.9.12] - 2026-10-16
 - **Corrección de Recorte de Texto en Tarjetas de Planes y Comida**:
   - Eliminado el truncamiento agresivo con centrado flexbox que cortaba los extremos de los títulos (p. ej. *"Paseo al Atardecer y Helado"* o *"Escape Room en Pareja"*).

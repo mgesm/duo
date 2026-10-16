@@ -2485,6 +2485,8 @@
     activeChallenge: null,
     restaurants: [],
     selectedCategory: 'all',
+    foodCategoryFilter: 'all',
+    foodCategoryLimit: 6,
     movieCategoryFilter: 'all',
     movieCategoryLimits: {},
     winningRestaurant: null,
@@ -2513,6 +2515,20 @@
   function normalizeSearchText(str) {
     if (!str) return '';
     return str.toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+  }
+
+  function makeRestaurantSvg(primaryColor) {
+    const color = primaryColor || '#F59E0B';
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">' +
+      '<defs><linearGradient id="bgr" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0%" stop-color="' + color + '" stop-opacity="0.35"/>' +
+      '<stop offset="100%" stop-color="' + color + '" stop-opacity="0.1"/>' +
+      '</linearGradient></defs>' +
+      '<rect width="96" height="96" rx="26" fill="url(#bgr)" stroke="' + color + '" stroke-opacity="0.4" stroke-width="2"/>' +
+      '<path d="M30 26v22a8 8 0 0 0 8 8v16M38 26v22M46 26v22a8 8 0 0 1-8 8" fill="none" stroke="' + color + '" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<path d="M60 26v46M60 26c6 0 10 5 10 14s-4 12-10 12" fill="none" stroke="' + color + '" stroke-width="2.5" stroke-linecap="round"/>' +
+      '</svg>';
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
   }
 
   const RECOMMENDED_RESTAURANTS_POOL = [
@@ -3456,49 +3472,6 @@
           </div>
 
           <div class="space-y-2 pt-1">
-            <!-- Acción 0: Sitios recomendados (>4.5 Google) -->
-            <button 
-              id="btn-sheet-recommended" 
-              class="w-full py-3.5 px-4 rounded-2xl text-xs font-bold text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 active:scale-[0.98] transition flex items-center justify-between text-left"
-            >
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-300 shrink-0">
-                  <svg class="w-4 h-4 fill-amber-400 text-amber-400" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                </div>
-                <div>
-                  <div class="font-bold flex items-center gap-1.5">
-                    <span>Sitios recomendados</span>
-                    <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">+4.5 Google</span>
-                  </div>
-                  <div class="text-[10px] text-amber-300/70 font-normal">Sugerencias por tu ubicación o búsqueda de ciudad</div>
-                </div>
-              </div>
-              <svg class="w-4 h-4 text-amber-400/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            </button>
-
-            <!-- Acción 1: Sorpréndenos directamente -->
-            <button 
-              id="btn-instant-surprise" 
-              class="w-full py-3.5 px-4 rounded-2xl text-xs font-bold text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 active:scale-[0.98] transition flex items-center justify-between text-left"
-            >
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-300 shrink-0">
-                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
-                    <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"></circle>
-                    <circle cx="15.5" cy="8.5" r="1.5" fill="currentColor"></circle>
-                    <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
-                    <circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"></circle>
-                    <circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"></circle>
-                  </svg>
-                </div>
-                <div>
-                  <div class="font-bold">Sorpréndenos directamente</div>
-                  <div class="text-[10px] text-amber-300/70 font-normal">Ruleta express a ciegas sin pasar por votación</div>
-                </div>
-              </div>
-              <svg class="w-4 h-4 text-amber-400/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            </button>
 
             <!-- Acción 2: Historial / Food Diary -->
             <button 
@@ -3600,6 +3573,8 @@
       sound.vibrate([40]);
       state.movieCategoryLimits = {};
       state.movieCategoryFilter = 'all';
+      state.foodCategoryFilter = 'all';
+      state.foodCategoryLimit = 6;
       state.player1Selections.clear();
       state.player2Selections.clear();
       state.player1Veto = null;
@@ -3618,17 +3593,6 @@
       state.screen = 'player1';
       render();
     });
-
-    const btnSheetRec = document.getElementById('btn-sheet-recommended');
-    if (btnSheetRec) {
-      btnSheetRec.addEventListener('click', function () {
-        state.showHomeActionsSheet = false;
-        sound.playPop();
-        sound.vibrate([30]);
-        state.screen = 'recommended';
-        render();
-      });
-    }
 
     const btnOpenMore = document.getElementById('btn-open-more-actions');
     if (btnOpenMore) {
@@ -3658,55 +3622,6 @@
       });
     }
 
-    // MODO RULETA RUSA / SORPRÉNDENOS DIRECTAMENTE
-    const btnInstant = document.getElementById('btn-instant-surprise');
-    if (btnInstant) {
-      btnInstant.addEventListener('click', async function () {
-        state.showHomeActionsSheet = false;
-        sound.init();
-        sound.playWhoosh();
-        sound.vibrate([50]);
-        
-        const pool = state.restaurants.filter(function (r) {
-          if (state.avoidLastWinner && state.lastWinnerId === r.id) return false;
-          return true;
-        });
-
-        const candidateList = pool.length > 0 ? pool : state.restaurants;
-        const winner = candidateList[Math.floor(Math.random() * candidateList.length)];
-        
-        state.player1Selections.clear();
-        state.player2Selections.clear();
-        state.player1Veto = null;
-        state.player2Veto = null;
-        state.player1Superlike = null;
-        state.player2Superlike = null;
-        state.matchesCount = candidateList.length;
-        state.winningRestaurant = winner;
-        state.lastWinnerId = winner.id;
-        state.lastWinnerName = winner.name;
-        localStorage.setItem('donde_comemos_last_winner_id', winner.id);
-        localStorage.setItem('donde_comemos_last_winner_name', winner.name);
-
-        if (!state.userCoords) {
-          state.userCoords = await getUserLocation();
-        }
-
-        state.winningBranch = findClosestBranch(winner, state.userCoords);
-        state.isNameRevealed = false;
-        state.showClues = false;
-        state.clueIndex = 0;
-        state.p1Guess = null;
-        state.p2Guess = null;
-        state.payerWinner = null;
-        state.activeResultTab = 'destiny';
-        state.activeChallenge = null;
-        state.tieBreakerUser = 'Modo Ruleta Rusa Directa';
-        state.screen = 'result';
-        render();
-      });
-    }
-
     const btnFoodDiary = document.getElementById('btn-food-diary');
     if (btnFoodDiary) {
       btnFoodDiary.addEventListener('click', function () {
@@ -3726,9 +3641,15 @@
     }
   }
 
-  // ==========================================
-  // 6. PANTALLA DE JUGADOR (DOS TARJETAS POR FILA: GRID-COLS-2)
-  // ==========================================
+    const FOOD_CATEGORIES = [
+      { id: 'all', label: 'Todos' },
+      { id: 'recommended', label: 'Recomendados' },
+      { id: 'Hamburguesas', label: 'Hamburguesas' },
+      { id: 'Pollo', label: 'Pollo' },
+      { id: 'Pizza', label: 'Pizza' },
+      { id: 'Kebab', label: 'Kebab' }
+    ];
+
     const MOVIE_CATEGORIES = [
       { id: 'all', label: 'Todas' },
       { id: 'recommended', label: 'Recomendadas' },
@@ -3767,6 +3688,7 @@
           checkClass: 'ios-check-p2'
         };
 
+    const isFood = state.activeMode === 'food';
     let displayedRestaurants = state.restaurants.filter(function (r) {
       if (state.avoidLastWinner && state.lastWinnerId === r.id) {
         return false;
@@ -3794,6 +3716,38 @@
       movieCategoryLimit = state.movieCategoryLimits[cat] || 6;
       hasMoreInCat = totalCategoryCount > movieCategoryLimit;
       displayedRestaurants = displayedRestaurants.slice(0, movieCategoryLimit);
+    } else if (isFood) {
+      const fcat = state.foodCategoryFilter || 'all';
+      if (fcat === 'recommended') {
+        const poolItems = RECOMMENDED_RESTAURANTS_POOL.map(function (rec) {
+          return {
+            id: rec.id,
+            name: rec.name,
+            category: rec.category,
+            price: rec.price,
+            rating: rec.rating,
+            isRecommended: true,
+            logo: makeRestaurantSvg('#F59E0B'),
+            image: makeRestaurantSvg('#F59E0B'),
+            description: rec.description,
+            branches: [
+              { name: rec.name, address: rec.zone, lat: rec.lat, lng: rec.lng }
+            ]
+          };
+        });
+        displayedRestaurants = poolItems;
+        totalCategoryCount = displayedRestaurants.length;
+        const fLimit = state.foodCategoryLimit || 6;
+        hasMoreInCat = totalCategoryCount > fLimit;
+        displayedRestaurants = displayedRestaurants.slice(0, fLimit);
+      } else if (fcat !== 'all') {
+        displayedRestaurants = displayedRestaurants.filter(function (r) {
+          return r.category === fcat;
+        });
+        totalCategoryCount = displayedRestaurants.length;
+      } else {
+        totalCategoryCount = displayedRestaurants.length;
+      }
     }
 
     app.innerHTML = `
@@ -3816,6 +3770,23 @@
               </div>
             </div>
             <div class="flex items-center gap-2">
+              ${isFood ? `
+                <button 
+                  id="btn-food-quick-surprise" 
+                  class="px-2.5 py-1 rounded-xl text-xs font-bold text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 active:scale-95 transition flex items-center gap-1.5 shadow-sm"
+                  title="Elegir restaurante al azar (Sorpréndenos)"
+                >
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"></circle>
+                    <circle cx="15.5" cy="8.5" r="1.5" fill="currentColor"></circle>
+                    <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
+                    <circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"></circle>
+                    <circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"></circle>
+                  </svg>
+                  <span>Al azar</span>
+                </button>
+              ` : ''}
               ${state.roundAttempt > 1 ? '<span class="text-[10px] font-bold text-amber-400 bg-amber-400/10 border border-amber-400/30 px-2 py-0.5 rounded-full">Ronda 2</span>' : ''}
               <div class="text-xs font-semibold px-2.5 py-1 rounded-xl ${theme.counterBg} shadow-md transition flex items-center gap-1">
                 <span id="selected-counter">${currentSelections.size}</span>
@@ -3842,6 +3813,27 @@
             </div>
           </div>
         </div>
+
+        ${isFood ? `
+          <!-- Barra de categorías de comida estilo visionOS -->
+          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-black/60 backdrop-blur-xl sticky top-[108px] z-10">
+            ${FOOD_CATEGORIES.map(function(c) {
+              const isAct = (state.foodCategoryFilter || 'all') === c.id;
+              return `
+                <button 
+                  data-food-cat="${c.id}" 
+                  class="food-cat-chip px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 transition ${
+                    isAct 
+                      ? 'bg-white text-black font-bold shadow-lg shadow-white/10 scale-[1.02]' 
+                      : 'bg-white/[0.06] text-neutral-400 hover:text-white border border-white/[0.08] active:scale-95'
+                  }"
+                >
+                  ${c.label}
+                </button>
+              `;
+            }).join('')}
+          </div>
+        ` : ''}
 
         ${isMovies ? `
           <!-- Barra de categorías de películas y series estilo visionOS -->
@@ -4019,14 +4011,14 @@
             })
             .join('')}
 
-          ${isMovies && hasMoreInCat ? `
+          ${(isMovies || (isFood && state.foodCategoryFilter === 'recommended')) && hasMoreInCat ? `
             <div class="col-span-2 pt-1 pb-2 flex justify-center">
               <button 
-                id="btn-movie-ver-mas" 
+                id="${isFood ? 'btn-food-ver-mas' : 'btn-movie-ver-mas'}" 
                 class="w-full py-3.5 px-4 rounded-2xl text-xs font-bold text-white bg-white/[0.08] hover:bg-white/[0.14] border border-white/[0.12] active:scale-[0.98] transition flex items-center justify-center gap-2 shadow-lg backdrop-blur-xl"
               >
                 <svg class="w-4 h-4 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-                <span>Ver más películas (${totalCategoryCount - movieCategoryLimit} más)</span>
+                <span>Ver más ${isFood ? 'restaurantes' : 'películas'} (${totalCategoryCount - (isFood ? (state.foodCategoryLimit || 6) : movieCategoryLimit)} más)</span>
               </button>
             </div>
           ` : ''}
@@ -4043,6 +4035,90 @@
         </div>
       </div>
     `;
+
+    document.querySelectorAll('.food-cat-chip').forEach(function (chip) {
+      chip.addEventListener('click', function (e) {
+        e.stopPropagation();
+        sound.playPop();
+        state.foodCategoryFilter = chip.dataset.foodCat;
+        renderPlayerScreen(playerNum);
+      });
+    });
+
+    const btnFoodVerMas = document.getElementById('btn-food-ver-mas');
+    if (btnFoodVerMas) {
+      btnFoodVerMas.addEventListener('click', function (e) {
+        e.stopPropagation();
+        sound.playPop();
+        sound.vibrate([20]);
+        state.foodCategoryLimit = (state.foodCategoryLimit || 6) + 6;
+        renderPlayerScreen(playerNum);
+      });
+    }
+
+    const btnFoodSurprise = document.getElementById('btn-food-quick-surprise');
+    if (btnFoodSurprise) {
+      btnFoodSurprise.addEventListener('click', async function (e) {
+        e.stopPropagation();
+        sound.init();
+        sound.playWhoosh();
+        sound.vibrate([50]);
+
+        // Catálogo de candidatos para sorpresa en comida
+        const pool = state.restaurants.concat(RECOMMENDED_RESTAURANTS_POOL.map(function (rec) {
+          return {
+            id: rec.id,
+            name: rec.name,
+            category: rec.category,
+            price: rec.price,
+            rating: rec.rating,
+            isRecommended: true,
+            logo: makeRestaurantSvg('#F59E0B'),
+            image: makeRestaurantSvg('#F59E0B'),
+            description: rec.description,
+            branches: [
+              { name: rec.name, address: rec.zone, lat: rec.lat, lng: rec.lng }
+            ]
+          };
+        })).filter(function (r) {
+          if (state.avoidLastWinner && state.lastWinnerId === r.id) return false;
+          return true;
+        });
+
+        const candidateList = pool.length > 0 ? pool : state.restaurants;
+        const winner = candidateList[Math.floor(Math.random() * candidateList.length)];
+
+        state.player1Selections.clear();
+        state.player2Selections.clear();
+        state.player1Veto = null;
+        state.player2Veto = null;
+        state.player1Superlike = null;
+        state.player2Superlike = null;
+        state.matchesCount = candidateList.length;
+        state.winningRestaurant = winner;
+        state.lastWinnerId = winner.id;
+        state.lastWinnerName = winner.name;
+        localStorage.setItem('donde_comemos_last_winner_id', winner.id);
+        localStorage.setItem('donde_comemos_last_winner_name', winner.name);
+
+        if (!state.userCoords) {
+          state.userCoords = await getUserLocation();
+        }
+
+        state.winningBranch = findClosestBranch(winner, state.userCoords);
+        state.isNameRevealed = false;
+        state.showClues = false;
+        state.clueIndex = 0;
+        state.p1Guess = null;
+        state.p2Guess = null;
+        state.payerWinner = null;
+        state.activeResultTab = 'destiny';
+        state.activeChallenge = null;
+        state.tieBreakerUser = 'Sorpréndenos al azar';
+        state.screen = 'result';
+        render();
+      });
+    }
 
     document.querySelectorAll('.movie-cat-chip').forEach(function (chip) {
       chip.addEventListener('click', function (e) {
