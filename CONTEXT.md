@@ -407,6 +407,17 @@ La app cuenta con coordenadas reales precargadas para la zona de **Cartagena y M
 - **Service Worker v24**:
   - Actualización de caché para propagación instantánea offline.
 
+### [v1.9.12] - 2026-10-16
+- **Corrección de Recorte de Texto en Tarjetas de Planes y Comida**:
+  - Eliminado el truncamiento agresivo con centrado flexbox que cortaba los extremos de los títulos (p. ej. *"Paseo al Atardecer y Helado"* o *"Escape Room en Pareja"*).
+  - Estructurado en contenedor de altura fija normalizada (`min-h-[2.4rem]`) con ajuste fluido de hasta 2 líneas (`line-clamp-2 break-words text-center text-[13px] leading-tight`).
+  - Alineación horizontal uniforme del subtítulo (duraciones, categorías o sucursales) en todas las tarjetas de la cuadrícula.
+  - Incrementada la altura mínima de las tarjetas (`min-h-[205px]`) para un equilibrio visual idóneo según Apple HIG.
+- **Contextualización de Pantalla de Resultados en Modo Planes**:
+  - Adaptados los textos del flujo de decisión para Planes: *"Plan Secreto"*, *"¡Plan en común!"*, pestaña *"Plan"* y etiqueta *"Plan confirmado"*.
+- **Service Worker v31**:
+  - Bump de caché en `sw.js` para propagar instantáneamente las mejoras sin problemas de assets cacheados.
+
 ### [v1.5.0] - 2026-10-14
 - **Modo Caos (Regla Sagrada)**:
   - Nueva opción directa en el menú rápido (*Action Sheet* de Home): sorteo express inmediato con advertencia lúdica para resolver bloqueos (*"Quien proteste o ponga mala cara por el sitio elegido tiene que pagar la bebida del otro"*).

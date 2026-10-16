@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ¿Dónde comemos? - Bundle unificado compatible con protocolo file:// y http(s)://
  * Diseñado con estética Apple HIG (iOS 17/18 y visionOS) y 'Liquid Glass'.
  * Sin bloqueos CORS al abrir con doble clic en index.html.
@@ -3963,7 +3963,7 @@
               return `
                 <div 
                   data-id="${r.id}"
-                  class="ios-glass-card p-3 flex flex-col items-center justify-between min-h-[195px] ${cardClass}"
+                  class="ios-glass-card p-3 flex flex-col items-center justify-between min-h-[205px] ${cardClass}"
                 >
                   <div class="w-full flex items-center justify-between mb-1">
                     <div class="flex items-center gap-1">
@@ -3978,7 +3978,7 @@
                       <button 
                         data-action="veto" 
                         data-id="${r.id}" 
-                        title="Veto (Bloquear restaurante)"
+                        title="Veto (Bloquear)"
                         class="btn-card-veto w-6 h-6 rounded-full flex items-center justify-center text-xs transition active:scale-90 ${isVetoed ? 'bg-rose-500 text-white shadow-md font-bold' : 'bg-white/10 text-neutral-400 hover:text-rose-400'}"
                       >
                         <svg class="w-3 h-3 stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
@@ -3998,17 +3998,19 @@
                       alt="${r.name}" 
                       class="w-full h-full object-contain filter drop-shadow-sm"
                       loading="lazy"
-                      onerror="this.src='${r.image}'"
+                      onerror="this.onerror=null;"
                     />
                   </div>
 
-                  <div class="w-full text-center mt-1.5 pointer-events-none">
-                    <div class="font-bold text-[14px] text-white truncate leading-tight flex items-center justify-center gap-1">
-                      <span>${r.name}</span>
-                      ${isSuper ? '<svg class="w-3 h-3 text-amber-400 fill-amber-400 inline" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>' : ''}
-                      ${isVetoed ? '<svg class="w-3 h-3 text-rose-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>' : ''}
+                  <div class="w-full text-center mt-2 pointer-events-none px-1 flex flex-col justify-end">
+                    <div class="min-h-[2.4rem] flex items-center justify-center">
+                      <div class="font-bold text-[13px] leading-tight text-white text-center line-clamp-2 break-words">
+                        ${r.name}
+                        ${isSuper ? '<svg class="w-3 h-3 text-amber-400 fill-amber-400 inline ml-1 align-baseline" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>' : ''}
+                        ${isVetoed ? '<svg class="w-3 h-3 text-rose-400 inline ml-1 align-baseline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>' : ''}
+                      </div>
                     </div>
-                    <div class="text-[10px] text-neutral-400 truncate mt-0.5">
+                    <div class="text-[11px] text-neutral-400 truncate mt-1">
                       ${state.activeMode === 'food' && r.branches ? r.branches.length + ' ubicaciones' : (r.price || r.category)}
                     </div>
                   </div>
@@ -4546,16 +4548,17 @@
     }
 
     const isMovies = state.activeMode === 'movies';
+    const isPlans = state.activeMode === 'plans';
     const branch = state.winningBranch;
     const navUrl = getMysteryNavigationUrl(branch);
 
-    const distanceText = branch.distanceKm !== null
+    const distanceText = branch && branch.distanceKm !== null && branch.distanceKm !== undefined
       ? 'A ~' + (branch.distanceKm < 1 ? Math.round(branch.distanceKm * 1000) + ' m' : branch.distanceKm.toFixed(1) + ' km') + ' de vosotros'
-      : 'Destino calculado';
+      : (isPlans ? 'Ubicación recomendada' : 'Destino calculado');
 
     const headerBadge = state.tieBreakerUser
       ? 'Sorteo (' + state.tieBreakerUser + ')'
-      : (isMovies ? '¡Elección de cine en común!' : '¡Coincidencia ganadora! (' + state.matchesCount + ' en común)');
+      : (isMovies ? '¡Elección de cine en común!' : (isPlans ? '¡Plan en común! (' + state.matchesCount + ' en común)' : '¡Coincidencia ganadora! (' + state.matchesCount + ' en común)'));
 
     const hints = (state.winningRestaurant && state.winningRestaurant.hints) || [
       'Tiene opciones deliciosas y servicio rápido.',
@@ -4578,18 +4581,20 @@
       <div class="mobile-shell px-6 justify-between text-center animate-view-enter">
         <!-- Encabezado con estado y badge de coincidencia -->
         <div class="pt-4">
-          <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full ${isMovies ? 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30' : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'} text-xs font-semibold mb-2 backdrop-blur-xl">
-            <span class="w-2 h-2 rounded-full ${isMovies ? 'bg-indigo-400' : 'bg-emerald-400'}"></span>
+          <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full ${isMovies ? 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30' : (isPlans ? 'bg-purple-500/15 text-purple-300 border-purple-500/30' : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30')} text-xs font-semibold mb-2 backdrop-blur-xl">
+            <span class="w-2 h-2 rounded-full ${isMovies ? 'bg-indigo-400' : (isPlans ? 'bg-purple-400' : 'bg-emerald-400')}"></span>
             <span>${headerBadge}</span>
           </div>
 
           <h2 class="text-3xl font-extrabold text-white tracking-tight">
-            ${isMovies ? 'Elección Secreta' : 'Destino Secreto'}
+            ${isMovies ? 'Elección Secreta' : (isPlans ? 'Plan Secreto' : 'Destino Secreto')}
           </h2>
           <p class="text-[11px] text-neutral-400 mt-0.5 max-w-xs mx-auto leading-relaxed">
             ${isMovies 
               ? 'El título permanece en incógnito. Podéis pedir pistas en Juegos o desvelarlo para ver las plataformas.'
-              : 'El nombre permanece en incógnito. Pulsad en navegación y Maps os llevará sin desvelarlo.'}
+              : (isPlans 
+                  ? 'El plan permanece en incógnito. Podéis pedir pistas en Juegos o desvelarlo para ver todos los detalles.'
+                  : 'El nombre permanece en incógnito. Pulsad en navegación y Maps os llevará sin desvelarlo.')}
           </p>
         </div>
 
@@ -4605,7 +4610,7 @@
               data-tab="destiny"
             >
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-              <span>${isMovies ? 'Elección' : 'Destino'}</span>
+              <span>${isMovies ? 'Elección' : (isPlans ? 'Plan' : 'Destino')}</span>
             </button>
             <button 
               class="tab-btn py-2 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 ${
