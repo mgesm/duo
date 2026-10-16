@@ -348,6 +348,14 @@ La app cuenta con coordenadas reales precargadas para la zona de **Cartagena y M
 - **Service Worker v10**:
   - Actualización de caché para propagar los cambios inmediatamente.
 
+### [v1.9.11] - 2026-10-16
+- **Auditoría y Corrección Integral de Carteles de Películas y Series (TMDb)**:
+  - Realizada comprobación automatizada de las URLs de los 59 carteles del catálogo contra el CDN oficial de TMDb (`image.tmdb.org/t/p/w500/`).
+  - Detectados y corregidos 21 carteles que devolvían error 404 (entre ellos *Coherence*, *Ex Machina*, *Klaus*, *Captain Fantastic*, *Diamantes en bruto*, *Barbarian*, *Una cuestión de tiempo*, *Antes de amanecer*, *(500) días juntos*, *Dune: Parte Dos*, *El Resplandor*, *Cadena Perpetua*, *The Last of Us*, *The Bear*, *Ted Lasso*, etc.), sustituyéndolos por sus hashes oficiales reales verificados al 100% (código 200 OK).
+  - Eliminado el bucle de error en el atributo `onerror` de la etiqueta `<img>` para garantizar un renderizado robusto y elegante en caso de cortes de red.
+- **Service Worker v30**:
+  - Bump de versión de caché a `donde-comemos-v30` en `sw.js` para forzar la recarga de los nuevos carteles en dispositivos móviles.
+
 ### [v1.9.10] - 2026-10-16
 - **Reorganización Lógica de Categorías de Películas y Series**:
   - Reestructurado el orden de la barra de navegación para seguir una jerarquía clara:
