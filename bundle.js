@@ -3729,38 +3729,18 @@
   // 6. PANTALLA DE JUGADOR (DOS TARJETAS POR FILA: GRID-COLS-2)
   // ==========================================
     const MOVIE_CATEGORIES = [
-    {
-      id: 'recommended',
-      label: 'Recomendadas',
-      icon: '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
-    },
-    {
-      id: 'niche',
-      label: 'Joyas Ocultas',
-      icon: '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9z"></path><path d="M11 3 8 9l4 13 4-13-3-6"></path><path d="M2 9h20"></path></svg>'
-    },
-    {
-      id: 'romance',
-      label: 'Románticas',
-      icon: '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>'
-    },
-    {
-      id: 'series',
-      label: 'Series',
-      icon: '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>'
-    },
-    {
-      id: 'all',
-      label: 'Todas',
-      icon: '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>'
-    },
-    { id: 'action', label: 'Acción' },
-    { id: 'scifi', label: 'Ciencia Ficción' },
-    { id: 'drama', label: 'Drama' },
-    { id: 'comedy', label: 'Comedia' },
-    { id: 'horror', label: 'Terror' },
-    { id: 'animation', label: 'Animación' }
-  ];
+      { id: 'recommended', label: 'Recomendadas' },
+      { id: 'niche', label: 'Joyas Ocultas' },
+      { id: 'romance', label: 'Románticas' },
+      { id: 'series', label: 'Series' },
+      { id: 'all', label: 'Todas' },
+      { id: 'action', label: 'Acción' },
+      { id: 'scifi', label: 'Ciencia Ficción' },
+      { id: 'drama', label: 'Drama' },
+      { id: 'comedy', label: 'Comedia' },
+      { id: 'horror', label: 'Terror' },
+      { id: 'animation', label: 'Animación' }
+    ];
 
   function renderPlayerScreen(playerNum) {
     const isP1 = playerNum === 1;
@@ -3870,14 +3850,13 @@
               return `
                 <button 
                   data-cat="${c.id}" 
-                  class="movie-cat-chip px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 transition flex items-center gap-1.5 ${
+                  class="movie-cat-chip px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 transition ${
                     isAct 
                       ? 'bg-white text-black font-bold shadow-lg shadow-white/10 scale-[1.02]' 
                       : 'bg-white/[0.06] text-neutral-400 hover:text-white border border-white/[0.08] active:scale-95'
                   }"
                 >
-                  ${c.icon ? c.icon : ''}
-                  <span>${c.label}</span>
+                  ${c.label}
                 </button>
               `;
             }).join('')}
