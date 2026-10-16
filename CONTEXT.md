@@ -99,7 +99,22 @@ La app cuenta con coordenadas reales precargadas para la zona de **Cartagena y M
 
 ---
 
-## 📝 6. Historial de Cambios (Changelog)
+## 🔮 6. Hoja de Ruta y Futuras Mejoras (Roadmap)
+
+Ideas aprobadas para incorporar progresivamente en futuras iteraciones de Duo:
+
+1. **Modo Viajes / Escapadas (El 4º pilar de decisión)**:
+   - Nuevo modo en el selector segmentado principal: *¿Adónde viajamos este finde?*.
+   - Categorías: *Pueblos con encanto, Playa/Costa, Escapada Rural/Montaña, Escapada Europea*.
+   - Fichas con presupuesto estimado, distancia en coche/avión, pistas misteriosas y enlaces de inspiración.
+
+2. **Álbum de Recuerdos y Diario de Momentos**:
+   - Ampliación del actual *Diario* (`Food Diary`) para convertirlo en un diario fotográfico de recuerdos de pareja/amigos.
+   - Posibilidad de adjuntar una foto del momento tomada con el móvil (cena, mirador, cine, etc.), una valoración de 1 a 5 estrellas y una nota personal tras visitar el destino ganador.
+
+---
+
+## 📝 7. Historial de Cambios (Changelog)
 
 ### [v1.4.0] - 2026-10-14
 - **Modo "Ruleta Rusa / A Ciegas Total" en Inicio**:
