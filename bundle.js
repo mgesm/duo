@@ -3641,6 +3641,11 @@
     }
   }
 
+    const FOOD_TABS = [
+      { id: 'all', label: 'Mis Restaurantes' },
+      { id: 'recommended', label: 'Recomendados' }
+    ];
+
     const MOVIE_CATEGORIES = [
       { id: 'all', label: 'Todas' },
       { id: 'recommended', label: 'Recomendadas' },
@@ -3708,7 +3713,30 @@
       hasMoreInCat = totalCategoryCount > movieCategoryLimit;
       displayedRestaurants = displayedRestaurants.slice(0, movieCategoryLimit);
     } else if (isFood) {
-      totalCategoryCount = displayedRestaurants.length;
+      const ftab = state.foodCategoryFilter || 'all';
+      if (ftab === 'recommended') {
+        const recData = getRecommendedDisplayList();
+        displayedRestaurants = recData.items.map(function (rec) {
+          return {
+            id: rec.id,
+            name: rec.name,
+            category: rec.category,
+            price: rec.price,
+            rating: rec.rating,
+            isRecommended: true,
+            logo: makeRestaurantSvg('#F59E0B'),
+            image: makeRestaurantSvg('#F59E0B'),
+            description: rec.description,
+            branches: [
+              { name: rec.name, address: rec.zone, lat: rec.lat, lng: rec.lng }
+            ]
+          };
+        });
+        totalCategoryCount = recData.total;
+        hasMoreInCat = recData.hasMore;
+      } else {
+        totalCategoryCount = displayedRestaurants.length;
+      }
     }
 
     app.innerHTML = `
@@ -3732,16 +3760,6 @@
             </div>
             <div class="flex items-center gap-1.5">
               ${isFood ? `
-                <button 
-                  id="btn-open-food-recommended" 
-                  class="px-2.5 py-1 rounded-xl text-xs font-bold text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 active:scale-95 transition flex items-center gap-1.5 shadow-sm"
-                  title="Explorar sitios recomendados con filtros (distancia, notas de Google, precio...)"
-                >
-                  <svg class="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                  </svg>
-                  <span>Recomendados</span>
-                </button>
                 <button 
                   id="btn-food-quick-surprise" 
                   class="px-2.5 py-1 rounded-xl text-xs font-bold text-neutral-300 bg-white/[0.08] hover:bg-white/[0.14] border border-white/[0.12] active:scale-95 transition flex items-center gap-1.5 shadow-sm"
@@ -3784,6 +3802,79 @@
             </div>
           </div>
         </div>
+
+        ${isFood ? `
+          <!-- Barra de pestañas de comida estilo visionOS (Mis Restaurantes / Recomendados) -->
+          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-black/60 backdrop-blur-xl sticky top-[108px] z-10">
+            ${FOOD_TABS.map(function(c) {
+              const isAct = (state.foodCategoryFilter || 'all') === c.id;
+              return `
+                <button 
+                  data-food-tab="${c.id}" 
+                  class="food-tab-chip px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 transition ${
+                    isAct 
+                      ? 'bg-white text-black font-bold shadow-lg shadow-white/10 scale-[1.02]' 
+                      : 'bg-white/[0.06] text-neutral-400 hover:text-white border border-white/[0.08] active:scale-95'
+                  }"
+                >
+                  ${c.label}
+                </button>
+              `;
+            }).join('')}
+          </div>
+
+          ${(state.foodCategoryFilter === 'recommended') ? `
+            <!-- Panel de Filtros de Recomendados Google -->
+            <div class="px-4 pt-3 pb-2 border-b border-white/[0.08] bg-black/40 backdrop-blur-md space-y-2.5">
+              <!-- Búsqueda de ciudad o zona -->
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-400">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+                <input 
+                  id="tab-rec-city" 
+                  type="text" 
+                  placeholder="Buscar ciudad o zona (Cartagena, Murcia...)" 
+                  value="${(state.recommendedCityQuery || '').replace(/"/g, '&quot;')}"
+                  class="w-full bg-white/[0.06] border border-white/[0.12] focus:border-amber-500/50 rounded-xl pl-8 pr-8 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none transition shadow-inner"
+                />
+                ${state.recommendedCityQuery ? `
+                  <button id="btn-tab-clear-city" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-neutral-400 hover:text-white transition">
+                    <div class="w-3.5 h-3.5 rounded-full bg-white/10 flex items-center justify-center text-[9px] font-bold">✕</div>
+                  </button>
+                ` : ''}
+              </div>
+
+              <!-- Filtros en línea: Estrellas y Distancia -->
+              <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 text-[11px]">
+                <button id="btn-tab-use-gps" class="shrink-0 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1 transition ${!state.recommendedCityQuery ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-white/[0.05] text-neutral-400 border border-white/[0.08]'}">
+                  <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+                  <span>GPS</span>
+                </button>
+                <div class="w-px h-4 bg-white/10 shrink-0"></div>
+                <button data-tab-rec-rating="4.5" class="shrink-0 px-2.5 py-1 rounded-lg font-semibold transition ${state.recommendedMinRating === 4.5 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/35' : 'bg-white/[0.05] text-neutral-400 border border-white/[0.08]'}">
+                  +4.5★
+                </button>
+                <button data-tab-rec-rating="4.3" class="shrink-0 px-2.5 py-1 rounded-lg font-semibold transition ${state.recommendedMinRating === 4.3 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/35' : 'bg-white/[0.05] text-neutral-400 border border-white/[0.08]'}">
+                  +4.3★
+                </button>
+                <button data-tab-rec-rating="0" class="shrink-0 px-2.5 py-1 rounded-lg font-semibold transition ${state.recommendedMinRating === 0 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/35' : 'bg-white/[0.05] text-neutral-400 border border-white/[0.08]'}">
+                  Todas★
+                </button>
+                <div class="w-px h-4 bg-white/10 shrink-0"></div>
+                <button data-tab-rec-dist="5" class="shrink-0 px-2 py-1 rounded-lg font-semibold transition ${state.recommendedMaxDistance === 5 ? 'bg-white/20 text-white border border-white/25' : 'bg-white/[0.05] text-neutral-400 border border-white/[0.08]'}">&lt;5km</button>
+                <button data-tab-rec-dist="15" class="shrink-0 px-2 py-1 rounded-lg font-semibold transition ${state.recommendedMaxDistance === 15 ? 'bg-white/20 text-white border border-white/25' : 'bg-white/[0.05] text-neutral-400 border border-white/[0.08]'}">&lt;15km</button>
+                <button data-tab-rec-dist="30" class="shrink-0 px-2 py-1 rounded-lg font-semibold transition ${state.recommendedMaxDistance === 30 ? 'bg-white/20 text-white border border-white/25' : 'bg-white/[0.05] text-neutral-400 border border-white/[0.08]'}">&lt;30km</button>
+                <button data-tab-rec-dist="all" class="shrink-0 px-2 py-1 rounded-lg font-semibold transition ${state.recommendedMaxDistance === null ? 'bg-white/20 text-white border border-white/25' : 'bg-white/[0.05] text-neutral-400 border border-white/[0.08]'}">Todas dist.</button>
+              </div>
+
+              <div class="flex items-center justify-between text-[10px] text-neutral-400 pt-0.5">
+                <span>${totalCategoryCount > 0 ? ('Mostrando ' + displayedRestaurants.length + ' de ' + totalCategoryCount + ' restaurantes Google') : 'Sin resultados con estos filtros'}</span>
+                <span class="text-amber-400 font-medium">Google Reviews</span>
+              </div>
+            </div>
+          ` : ''}
+        ` : ''}
 
         ${isMovies ? `
           <!-- Barra de categorías de películas y series estilo visionOS -->
@@ -3961,14 +4052,14 @@
             })
             .join('')}
 
-          ${isMovies && hasMoreInCat ? `
+          ${((isMovies && hasMoreInCat) || (isFood && state.foodCategoryFilter === 'recommended' && hasMoreInCat)) ? `
             <div class="col-span-2 pt-1 pb-2 flex justify-center">
               <button 
-                id="btn-movie-ver-mas" 
+                id="${isFood ? 'btn-food-ver-mas' : 'btn-movie-ver-mas'}" 
                 class="w-full py-3.5 px-4 rounded-2xl text-xs font-bold text-white bg-white/[0.08] hover:bg-white/[0.14] border border-white/[0.12] active:scale-[0.98] transition flex items-center justify-center gap-2 shadow-lg backdrop-blur-xl"
               >
                 <svg class="w-4 h-4 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-                <span>Ver más películas (${totalCategoryCount - movieCategoryLimit} más)</span>
+                <span>Ver más ${isFood ? 'restaurantes' : 'películas'} (${totalCategoryCount - displayedRestaurants.length} más)</span>
               </button>
             </div>
           ` : ''}
@@ -3986,17 +4077,96 @@
       </div>
     `;
 
-    const btnOpenFoodRec = document.getElementById('btn-open-food-recommended');
-    if (btnOpenFoodRec) {
-      btnOpenFoodRec.addEventListener('click', function (e) {
+    document.querySelectorAll('.food-tab-chip').forEach(function (chip) {
+      chip.addEventListener('click', function (e) {
         e.stopPropagation();
         sound.playPop();
-        sound.vibrate([25]);
-        state.recommendedReturnScreen = isP1 ? 'player1' : 'player2';
-        state.screen = 'recommended';
-        render();
+        sound.vibrate([20]);
+        state.foodCategoryFilter = chip.dataset.foodTab;
+        renderPlayerScreen(playerNum);
+      });
+    });
+
+    const btnFoodVerMas = document.getElementById('btn-food-ver-mas');
+    if (btnFoodVerMas) {
+      btnFoodVerMas.addEventListener('click', function (e) {
+        e.stopPropagation();
+        sound.playPop();
+        sound.vibrate([20]);
+        state.recommendedLimit = (state.recommendedLimit || 5) + 5;
+        renderPlayerScreen(playerNum);
       });
     }
+
+    const tabCityInput = document.getElementById('tab-rec-city');
+    if (tabCityInput) {
+      tabCityInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          state.recommendedCityQuery = tabCityInput.value.trim();
+          state.recommendedLimit = 5;
+          sound.playPop();
+          renderPlayerScreen(playerNum);
+        }
+      });
+      tabCityInput.addEventListener('change', function () {
+        state.recommendedCityQuery = tabCityInput.value.trim();
+        state.recommendedLimit = 5;
+        renderPlayerScreen(playerNum);
+      });
+    }
+
+    const btnTabClearCity = document.getElementById('btn-tab-clear-city');
+    if (btnTabClearCity) {
+      btnTabClearCity.addEventListener('click', function (e) {
+        e.stopPropagation();
+        sound.playPop();
+        state.recommendedCityQuery = '';
+        state.recommendedLimit = 5;
+        renderPlayerScreen(playerNum);
+      });
+    }
+
+    const btnTabUseGps = document.getElementById('btn-tab-use-gps');
+    if (btnTabUseGps) {
+      btnTabUseGps.addEventListener('click', function (e) {
+        e.stopPropagation();
+        sound.playPop();
+        sound.vibrate([20]);
+        state.recommendedCityQuery = '';
+        state.recommendedLimit = 5;
+        getUserLocation().then(function (coords) {
+          if (coords) {
+            state.userCoords = coords;
+          }
+          renderPlayerScreen(playerNum);
+        });
+      });
+    }
+
+    document.querySelectorAll('[data-tab-rec-dist]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const val = btn.dataset.tabRecDist;
+        state.recommendedMaxDistance = val === 'all' ? null : Number(val);
+        state.recommendedLimit = 5;
+        sound.playPop();
+        sound.vibrate([20]);
+        renderPlayerScreen(playerNum);
+      });
+    });
+
+    document.querySelectorAll('[data-tab-rec-rating]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const val = Number(btn.dataset.tabRecRating);
+        state.recommendedMinRating = val;
+        state.recommendedLimit = 5;
+        sound.playPop();
+        sound.vibrate([20]);
+        renderPlayerScreen(playerNum);
+      });
+    });
 
     const btnFoodSurprise = document.getElementById('btn-food-quick-surprise');
     if (btnFoodSurprise) {
