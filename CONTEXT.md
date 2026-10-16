@@ -348,6 +348,15 @@ La app cuenta con coordenadas reales precargadas para la zona de **Cartagena y M
 - **Service Worker v10**:
   - Actualización de caché para propagar los cambios inmediatamente.
 
+### [v1.9.10] - 2026-10-16
+- **Reorganización Lógica de Categorías de Películas y Series**:
+  - Reestructurado el orden de la barra de navegación para seguir una jerarquía clara:
+    1. **Vistas generales y colecciones**: *Todas* (catálogo completo y pestaña por defecto al entrar), *Recomendadas* (lo mejor de la crítica), *Joyas Ocultas* (cine de culto/nicho y streaming originals) y *Series* (formato televisivo).
+    2. **Géneros temáticos de cine**: *Acción*, *Comedia*, *Drama*, *Románticas* (reubicada junto a los demás géneros de cine), *Ciencia Ficción*, *Terror* y *Animación*.
+  - El filtro por defecto al iniciar se establece en *Todas*, resaltando la primera píldora de forma natural.
+- **Service Worker v29**:
+  - Bump de caché a `donde-comemos-v29` en `sw.js` para propagación inmediata.
+
 ### [v1.9.9] - 2026-10-16
 - **Unificación Tipográfica de Píldoras de Categorías (Sin Iconos)**:
   - Eliminados los iconos de todas las categorías de películas y series para lograr una estética 100% homogénea, sobria y limpia estilo Apple visionOS.

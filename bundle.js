@@ -2485,7 +2485,7 @@
     activeChallenge: null,
     restaurants: [],
     selectedCategory: 'all',
-    movieCategoryFilter: 'recommended',
+    movieCategoryFilter: 'all',
     movieCategoryLimits: {},
     winningRestaurant: null,
     winningBranch: null,
@@ -3599,6 +3599,7 @@
       sound.playWhoosh();
       sound.vibrate([40]);
       state.movieCategoryLimits = {};
+      state.movieCategoryFilter = 'all';
       state.player1Selections.clear();
       state.player2Selections.clear();
       state.player1Veto = null;
@@ -3729,15 +3730,15 @@
   // 6. PANTALLA DE JUGADOR (DOS TARJETAS POR FILA: GRID-COLS-2)
   // ==========================================
     const MOVIE_CATEGORIES = [
+      { id: 'all', label: 'Todas' },
       { id: 'recommended', label: 'Recomendadas' },
       { id: 'niche', label: 'Joyas Ocultas' },
-      { id: 'romance', label: 'Románticas' },
       { id: 'series', label: 'Series' },
-      { id: 'all', label: 'Todas' },
       { id: 'action', label: 'Acción' },
-      { id: 'scifi', label: 'Ciencia Ficción' },
-      { id: 'drama', label: 'Drama' },
       { id: 'comedy', label: 'Comedia' },
+      { id: 'drama', label: 'Drama' },
+      { id: 'romance', label: 'Románticas' },
+      { id: 'scifi', label: 'Ciencia Ficción' },
       { id: 'horror', label: 'Terror' },
       { id: 'animation', label: 'Animación' }
     ];
@@ -3778,7 +3779,7 @@
     let hasMoreInCat = false;
 
     if (isMovies) {
-      const cat = state.movieCategoryFilter || 'recommended';
+      const cat = state.movieCategoryFilter || 'all';
       displayedRestaurants = displayedRestaurants.filter(function (r) {
         if (cat === 'all') return r.type === 'movie';
         if (cat === 'recommended') return r.type === 'movie' && !!r.isRecommended;
@@ -3846,7 +3847,7 @@
           <!-- Barra de categorías de películas y series estilo visionOS -->
           <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-black/60 backdrop-blur-xl sticky top-[108px] z-10">
             ${MOVIE_CATEGORIES.map(function(c) {
-              const isAct = (state.movieCategoryFilter || 'recommended') === c.id;
+              const isAct = (state.movieCategoryFilter || 'all') === c.id;
               return `
                 <button 
                   data-cat="${c.id}" 
@@ -4056,7 +4057,7 @@
         e.stopPropagation();
         sound.playPop();
         sound.vibrate([20]);
-        const cat = state.movieCategoryFilter || 'recommended';
+        const cat = state.movieCategoryFilter || 'all';
         if (!state.movieCategoryLimits) state.movieCategoryLimits = {};
         state.movieCategoryLimits[cat] = (state.movieCategoryLimits[cat] || 6) + 6;
         renderPlayerScreen(playerNum);
