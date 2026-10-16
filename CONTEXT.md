@@ -348,6 +348,19 @@ La app cuenta con coordenadas reales precargadas para la zona de **Cartagena y M
 - **Service Worker v10**:
   - Actualización de caché para propagar los cambios inmediatamente.
 
+### [v1.9.6] - 2026-10-16
+- **Overhaul Integral de Películas y Series**:
+  - **Servicios de Streaming**: Badges oficiales integrados en cada tarjeta y en la pantalla de resultado para Netflix, Max (HBO), Apple TV+, Disney+, Movistar+ y Prime Video, con enlaces directos para reproducir en un clic.
+  - **Categorías y Filtros por Género**: Barra horizontal deslizable estilo visionOS (`Recomendadas`, `Todas`, `Series`, `Acción`, `Ciencia Ficción`, `Drama`, `Comedia`, `Terror`, `Animación`).
+  - **Categoría "Recomendadas"**: Colección de joyas cinematográficas aclamadas por la crítica de todos los géneros (IMDb 8.5+, Oscars).
+  - **Categoría dedicada "Series"**: Segregación estricta de series para no mezclarlas con películas.
+  - **Pósters Oficiales TMDB**: Carteles oficiales en proporción 2:3 vertical de alta resolución en cada tarjeta y en grande en la pantalla de resultado.
+  - **Sinopsis de 2 Líneas y Modal Completo**: Previsualización de argumento en cada tarjeta con limitación elegante a 2 líneas más botón `(i)` que abre un Apple Sheet modal con sinopsis extendida, plataformas disponibles, curiosidades y tráiler en YouTube.
+- **Eliminación de la Misión Secreta**:
+  - Suprimido el bloque y eventos de la "Misión Secreta" de la pestaña de Juegos tras la selección a petición del usuario.
+- **Service Worker v24**:
+  - Actualización de caché para propagación instantánea offline.
+
 ### [v1.5.0] - 2026-10-14
 - **Modo Caos (Regla Sagrada)**:
   - Nueva opción directa en el menú rápido (*Action Sheet* de Home): sorteo express inmediato con advertencia lúdica para resolver bloqueos (*"Quien proteste o ponga mala cara por el sitio elegido tiene que pagar la bebida del otro"*).

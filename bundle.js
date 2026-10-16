@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ¿Dónde comemos? - Bundle unificado compatible con protocolo file:// y http(s)://
  * Diseñado con estética Apple HIG (iOS 17/18 y visionOS) y 'Liquid Glass'.
  * Sin bloqueos CORS al abrir con doble clic en index.html.
@@ -231,210 +231,987 @@
     return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
   }
 
-  const MOVIES_CATALOGUE = [
-    {
-      id: 'movie-the-bear',
-      name: 'The Bear',
-      category: 'Disney+ • Serie',
-      price: '3 Temporadas',
-      color: '#0284C7',
-      logo: makeMovieSvg('#0284C7'),
-      image: makeMovieSvg('#0284C7'),
-      description: 'Un prestigioso chef de alta cocina regresa a Chicago para levantar la caótica sandwichería familiar.',
-      hints: [
-        'En esta cocina la frase más repetida con respeto es: ¡Oído, Chef!',
-        'El negocio original era de bocadillos de ternera italiana.',
-        'El ritmo frenético y la tensión de los fogones no da respiro.',
-        'Ha ganado múltiples premios Emmy a mejor serie.'
-      ],
-      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
-    },
-    {
-      id: 'movie-stranger-things',
-      name: 'Stranger Things',
-      category: 'Netflix • Serie',
-      price: '4 Temporadas',
+  const STREAMING_PROVIDERS = {
+    netflix: {
+      name: 'Netflix',
       color: '#E50914',
-      logo: makeMovieSvg('#E50914'),
-      image: makeMovieSvg('#E50914'),
-      description: 'Misterios sobrenaturales de los 80, experimentos secretos del gobierno y una niña con telequinesis.',
-      hints: [
-        'Todo comenzó con la desaparición de un niño en Hawkins, Indiana.',
-        'Existe una dimensión alternativa oscura llamada Del Revés.',
-        'A la protagonista le fascinan los gofres tostados.',
-        'Banda sonora de sintetizadores ochenteros inconfundible.'
-      ],
-      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+      bg: '#E50914',
+      url: 'https://www.netflix.com',
+      badgeHtml: '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-black bg-[#E50914] text-white tracking-wider">NETFLIX</span>'
     },
-    {
-      id: 'movie-the-last-of-us',
-      name: 'The Last of Us',
-      category: 'Max • Serie',
-      price: '1 Temporada',
-      color: '#10B981',
-      logo: makeMovieSvg('#10B981'),
-      image: makeMovieSvg('#10B981'),
-      description: 'Joel y Ellie cruzan un país postapocalíptico desolado por una pandemia fúngica de cordyceps.',
-      hints: [
-        'Una mutación de hongo devastó por completo a la civilización.',
-        'Un contrabandista endurecido debe proteger a una joven inmune.',
-        'Adaptación fiel de una de las mayores obras maestras del videojuego.',
-        'Los infectados más peligrosos se orientan por chasquidos acústicos.'
-      ],
-      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    hbo: {
+      name: 'Max',
+      color: '#002BE7',
+      bg: '#002BE7',
+      url: 'https://www.max.com',
+      badgeHtml: '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-black bg-[#002BE7] text-white tracking-wider">MAX</span>'
     },
-    {
-      id: 'movie-dune',
-      name: 'Dune',
-      category: 'Max / Prime • Película',
-      price: '165 min',
-      color: '#D97706',
-      logo: makeMovieSvg('#D97706'),
-      image: makeMovieSvg('#D97706'),
-      description: 'Paul Atreides debe viajar al planeta desértico más peligroso del universo para salvar su pueblo.',
-      hints: [
-        'La especia melange solo se cosecha en el planeta desértico Arrakis.',
-        'Gusanos de arena gigantescos emergen al ritmo de las pisadas.',
-        'El miedo es el asesino de la mente.',
-        'Dirigida por Denis Villeneuve con banda sonora de Hans Zimmer.'
-      ],
-      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    prime: {
+      name: 'Prime Video',
+      color: '#00A8E1',
+      bg: '#00050d',
+      url: 'https://www.primevideo.com',
+      badgeHtml: '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-black bg-[#00A8E1] text-black tracking-tight">PRIME</span>'
     },
+    disney: {
+      name: 'Disney+',
+      color: '#00D6FF',
+      bg: '#040714',
+      url: 'https://www.disneyplus.com',
+      badgeHtml: '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#040714] text-[#00D6FF] border border-[#00D6FF]/40 tracking-tight">DISNEY+</span>'
+    },
+    apple: {
+      name: 'Apple TV+',
+      color: '#FFFFFF',
+      bg: '#1C1C1E',
+      url: 'https://tv.apple.com',
+      badgeHtml: '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-white/15 text-white border border-white/25 tracking-tight">tv+</span>'
+    },
+    movistar: {
+      name: 'Movistar+',
+      color: '#019DF4',
+      bg: '#011B38',
+      url: 'https://ver.movistarplus.es',
+      badgeHtml: '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#011B38] text-[#019DF4] border border-[#019DF4]/40 tracking-tight">M+</span>'
+    }
+  };
+
+  function renderStreamingBadges(providers, isLarge) {
+    if (!providers || !providers.length) return '';
+    return providers.map(function(key) {
+      const p = STREAMING_PROVIDERS[key];
+      if (!p) return '';
+      if (isLarge) {
+        return '<a href="' + p.url + '" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/15 bg-white/[0.08] hover:bg-white/[0.15] text-white text-xs font-bold transition active:scale-95 shadow-sm">' +
+          p.badgeHtml + '<span>' + p.name + '</span></a>';
+      }
+      return p.badgeHtml;
+    }).join(' ');
+  }
+
+  const MOVIES_CATALOGUE = [
+    // --- 1. RECOMENDADAS / TOP CRÃTICA (TODOS LOS GÃ‰NEROS) ---
     {
       id: 'movie-interstellar',
       name: 'Interstellar',
-      category: 'Prime Video • Película',
+      type: 'movie',
+      genre: 'scifi',
+      isRecommended: true,
+      category: 'Ciencia FicciÃ³n â€¢ Ã‰pica',
       price: '169 min',
+      duration: '169 min',
+      rating: '8.7',
+      year: 2014,
+      streaming: ['prime', 'hbo'],
       color: '#3B82F6',
-      logo: makeMovieSvg('#3B82F6'),
-      image: makeMovieSvg('#3B82F6'),
+      poster: 'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
+      synopsis: 'Un grupo de astronautas atraviesa un agujero de gusano cerca de Saturno en una misiÃ³n desesperada para hallar un nuevo hogar habitable antes de que la Tierra colapse.',
       description: 'Un grupo de astronautas atraviesa un agujero de gusano buscando un nuevo hogar para la humanidad.',
       hints: [
-        'Un reloj de manecillas y una librería conectan el espacio y el tiempo.',
-        'En el planeta de las olas titánicas, una hora son siete años en la Tierra.',
-        'El amor es lo único que trasciende las dimensiones.',
-        'Una obra colosal de Christopher Nolan.'
+        'Un reloj de manecillas y una librerÃ­a conectan el espacio y el tiempo.',
+        'En el planeta de las olas titÃ¡nicas, una hora son siete aÃ±os en la Tierra.',
+        'El amor es lo Ãºnico que trasciende las dimensiones.',
+        'Una obra colosal de Christopher Nolan con banda sonora de Hans Zimmer.'
       ],
-      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
-    },
-    {
-      id: 'movie-ted-lasso',
-      name: 'Ted Lasso',
-      category: 'Apple TV+ • Serie',
-      price: '3 Temporadas',
-      color: '#F59E0B',
-      logo: makeMovieSvg('#F59E0B'),
-      image: makeMovieSvg('#F59E0B'),
-      description: 'Un entrenador de fútbol americano cruza el charco para dirigir un club de la Premier League inglesa.',
-      hints: [
-        'Un cartel amarillo con la palabra BELIEVE sobre la puerta del vestuario.',
-        'Hornea galletas caseras en caja rosa todas las mañanas para su jefa.',
-        'El optimismo puro y la amabilidad desarman a cualquiera.',
-        'Su protagonista luce un icónico bigote y simpatía sureña.'
-      ],
-      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
-    },
-    {
-      id: 'movie-severance',
-      name: 'Severance',
-      category: 'Apple TV+ • Serie',
-      price: '2 Temporadas',
-      color: '#06B6D4',
-      logo: makeMovieSvg('#06B6D4'),
-      image: makeMovieSvg('#06B6D4'),
-      description: 'Empleados dividen sus recuerdos quirúrgicamente entre su jornada laboral y su vida personal.',
-      hints: [
-        'Tu "yo" del trabajo no sabe nada de tu vida exterior, ni al revés.',
-        'Pasillos infinitos de color blanco inmaculado y moqueta verde.',
-        'Lumon Industries premia a los mejores empleados con fiestas de baile y melón.',
-        'El ascensor de la oficina marca el cambio instantáneo de consciencia.'
-      ],
-      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
     },
     {
       id: 'movie-inception',
       name: 'Inception (Origen)',
-      category: 'Max / Prime • Película',
+      type: 'movie',
+      genre: 'scifi',
+      isRecommended: true,
+      category: 'Ciencia FicciÃ³n â€¢ Thriller',
       price: '148 min',
+      duration: '148 min',
+      rating: '8.8',
+      year: 2010,
+      streaming: ['hbo', 'movistar'],
       color: '#8B5CF6',
-      logo: makeMovieSvg('#8B5CF6'),
-      image: makeMovieSvg('#8B5CF6'),
-      description: 'Un ladrón que roba secretos entrando en los sueños de los demás debe implantar una idea ajena.',
+      poster: 'https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg',
+      synopsis: 'Dom Cobb es un ladrÃ³n capaz de infiltrarse en el subconsciente ajeno durante los sueÃ±os. Ahora debe realizar lo imposible: implantar una idea sin ser descubierto.',
+      description: 'Un ladrÃ³n que roba secretos entrando en los sueÃ±os de los demÃ¡s debe implantar una idea ajena.',
       hints: [
-        'Una peonza metálica girando sobre una mesa para comprobar si es realidad o sueño.',
-        'Peleas de gravedad cero en el pasillo de un hotel.',
-        'La canción de Edith Piaf avisa de la patada inminente para despertar.',
+        'Una peonza metÃ¡lica girando sobre una mesa para comprobar si es realidad o sueÃ±o.',
+        'Peleas ingrÃ¡vidas en el pasillo giratorio de un hotel.',
+        'La canciÃ³n de Ã‰dith Piaf avisa de la patada inminente para despertar.',
         'Protagonizada por Leonardo DiCaprio y dirigida por Nolan.'
       ],
-      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
     },
     {
       id: 'movie-oppenheimer',
       name: 'Oppenheimer',
-      category: 'SkyShowtime • Película',
+      type: 'movie',
+      genre: 'drama',
+      isRecommended: true,
+      category: 'Drama â€¢ BiografÃ­a',
       price: '180 min',
+      duration: '180 min',
+      rating: '8.9',
+      year: 2023,
+      streaming: ['prime', 'movistar'],
       color: '#F97316',
-      logo: makeMovieSvg('#F97316'),
-      image: makeMovieSvg('#F97316'),
-      description: 'La historia del físico J. Robert Oppenheimer y el proyecto Manhattan en Los Álamos.',
+      poster: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
+      synopsis: 'La intensa historia del fÃ­sico J. Robert Oppenheimer y su liderazgo cientÃ­fico en el Proyecto Manhattan para construir la primera arma atÃ³mica durante la Segunda Guerra Mundial.',
+      description: 'La historia del fÃ­sico J. Robert Oppenheimer y el proyecto Manhattan en Los Ãlamos.',
       hints: [
-        'El silencio absoluto durante la prueba Trinity.',
+        'El silencio absoluto y aterrador durante la prueba Trinity.',
         'Ahora me he convertido en la muerte, el destructor de mundos.',
-        'Arrasó con 7 premios Óscar, incluyendo Mejor Película.',
-        'Cillian Murphy encarna al padre de la bomba atómica.'
+        'ArrasÃ³ con 7 premios Ã“scar, incluyendo Mejor PelÃ­cula y Mejor Director.',
+        'Cillian Murphy encarna al padre de la bomba atÃ³mica.'
       ],
-      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
     },
     {
-      id: 'movie-spiderman',
-      name: 'Spider-Man: Multiverso',
-      category: 'Movistar+ • Película',
-      price: '140 min',
-      color: '#EF4444',
-      logo: makeMovieSvg('#EF4444'),
-      image: makeMovieSvg('#EF4444'),
-      description: 'Miles Morales es catapultado a través del Multiverso y redefine lo que significa salvar a quienes ama.',
+      id: 'movie-dark-knight',
+      name: 'El Caballero Oscuro',
+      type: 'movie',
+      genre: 'action',
+      isRecommended: true,
+      category: 'AcciÃ³n â€¢ Thriller',
+      price: '152 min',
+      duration: '152 min',
+      rating: '9.0',
+      year: 2008,
+      streaming: ['hbo', 'movistar'],
+      color: '#475569',
+      poster: 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
+      synopsis: 'Batman, Gordon y Harvey Dent avanzan contra el crimen en Gotham hasta que un siniestro y desquiciado criminal apodado Joker desata el caos absoluto en la ciudad.',
+      description: 'Batman se enfrenta a su mayor enemigo psicolÃ³gico: el Joker.',
       hints: [
-        'Animación deslumbrante que mezcla estilos visuales de cómic en cada plano.',
-        'Miles Morales y Gwen Stacy saltan entre realidades paralelas.',
-        'Los eventos canónicos marcan el destino inevitable de cada héroe.',
-        'Revolución artística que ha marcado un antes y un después en el cine.'
+        'Â¿Por quÃ© tan serio? Una cicatriz en forma de sonrisa eterna.',
+        'Una moneda de dos caras que decide entre la justicia y la venganza.',
+        'Heath Ledger firmÃ³ una de las actuaciones mÃ¡s legendarias del cine.',
+        'El hÃ©roe que Gotham se merece, pero no el que necesita ahora.'
       ],
-      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
     },
     {
       id: 'movie-gladiator',
       name: 'Gladiator',
-      category: 'Prime Video • Película',
+      type: 'movie',
+      genre: 'action',
+      isRecommended: true,
+      category: 'AcciÃ³n â€¢ HistÃ³rico',
       price: '155 min',
+      duration: '155 min',
+      rating: '8.5',
+      year: 2000,
+      streaming: ['netflix', 'prime'],
       color: '#B45309',
-      logo: makeMovieSvg('#B45309'),
-      image: makeMovieSvg('#B45309'),
+      poster: 'https://image.tmdb.org/t/p/w500/ty8TGRuvJLPUmAR1H1nRIsgwvim.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/ty8TGRuvJLPUmAR1H1nRIsgwvim.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/ty8TGRuvJLPUmAR1H1nRIsgwvim.jpg',
+      synopsis: 'MÃ¡ximo DÃ©cimo Meridio, el general predilecto del emperador, es traicionado por CÃ³modo y reducido a esclavo gladiador, luchando en el Coliseo por vengar a su familia.',
       description: 'Un respetado general romano traicionado resurge como gladiador en el Coliseo en busca de justicia.',
       hints: [
         'Acariciar espigas doradas de trigo con la palma de la mano.',
-        'Mi nombre es Máximo Décimo Meridio, comandante de los ejércitos del norte...',
+        'Mi nombre es MÃ¡ximo DÃ©cimo Meridio, comandante de los ejÃ©rcitos del norte...',
         'Lo que hacemos en la vida tiene su eco en la eternidad.',
-        'La arena del Coliseo y la épica banda sonora de Hans Zimmer.'
+        'La arena ensangrentada del Coliseo y la Ã©pica mÃºsica de Hans Zimmer.'
       ],
-      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
     },
     {
-      id: 'movie-la-casa-papel',
-      name: 'La Casa de Papel',
-      category: 'Netflix • Serie',
-      price: '5 Temporadas',
-      color: '#DC2626',
-      logo: makeMovieSvg('#DC2626'),
-      image: makeMovieSvg('#DC2626'),
-      description: 'Ocho atracadores con nombres de ciudades asaltan la Fábrica de Moneda bajo el plan de El Profesor.',
+      id: 'movie-parasite',
+      name: 'ParÃ¡sitos (Parasite)',
+      type: 'movie',
+      genre: 'drama',
+      isRecommended: true,
+      category: 'Thriller â€¢ Drama',
+      price: '132 min',
+      duration: '132 min',
+      rating: '8.5',
+      year: 2019,
+      streaming: ['prime', 'movistar'],
+      color: '#059669',
+      poster: 'https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg',
+      synopsis: 'Una humilde familia sin empleo se introduce meticulosamente en la vida de una adinerada familia como profesores y chÃ³feres, desatando un incidente imprevisto e impactante.',
+      description: 'La picaresca de una familia humilde al infiltrarse en la mansiÃ³n de unos millonarios.',
       hints: [
-        'Monos de trabajo rojos y máscaras de Salvador Dalí.',
-        'El líder de la banda opera desde un hangar aislado con una maqueta.',
-        'El himno de resistencia que cantan es Bella Ciao.',
-        'Fenómeno global de la ficción en español.'
+        'Buscar cobertura Wi-Fi pegando el telÃ©fono al techo del semisÃ³tano.',
+        'La receta de fideos Ram-don con carne de ternera de primera calidad.',
+        'Una tormenta torrencial que inunda todo el barrio bajo.',
+        'Ganadora histÃ³rica de 4 Ã“scar, incluyendo Mejor PelÃ­cula.'
       ],
-      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-dune',
+      name: 'Dune (Parte 1)',
+      type: 'movie',
+      genre: 'scifi',
+      isRecommended: true,
+      category: 'Ciencia FicciÃ³n â€¢ Aventura',
+      price: '155 min',
+      duration: '155 min',
+      rating: '8.0',
+      year: 2021,
+      streaming: ['hbo', 'prime'],
+      color: '#D97706',
+      poster: 'https://image.tmdb.org/t/p/w500/d5NXSklXo0qyIYkgV94XAgMIckC.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/d5NXSklXo0qyIYkgV94XAgMIckC.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/d5NXSklXo0qyIYkgV94XAgMIckC.jpg',
+      synopsis: 'Paul Atreides viaja al planeta desÃ©rtico Arrakis, la Ãºnica fuente de la sustancia mÃ¡s valiosa del universo, donde su familia cae vÃ­ctima de una conspiraciÃ³n imperial.',
+      description: 'Paul Atreides debe viajar al planeta desÃ©rtico mÃ¡s peligroso del universo para salvar su pueblo.',
+      hints: [
+        'La especia melange solo se cosecha en las dunas de Arrakis.',
+        'Gusanos colosales emergen de la arena guiados por las pisadas rÃ­tmicas.',
+        'El miedo es el asesino de la mente.',
+        'Denis Villeneuve orquesta un espectÃ¡culo visual y sonoro descomunal.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-pulp-fiction',
+      name: 'Pulp Fiction',
+      type: 'movie',
+      genre: 'drama',
+      isRecommended: true,
+      category: 'Crimen â€¢ Comedia Negra',
+      price: '154 min',
+      duration: '154 min',
+      rating: '8.9',
+      year: 1994,
+      streaming: ['netflix', 'movistar'],
+      color: '#EAB308',
+      poster: 'https://image.tmdb.org/t/p/w500/vQWk5YBFWF4bZaofAbv0tShwBvQ.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/vQWk5YBFWF4bZaofAbv0tShwBvQ.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/vQWk5YBFWF4bZaofAbv0tShwBvQ.jpg',
+      synopsis: 'Las vidas de dos gÃ¡nsteres filÃ³sofos, la atractiva esposa de su jefe, un boxeador en apuros y una pareja de atracadores se cruzan en un torbellino de diÃ¡logos inolvidables.',
+      description: 'Obra cumbre de Quentin Tarantino con narraciÃ³n no lineal e ironÃ­a brillante.',
+      hints: [
+        'Un baile descalzos al ritmo de You Never Can Tell en un restaurante retro.',
+        'Un maletÃ­n misterioso con un resplandor dorado en su interior.',
+        'La famosa conversaciÃ³n sobre cÃ³mo llaman en ParÃ­s al Cuarto de Libra.',
+        'John Travolta, Uma Thurman y Samuel L. Jackson en estado de gracia.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-chihiro',
+      name: 'El Viaje de Chihiro',
+      type: 'movie',
+      genre: 'animation',
+      isRecommended: true,
+      category: 'AnimaciÃ³n â€¢ FantasÃ­a',
+      price: '125 min',
+      duration: '125 min',
+      rating: '8.6',
+      year: 2001,
+      streaming: ['netflix'],
+      color: '#EC4899',
+      poster: 'https://image.tmdb.org/t/p/w500/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg',
+      synopsis: 'Una niÃ±a de diez aÃ±os queda atrapada en un mundo mÃ¡gico de espÃ­ritus y dioses gobernado por la bruja Yubaba, debiendo encontrar el coraje para liberar a sus padres.',
+      description: 'La joya maestra de Hayao Miyazaki y Studio Ghibli galardonada con el Ã“scar.',
+      hints: [
+        'Un balneario tradicional donde acuden dioses y espÃ­ritus a relajarse.',
+        'El misterioso personaje Sin Rostro con su mÃ¡scara blanca.',
+        'Haku, el joven que puede transformarse en un dragÃ³n blanco de rÃ­o.',
+        'Obra de arte de la animaciÃ³n tradicional japonesa dibujada a mano.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-shawshank',
+      name: 'Cadena Perpetua',
+      type: 'movie',
+      genre: 'drama',
+      isRecommended: true,
+      category: 'Drama â€¢ Penitenciario',
+      price: '142 min',
+      duration: '142 min',
+      rating: '9.3',
+      year: 1994,
+      streaming: ['hbo', 'movistar'],
+      color: '#64748B',
+      poster: 'https://image.tmdb.org/t/p/w500/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg',
+      synopsis: 'Condenado a cadena perpetua por un crimen que no cometiÃ³, el banquero Andy Dufresne forja una inquebrantable amistad con Red y mantiene viva la esperanza en la prisiÃ³n.',
+      description: 'La pelÃ­cula mejor puntuada de la historia en IMDb sobre esperanza y resiliencia.',
+      hints: [
+        'Un pequeÃ±o martillo de geÃ³logo escondido dentro de una Biblia.',
+        'Un pÃ³ster de Rita Hayworth colgado en la pared de la celda.',
+        'Cervezas frÃ­as en el tejado de la prisiÃ³n tras un buen consejo fiscal.',
+        'Morgan Freeman y Tim Robbins en una emotiva historia de libertad.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-fight-club',
+      name: 'El Club de la Lucha',
+      type: 'movie',
+      genre: 'drama',
+      isRecommended: true,
+      category: 'Thriller â€¢ Drama',
+      price: '139 min',
+      duration: '139 min',
+      rating: '8.8',
+      year: 1999,
+      streaming: ['prime', 'disney'],
+      color: '#DC2626',
+      poster: 'https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg',
+      synopsis: 'Un empleado hastiado con insomnio crÃ³nico conoce al impredecible vendedor de jabÃ³n Tyler Durden. Juntos fundan un club secreto de peleas clandestinas que desafÃ­a al sistema.',
+      description: 'ClÃ¡sico de culto de David Fincher sobre alienaciÃ³n moderna y anarquÃ­a.',
+      hints: [
+        'La primera regla es: no se habla del Club de la Lucha.',
+        'Una pastilla de jabÃ³n rosa con el tÃ­tulo grabado en relieve.',
+        'La enigmÃ¡tica presencia de Marla Singer fumando en las reuniones.',
+        'Un giro de guion memorable protagonizado por Brad Pitt y Edward Norton.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-godfather',
+      name: 'El Padrino',
+      type: 'movie',
+      genre: 'drama',
+      isRecommended: true,
+      category: 'Drama â€¢ Mafia',
+      price: '175 min',
+      duration: '175 min',
+      rating: '9.2',
+      year: 1972,
+      streaming: ['netflix', 'prime'],
+      color: '#78350F',
+      poster: 'https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg',
+      synopsis: 'Don Vito Corleone, respetado patriarca de una dinastÃ­a mafiosa en Nueva York, debe transferir el poder a su reticente hijo Michael cuando se desata una guerra entre familias.',
+      description: 'La cumbre del cine de gÃ¡nsteres dirigida magistralmente por Francis Ford Coppola.',
+      hints: [
+        'Le harÃ© una oferta que no podrÃ¡ rechazar.',
+        'Una rosa roja en la solapa del esmoquin durante la boda de Connie.',
+        'Naranjas que presagian un tiroteo inminente.',
+        'Marlon Brando y Al Pacino en interpretaciones irrepetibles.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+
+    // --- 2. ACCIÃ“N Y AVENTURA ---
+    {
+      id: 'movie-top-gun',
+      name: 'Top Gun: Maverick',
+      type: 'movie',
+      genre: 'action',
+      isRecommended: false,
+      category: 'AcciÃ³n â€¢ AviaciÃ³n',
+      price: '130 min',
+      duration: '130 min',
+      rating: '8.3',
+      year: 2022,
+      streaming: ['netflix', 'prime'],
+      color: '#0284C7',
+      poster: 'https://image.tmdb.org/t/p/w500/62HCnUTziyWcpDaBO2i1DX17ljH.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/62HCnUTziyWcpDaBO2i1DX17ljH.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/62HCnUTziyWcpDaBO2i1DX17ljH.jpg',
+      synopsis: 'Tras treinta aÃ±os de servicio, Maverick sigue desafiando los lÃ­mites como piloto de pruebas mientras entrena a un grupo de Ã©lite para una misiÃ³n de ataque de extrema precisiÃ³n.',
+      description: 'Adrenalina pura y secuencias de vuelo reales sin CGI pilotadas por Tom Cruise.',
+      hints: [
+        'Aviones caza F-18 volando a ras de caÃ±ones montaÃ±osos a velocidad supersÃ³nica.',
+        'Gafas de sol de aviador y cazadora de cuero mÃ­tica.',
+        'Enfrentarse a los fantasmas del pasado con el hijo de Goose.',
+        'Una secuela que superÃ³ con creces al clÃ¡sico original de los 80.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-mad-max',
+      name: 'Mad Max: Furia en la Carretera',
+      type: 'movie',
+      genre: 'action',
+      isRecommended: false,
+      category: 'AcciÃ³n â€¢ PostapocalÃ­ptico',
+      price: '120 min',
+      duration: '120 min',
+      rating: '8.1',
+      year: 2015,
+      streaming: ['hbo', 'movistar'],
+      color: '#EA580C',
+      poster: 'https://image.tmdb.org/t/p/w500/8tZYtuWezp8JbcsvHYO0O46tFbo.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/8tZYtuWezp8JbcsvHYO0O46tFbo.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/8tZYtuWezp8JbcsvHYO0O46tFbo.jpg',
+      synopsis: 'En un desierto abrasador, Furiosa huye en un camiÃ³n cisterna con las esposas del tirano Immortan Joe, aliÃ¡ndose con Max Rockatansky en una frenÃ©tica persecuciÃ³n.',
+      description: 'Una sinfonÃ­a visual de acciÃ³n y efectos prÃ¡cticos que redefiniÃ³ el cine de acciÃ³n.',
+      hints: [
+        'Un camiÃ³n de guerra con un guitarrista que lanza llamaradas de fuego.',
+        'Tormentas de arena apocalÃ­pticas y vehÃ­culos blindados monstruosos.',
+        'Charlize Theron como Imperator Furiosa y Tom Hardy como Max.',
+        'Ganadora de 6 premios Ã“scar a mejor montaje, sonido y diseÃ±o.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-john-wick-4',
+      name: 'John Wick 4',
+      type: 'movie',
+      genre: 'action',
+      isRecommended: false,
+      category: 'AcciÃ³n â€¢ Artes Marciales',
+      price: '169 min',
+      duration: '169 min',
+      rating: '7.7',
+      year: 2023,
+      streaming: ['prime', 'movistar'],
+      color: '#4F46E5',
+      poster: 'https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg',
+      synopsis: 'Con el precio por su cabeza en su punto mÃ¡s alto, John Wick desafÃ­a al MarquÃ©s de Gramont en un duelo a muerte para conseguir su libertad definitiva de la Alta Mesa.',
+      description: 'CoreografÃ­as virtuosas de acciÃ³n y tiroteos en ParÃ­s, Osaka y BerlÃ­n.',
+      hints: [
+        'Tiroteo con plano cenital continuo disparando municiÃ³n de fuego.',
+        'La escalinata interminable de Montmartre hasta el SacrÃ©-CÅ“ur.',
+        'Keanu Reeves repartiendo estopa con un traje blindado impecable.',
+        'Monedas de oro continentales y un juramento de sangre sagrado.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+
+    // --- 3. CIENCIA FICCIÃ“N Y THRILLER ---
+    {
+      id: 'movie-blade-runner-2049',
+      name: 'Blade Runner 2049',
+      type: 'movie',
+      genre: 'scifi',
+      isRecommended: false,
+      category: 'Ciencia FicciÃ³n â€¢ Neo-Noir',
+      price: '164 min',
+      duration: '164 min',
+      rating: '8.0',
+      year: 2017,
+      streaming: ['netflix', 'prime'],
+      color: '#06B6D4',
+      poster: 'https://image.tmdb.org/t/p/w500/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg',
+      synopsis: 'Treinta aÃ±os despuÃ©s, el agente replicante K descubre un secreto largamente enterrado que podrÃ­a desestabilizar a la civilizaciÃ³n y le conduce a buscar a Rick Deckard.',
+      description: 'ContinuaciÃ³n magistral de Denis Villeneuve con fotografÃ­a asombrosa de Roger Deakins.',
+      hints: [
+        'Luces de neÃ³n en un Los Ãngeles futurista envuelto en lluvia Ã¡cida y nieve.',
+        'Hologramas gigantescos de compaÃ±Ã­a artificial en las azoteas.',
+        'Un test de empatÃ­a con la frase: CÃ©lulas interconectadas dentro de cÃ©lulas.',
+        'Ryan Gosling y Harrison Ford en un thriller hipnÃ³tico.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-matrix',
+      name: 'Matrix',
+      type: 'movie',
+      genre: 'scifi',
+      isRecommended: false,
+      category: 'Ciencia FicciÃ³n â€¢ Cyberpunk',
+      price: '136 min',
+      duration: '136 min',
+      rating: '8.7',
+      year: 1999,
+      streaming: ['hbo', 'movistar'],
+      color: '#10B981',
+      poster: 'https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg',
+      synopsis: 'Thomas Anderson, programador de dÃ­a y hacker de noche bajo el alias Neo, descubre que la realidad es una simulaciÃ³n virtual creada por inteligencias artificiales.',
+      description: 'RevolucionÃ³ el cine moderno con el efecto tiempo bala y su dilema filosÃ³fico.',
+      hints: [
+        'Elegir entre la pastilla roja de la verdad o la azul del olvido.',
+        'Lluvia de cÃ³digo digital verde cayendo en pantallas CRT.',
+        'Esquivar balas curvando el cuerpo hacia atrÃ¡s en cÃ¡mara lenta.',
+        'Keanu Reeves como El Elegido guiado por Morfeo y Trinity.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+
+    // --- 4. COMEDIA Y BUEN ROLLO ---
+    {
+      id: 'movie-knives-out',
+      name: 'PuÃ±ales por la Espalda',
+      type: 'movie',
+      genre: 'comedy',
+      isRecommended: false,
+      category: 'Comedia â€¢ Misterio',
+      price: '130 min',
+      duration: '130 min',
+      rating: '7.9',
+      year: 2019,
+      streaming: ['netflix'],
+      color: '#0284C7',
+      poster: 'https://image.tmdb.org/t/p/w500/pThyQovXQrw2m0s9x82twj48Jq4.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/pThyQovXQrw2m0s9x82twj48Jq4.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/pThyQovXQrw2m0s9x82twj48Jq4.jpg',
+      synopsis: 'Tras la misteriosa muerte del millonario escritor Harlan Thrombey, el extravagante detective Benoit Blanc interroga a los sospechosos parientes Ã¡vidos de herencia.',
+      description: 'Divertida comedia de enredos detectivescos estilo Agatha Christie con un reparto estelar.',
+      hints: [
+        'Un trono circular decorado con cientos de dagas y cuchillos puntiagudos.',
+        'La enfermera Marta Cabrera es incapaz de mentir sin vomitar.',
+        'Daniel Craig bordando el papel de detective sureÃ±o brillante y teatral.',
+        'Giro tras giro en una mansiÃ³n gÃ³tica repleta de secretos mezquinos.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-grand-budapest',
+      name: 'El Gran Hotel Budapest',
+      type: 'movie',
+      genre: 'comedy',
+      isRecommended: false,
+      category: 'Comedia â€¢ Aventura',
+      price: '99 min',
+      duration: '99 min',
+      rating: '8.1',
+      year: 2014,
+      streaming: ['disney'],
+      color: '#F43F5E',
+      poster: 'https://image.tmdb.org/t/p/w500/eWdyYQreja6JGCzqHWXpWHDrrPo.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/eWdyYQreja6JGCzqHWXpWHDrrPo.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/eWdyYQreja6JGCzqHWXpWHDrrPo.jpg',
+      synopsis: 'El legendario conserje Gustave H y su fiel botones Zero se ven envueltos en el robo de un cuadro renacentista y la disputa por la fortuna de una acaudalada huÃ©sped.',
+      description: 'Delicia visual simÃ©trica y mordaz con la estÃ©tica inconfundible de Wes Anderson.',
+      hints: [
+        'Un suntuoso hotel de color rosa pastel en las cumbres alpinas.',
+        'Cajitas de pasteles de Mendl con lazos de seda.',
+        'Perfume L Air de Panache rociado generosamente en cualquier ocasiÃ³n.',
+        'Ralph Fiennes cÃ³mico y elegante en una aventura inolvidable.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-barbie',
+      name: 'Barbie',
+      type: 'movie',
+      genre: 'comedy',
+      isRecommended: false,
+      category: 'Comedia â€¢ SÃ¡tira',
+      price: '114 min',
+      duration: '114 min',
+      rating: '7.0',
+      year: 2023,
+      streaming: ['hbo', 'movistar'],
+      color: '#EC4899',
+      poster: 'https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg',
+      synopsis: 'Tras sufrir una crisis existencial y tener los pies planos, Barbie abandona Barbieland rumbo al Mundo Real junto a Ken para descubrir el sentido de la vida.',
+      description: 'FenÃ³meno cultural del aÃ±o con brillante humor autorreferencial y nÃºmeros musicales.',
+      hints: [
+        'Casas de ensueÃ±o sin paredes de color rosa flÃºor.',
+        'La canciÃ³n I am Kenough interpretada por Ryan Gosling.',
+        'Patines amarillos fluorescentes en el paseo de Venice Beach.',
+        'Margot Robbie y Greta Gerwig reinventando un icono universal.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+
+    // --- 5. TERROR Y SUSPENSE ---
+    {
+      id: 'movie-get-out',
+      name: 'DÃ©jame Salir (Get Out)',
+      type: 'movie',
+      genre: 'horror',
+      isRecommended: false,
+      category: 'Terror â€¢ PsicolÃ³gico',
+      price: '104 min',
+      duration: '104 min',
+      rating: '7.8',
+      year: 2017,
+      streaming: ['prime', 'movistar'],
+      color: '#991B1B',
+      poster: 'https://image.tmdb.org/t/p/w500/tFXcEccSQMf3lfhfXKSU9iRBpa3.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/tFXcEccSQMf3lfhfXKSU9iRBpa3.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/tFXcEccSQMf3lfhfXKSU9iRBpa3.jpg',
+      synopsis: 'Chris acompaÃ±a a su novia a la finca de sus padres para conocerlos, pero pronto descubre una turbia y macabra verdad detrÃ¡s del aparente trato amable de la familia.',
+      description: 'Terror social brillante e inteligente que conquistÃ³ a la crÃ­tica y ganÃ³ el Ã“scar a Guion.',
+      hints: [
+        'El tintineo hipnÃ³tico de una cucharilla girando dentro de una taza de tÃ©.',
+        'El hundimiento en el Lugar Hundido paralizado en el espacio oscuro.',
+        'Una mirada perdida con una lÃ¡grima cayendo en una fiesta campestre.',
+        'Dirigida por Jordan Peele con Daniel Kaluuya.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-quiet-place',
+      name: 'Un Lugar Tranquilo',
+      type: 'movie',
+      genre: 'horror',
+      isRecommended: false,
+      category: 'Terror â€¢ Suspense',
+      price: '90 min',
+      duration: '90 min',
+      rating: '7.5',
+      year: 2018,
+      streaming: ['netflix', 'prime'],
+      color: '#71717A',
+      poster: 'https://image.tmdb.org/t/p/w500/nAU74GmpUk7t5iklEp3bufwDq4n.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/nAU74GmpUk7t5iklEp3bufwDq4n.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/nAU74GmpUk7t5iklEp3bufwDq4n.jpg',
+      synopsis: 'Una familia sobrevive en completo silencio en una granja aislada, comunicÃ¡ndose por signos para evitar a depredadores ciegos con un oÃ­do ultradesarrollado.',
+      description: 'TensiÃ³n sin descanso donde cualquier mÃ­nimo ruido involuntario significa la muerte.',
+      hints: [
+        'Caminar descalzos sobre senderos marcados con arena fina.',
+        'Un clavo oxidado saliente en los escalones de madera del sÃ³tano.',
+        'Cometas rojas de emergencia que indican peligro mortal en el tejado.',
+        'Emily Blunt y John Krasinski en una obra maestra del suspense acÃºstico.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-hereditary',
+      name: 'Hereditary',
+      type: 'movie',
+      genre: 'horror',
+      isRecommended: false,
+      category: 'Terror â€¢ Sobrenatural',
+      price: '127 min',
+      duration: '127 min',
+      rating: '7.3',
+      year: 2018,
+      streaming: ['prime', 'movistar'],
+      color: '#831843',
+      poster: 'https://image.tmdb.org/t/p/w500/4GFPuL14eXi66V96xBWY73Y9PfR.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/4GFPuL14eXi66V96xBWY73Y9PfR.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/4GFPuL14eXi66V96xBWY73Y9PfR.jpg',
+      synopsis: 'Tras la muerte de la abuela de la familia Graham, sucesos extraÃ±os y perturbadores comienzan a aflorar en su hogar, revelando un oscuro destino generacional.',
+      description: 'Una de las pelÃ­culas de terror psicolÃ³gico mÃ¡s perturbadoras y aclamadas de A24.',
+      hints: [
+        'Maquetas en miniatura meticulosas que reproducen las habitaciones de la casa.',
+        'Un chasquido de lengua caracterÃ­stico que eriza la piel.',
+        'Una paloma decapitada y sÃ­mbolos extraÃ±os grabados en postes.',
+        'ActuaciÃ³n desgarradora y memorable de Toni Collette.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+
+    // --- 6. ANIMACIÃ“N Y FAMILIAR ---
+    {
+      id: 'movie-spiderman',
+      name: 'Spider-Man: Multiverso',
+      type: 'movie',
+      genre: 'animation',
+      isRecommended: false,
+      category: 'AnimaciÃ³n â€¢ AcciÃ³n',
+      price: '140 min',
+      duration: '140 min',
+      rating: '8.6',
+      year: 2023,
+      streaming: ['movistar', 'prime'],
+      color: '#EF4444',
+      poster: 'https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg',
+      synopsis: 'Miles Morales viaja a travÃ©s del Multiverso y entra en conflicto con la Sociedad ArÃ¡cnida de Miguel O Hara para salvar a su padre de un evento canÃ³nico.',
+      description: 'RevoluciÃ³n visual deslumbrante que mezcla mÃºltiples estilos artÃ­sticos de cÃ³mic.',
+      hints: [
+        'Acuarelas vivas que cambian de color segÃºn las emociones en el universo de Gwen.',
+        'Miles Morales huyendo de cientos de variantes de Spider-Man a la vez.',
+        'El villano Spot abriendo agujeros interdimensionales con su cuerpo.',
+        'Banda sonora y ritmo trepidante que dejÃ³ al pÃºblico sin aliento.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-coco',
+      name: 'Coco',
+      type: 'movie',
+      genre: 'animation',
+      isRecommended: false,
+      category: 'AnimaciÃ³n â€¢ EmociÃ³n',
+      price: '105 min',
+      duration: '105 min',
+      rating: '8.4',
+      year: 2017,
+      streaming: ['disney'],
+      color: '#EA580C',
+      poster: 'https://image.tmdb.org/t/p/w500/eKi8dIrr8voobbaGzDpe8w0PVbC.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/eKi8dIrr8voobbaGzDpe8w0PVbC.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/eKi8dIrr8voobbaGzDpe8w0PVbC.jpg',
+      synopsis: 'El pequeÃ±o Miguel sueÃ±a con tocar la guitarra y cruza mÃ¡gicamente al colorido Mundo de los Muertos para descubrir el autÃ©ntico legado de su tatarabuelo.',
+      description: 'Una de las pelÃ­culas mÃ¡s emotivas de Pixar ganadora de 2 premios Ã“scar.',
+      hints: [
+        'Puentes majestuosos formados por millones de pÃ©talos de flor de cempasÃºchil.',
+        'La guitarra blanca con forma de calavera de Ernesto de la Cruz.',
+        'La tierna y desgarradora canciÃ³n RecuÃ©rdame cantada a mamÃ¡ Coco.',
+        'El simpÃ¡tico perro xoloitzcuintle Dante como guÃ­a espiritual alebrije.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-inside-out-2',
+      name: 'Del RevÃ©s 2',
+      type: 'movie',
+      genre: 'animation',
+      isRecommended: false,
+      category: 'AnimaciÃ³n â€¢ Comedia',
+      price: '96 min',
+      duration: '96 min',
+      rating: '7.7',
+      year: 2024,
+      streaming: ['disney'],
+      color: '#F59E0B',
+      poster: 'https://image.tmdb.org/t/p/w500/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg',
+      synopsis: 'Riley cumple trece aÃ±os y entra en la adolescencia. En el Cuartel General de sus emociones, AlegrÃ­a y Tristeza deben convivir con la reciÃ©n llegada Ansiedad y sus compaÃ±eras.',
+      description: 'El mayor Ã©xito de taquilla animado de la historia con una representaciÃ³n brillante de la mente adolescente.',
+      hints: [
+        'Una alarma roja estridente de pubertad sonando en la consola de emociones.',
+        'Ansiedad con sus maletas naranjas tomando el control de la mente.',
+        'El flujo de recuerdos que forma el Ã¡rbol de creencias de la identidad.',
+        'Humor, ternura y reflexiones que emocionan por igual a jÃ³venes y adultos.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+
+    // --- 7. SERIES (CATEGORÃA SEPARADA EXCLUSIVA) ---
+    {
+      id: 'series-the-bear',
+      name: 'The Bear',
+      type: 'series',
+      genre: 'series',
+      isRecommended: true,
+      category: 'Serie â€¢ Drama Culinario',
+      price: '3 Temporadas',
+      duration: '3 Temporadas',
+      rating: '8.6',
+      year: 2022,
+      streaming: ['disney'],
+      color: '#0284C7',
+      poster: 'https://image.tmdb.org/t/p/w500/in1R2dDc421JxsoRWaIIAqVI2KE.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/in1R2dDc421JxsoRWaIIAqVI2KE.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/in1R2dDc421JxsoRWaIIAqVI2KE.jpg',
+      synopsis: 'Carmy Berzatto, un prodigio de la alta cocina, regresa a Chicago tras la muerte de su hermano para reflotar la caÃ³tica y endeudada sandwicherÃ­a italiana familiar.',
+      description: 'FrenesÃ­ de fogones, superaciÃ³n y relaciones humanas galardonada con mÃºltiples premios Emmy.',
+      hints: [
+        'En esta cocina la frase mÃ¡s repetida con respeto es: Â¡OÃ­do, Chef!',
+        'El negocio original era de bocadillos de ternera italiana.',
+        'El ritmo frenÃ©tico y la tensiÃ³n de los fogones no da respiro.',
+        'CapÃ­tulos memorables en plano secuencia de 20 minutos sin cortes.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'series-stranger-things',
+      name: 'Stranger Things',
+      type: 'series',
+      genre: 'series',
+      isRecommended: true,
+      category: 'Serie â€¢ Ciencia FicciÃ³n',
+      price: '4 Temporadas',
+      duration: '4 Temporadas',
+      rating: '8.7',
+      year: 2016,
+      streaming: ['netflix'],
+      color: '#E50914',
+      poster: 'https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg',
+      synopsis: 'La misteriosa desapariciÃ³n de Will Byers en Hawkins destapa un laboratorio secreto, una niÃ±a con poderes telequinÃ©ticos y la terrorÃ­fica dimensiÃ³n del Mundo del RevÃ©s.',
+      description: 'FenÃ³meno mundial con nostalgia ochentera, monstruos y amistad incondicional.',
+      hints: [
+        'Luces de Navidad en la pared deletreando mensajes del mÃ¡s allÃ¡.',
+        'A la protagonista con la cabeza rapada le fascinan los gofres Eggo.',
+        'Bicicletas recorriendo caminos oscuros con walkie-talkies.',
+        'La canciÃ³n Running Up That Hill salvando a Max de las garras de Vecna.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'series-the-last-of-us',
+      name: 'The Last of Us',
+      type: 'series',
+      genre: 'series',
+      isRecommended: true,
+      category: 'Serie â€¢ PostapocalÃ­ptico',
+      price: '1 Temporada',
+      duration: '1 Temporada',
+      rating: '8.8',
+      year: 2023,
+      streaming: ['hbo'],
+      color: '#15803D',
+      poster: 'https://image.tmdb.org/t/p/w500/dmo6TYuuJgaYinXBPjrgG9mB5od.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/dmo6TYuuJgaYinXBPjrgG9mB5od.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/dmo6TYuuJgaYinXBPjrgG9mB5od.jpg',
+      synopsis: 'Veinte aÃ±os despuÃ©s de una pandemia de hongos cordyceps que aniquilÃ³ a la sociedad, Joel debe escoltar a Ellie, una joven inmune, a travÃ©s de unos Estados Unidos en ruinas.',
+      description: 'AdaptaciÃ³n triunfal de HBO del aclamado videojuego protagonizada por Pedro Pascal y Bella Ramsey.',
+      hints: [
+        'Criaturas infectadas llamadas Chasqueadores que cazan guiadas por el sonido.',
+        'Un libro de chistes malos para amenizar los descansos del viaje.',
+        'El inolvidable y conmovedor tercer episodio de Bill y Frank.',
+        'La relaciÃ³n paterno-filial que florece en medio de la desolaciÃ³n.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'series-severance',
+      name: 'Severance (SeparaciÃ³n)',
+      type: 'series',
+      genre: 'series',
+      isRecommended: true,
+      category: 'Serie â€¢ Thriller PsicolÃ³gico',
+      price: '2 Temporadas',
+      duration: '2 Temporadas',
+      rating: '8.7',
+      year: 2022,
+      streaming: ['apple'],
+      color: '#06B6D4',
+      poster: 'https://image.tmdb.org/t/p/w500/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg',
+      synopsis: 'Los empleados de Lumon se han sometido a un procedimiento quirÃºrgico que separa sus recuerdos laborales de sus vidas personales, creando dos identidades que no se conocen.',
+      description: 'Obra maestra de suspense y distopÃ­a laboral dirigida por Ben Stiller para Apple TV+.',
+      hints: [
+        'Tu yo del trabajo no sabe si estÃ¡s casado, si tienes hijos o dÃ³nde vives.',
+        'Pasillos infinitos de color blanco inmaculado y moqueta verde.',
+        'Fiestas de baile de cinco minutos y barras de melÃ³n como premio por cumplir objetivos.',
+        'Un final de temporada vertiginoso que te deja clavado al asiento.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'series-ted-lasso',
+      name: 'Ted Lasso',
+      type: 'series',
+      genre: 'series',
+      isRecommended: true,
+      category: 'Serie â€¢ Comedia / Buen Rollo',
+      price: '3 Temporadas',
+      duration: '3 Temporadas',
+      rating: '8.8',
+      year: 2020,
+      streaming: ['apple'],
+      color: '#F59E0B',
+      poster: 'https://image.tmdb.org/t/p/w500/uRHsiw1wLxPHFXkkv4Ix1s0O6f4.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/uRHsiw1wLxPHFXkkv4Ix1s0O6f4.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/uRHsiw1wLxPHFXkkv4Ix1s0O6f4.jpg',
+      synopsis: 'Un bonachÃ³n entrenador de fÃºtbol americano de Kansas es contratado por un equipo de la Premier League inglesa, compensando su nula experiencia con simpatÃ­a arrolladora.',
+      description: 'Comedia reconfortante multipremiada en los Emmy que te deja el corazÃ³n lleno.',
+      hints: [
+        'Un cartel amarillo torcido con la palabra BELIEVE sobre la puerta del vestuario.',
+        'Pastitas caseras en cajita rosa regaladas cada maÃ±ana a su jefa Rebecca.',
+        'El optimismo desbordante y las anÃ©cdotas campechanas de Kansas.',
+        'Jason Sudeikis con su bigote carismÃ¡tico y sonrisa inquebrantable.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'series-la-casa-papel',
+      name: 'La Casa de Papel',
+      type: 'series',
+      genre: 'series',
+      isRecommended: false,
+      category: 'Serie â€¢ Suspense / Atraco',
+      price: '5 Temporadas',
+      duration: '5 Temporadas',
+      rating: '8.2',
+      year: 2017,
+      streaming: ['netflix'],
+      color: '#DC2626',
+      poster: 'https://image.tmdb.org/t/p/w500/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg',
+      synopsis: 'Ocho atracadores guiados desde el exterior por El Profesor toman rehenes y se encierran durante once dÃ­as en la FÃ¡brica Nacional de Moneda para imprimir miles de millones de euros.',
+      description: 'El mayor Ã©xito internacional de la ficciÃ³n televisiva en espaÃ±ol.',
+      hints: [
+        'Monos de trabajo rojos y mÃ¡scaras con el rostro de Salvador DalÃ­.',
+        'Nombres en clave de ciudades como Tokio, BerlÃ­n, Denver o Nairobi.',
+        'El himno antifascista italiano Bella Ciao cantado a coro.',
+        'Un plan de ajedrez donde cada posible movimiento de la policÃ­a estÃ¡ previsto.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'series-succession',
+      name: 'Succession',
+      type: 'series',
+      genre: 'series',
+      isRecommended: true,
+      category: 'Serie â€¢ Drama / SÃ¡tira',
+      price: '4 Temporadas',
+      duration: '4 Temporadas',
+      rating: '8.9',
+      year: 2018,
+      streaming: ['hbo'],
+      color: '#334155',
+      poster: 'https://image.tmdb.org/t/p/w500/7OFxU0bBO0HDL4klXmM1ahJPbv8.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/7OFxU0bBO0HDL4klXmM1ahJPbv8.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/7OFxU0bBO0HDL4klXmM1ahJPbv8.jpg',
+      synopsis: 'Los cuatro hijos del multimillonario y despiadado Logan Roy disputan encarnizadamente el control del imperio mediÃ¡tico familiar Waystar RoyCo cuando su salud empieza a flaquear.',
+      description: 'DiÃ¡logos cortantes, traiciÃ³n familiar y sÃ¡tira feroz que arrasÃ³ en todas las galas de premios.',
+      hints: [
+        'Un tema principal de piano hipnÃ³tico e inconfundible de Nicholas Britell.',
+        'Juegos perversos de poder como Boar on the floor en escapadas de lujo.',
+        'Kendall, Shiv, Roman y Connor batallando por la aprobaciÃ³n de su padre.',
+        'Humor Ã¡cido y drama de altÃ­simo voltaje en Ã¡ticos y jets privados.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'series-shogun',
+      name: 'ShÅgun',
+      type: 'series',
+      genre: 'series',
+      isRecommended: true,
+      category: 'Serie â€¢ Drama HistÃ³rico',
+      price: '1 Temporada',
+      duration: '1 Temporada',
+      rating: '8.7',
+      year: 2024,
+      streaming: ['disney'],
+      color: '#B91C1C',
+      poster: 'https://image.tmdb.org/t/p/w500/7O4iVfOMQmdCSxhOg1WnzG1AgYT.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/7O4iVfOMQmdCSxhOg1WnzG1AgYT.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/7O4iVfOMQmdCSxhOg1WnzG1AgYT.jpg',
+      synopsis: 'En el JapÃ³n feudal de 1600, Lord Yoshii Toranaga lucha por sobrevivir ante sus rivales del Consejo de Regentes cuando un barco europeo naufraga con secretos que alteran el equilibrio.',
+      description: 'Elogiada unÃ¡nimemente como una de las mejores series histÃ³ricas de la dÃ©cada, batiendo rÃ©cord histÃ³rico de Emmys.',
+      hints: [
+        'Guerreros samurÃ¡is con armaduras tradicionales y katanas relucientes.',
+        'Alianzas tejidas con palabras sutiles en casas de tÃ© de Kioto y Osaka.',
+        'Hiroyuki Sanada encarnando al estratega supremo Toranaga.',
+        'Honor, poesÃ­a, intriga polÃ­tica y batallas en el JapÃ³n seÃ±orial.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'series-breaking-bad',
+      name: 'Breaking Bad',
+      type: 'series',
+      genre: 'series',
+      isRecommended: true,
+      category: 'Serie â€¢ Crimen / Drama',
+      price: '5 Temporadas',
+      duration: '5 Temporadas',
+      rating: '9.5',
+      year: 2008,
+      streaming: ['netflix'],
+      color: '#15803D',
+      poster: 'https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg',
+      synopsis: 'Walter White, profesor de quÃ­mica con cÃ¡ncer terminal, se asocia con su exalumno Jesse Pinkman para producir metanfetamina azul y asegurar el futuro econÃ³mico de su familia.',
+      description: 'Considerada una de las mejores series de la historia de la televisiÃ³n mundial.',
+      hints: [
+        'Una caravana destartalada cocinando en medio del desierto de Nuevo MÃ©xico.',
+        'El sombrero negro y las gafas de sol de Heisenberg.',
+        'Cristales azules de pureza quÃ­mica inigualable.',
+        'Bryan Cranston y Aaron Paul en una transformaciÃ³n dramÃ¡tica insuperable.'
+      ],
+      branches: [{ name: 'En casa en el sofÃ¡', address: 'SalÃ³n con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
     }
   ];
 
@@ -836,6 +1613,10 @@
 
   function getMysteryNavigationUrl(branch) {
     if (state.activeMode === 'movies' && state.winningRestaurant) {
+      const streaming = state.winningRestaurant.streaming;
+      if (streaming && streaming.length && STREAMING_PROVIDERS[streaming[0]]) {
+        return STREAMING_PROVIDERS[streaming[0]].url;
+      }
       return 'https://www.google.com/search?q=ver+' + encodeURIComponent(state.winningRestaurant.name) + '+online';
     }
     if (!branch || typeof branch.lat !== 'number') {
@@ -1052,6 +1833,7 @@
     activeChallenge: null,
     restaurants: [],
     selectedCategory: 'all',
+    movieCategoryFilter: 'recommended',
     winningRestaurant: null,
     winningBranch: null,
     userCoords: null,
@@ -2292,12 +3074,37 @@
   // ==========================================
   // 6. PANTALLA DE JUGADOR (DOS TARJETAS POR FILA: GRID-COLS-2)
   // ==========================================
+    const MOVIE_CATEGORIES = [
+    {
+      id: 'recommended',
+      label: 'Recomendadas',
+      icon: '<svg class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
+    },
+    {
+      id: 'all',
+      label: 'Todas',
+      icon: '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>'
+    },
+    {
+      id: 'series',
+      label: 'Series',
+      icon: '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>'
+    },
+    { id: 'action', label: 'Acción' },
+    { id: 'scifi', label: 'Ciencia Ficción' },
+    { id: 'drama', label: 'Drama' },
+    { id: 'comedy', label: 'Comedia' },
+    { id: 'horror', label: 'Terror' },
+    { id: 'animation', label: 'Animación' }
+  ];
+
   function renderPlayerScreen(playerNum) {
     const isP1 = playerNum === 1;
     const playerName = isP1 ? state.player1Name : state.player2Name;
     const currentSelections = isP1 ? state.player1Selections : state.player2Selections;
     const currentVeto = isP1 ? state.player1Veto : state.player2Veto;
     const currentSuperlike = isP1 ? state.player1Superlike : state.player2Superlike;
+    const isMovies = state.activeMode === 'movies';
 
     const theme = isP1
       ? {
@@ -2315,12 +3122,22 @@
           checkClass: 'ios-check-p2'
         };
 
-    const displayedRestaurants = state.restaurants.filter(function (r) {
+    let displayedRestaurants = state.restaurants.filter(function (r) {
       if (state.avoidLastWinner && state.lastWinnerId === r.id) {
         return false;
       }
       return true;
     });
+
+    if (isMovies) {
+      const cat = state.movieCategoryFilter || 'recommended';
+      displayedRestaurants = displayedRestaurants.filter(function (r) {
+        if (cat === 'all') return r.type === 'movie';
+        if (cat === 'recommended') return r.type === 'movie' && !!r.isRecommended;
+        if (cat === 'series') return r.type === 'series';
+        return r.type === 'movie' && r.genre === cat;
+      });
+    }
 
     app.innerHTML = `
       <div class="mobile-shell flex flex-col justify-between">
@@ -2351,7 +3168,7 @@
           </div>
 
           <div class="flex items-center justify-between text-[11px] text-neutral-400">
-            <span>Toca para elegir. Botones superiores para superlike y veto:</span>
+            <span>Toca para elegir. Botones superiores para veto, superlike e info:</span>
           </div>
 
           <!-- Indicadores Veto & Superlike -->
@@ -2369,17 +3186,123 @@
           </div>
         </div>
 
+        ${isMovies ? `
+          <!-- Barra de categorías de películas y series estilo visionOS -->
+          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-black/60 backdrop-blur-xl sticky top-[108px] z-10">
+            ${MOVIE_CATEGORIES.map(function(c) {
+              const isAct = (state.movieCategoryFilter || 'recommended') === c.id;
+              return `
+                <button 
+                  data-cat="${c.id}" 
+                  class="movie-cat-chip px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 transition flex items-center gap-1.5 ${
+                    isAct 
+                      ? 'bg-white text-black font-bold shadow-lg shadow-white/10 scale-[1.02]' 
+                      : 'bg-white/[0.06] text-neutral-400 hover:text-white border border-white/[0.08] active:scale-95'
+                  }"
+                >
+                  ${c.icon ? c.icon : ''}
+                  <span>${c.label}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        ` : ''}
+
         <div class="px-4 py-4 grid grid-cols-2 gap-3.5 flex-1 content-start pb-28">
           ${displayedRestaurants
             .map(function (r) {
               const isSelected = currentSelections.has(r.id);
               const isVetoed = (isP1 ? state.player1Veto : state.player2Veto) === r.id;
               const isSuper = (isP1 ? state.player1Superlike : state.player2Superlike) === r.id;
-              const logoSrc = r.logo || r.image;
+              const logoSrc = r.poster || r.logo || r.image;
 
               let cardClass = isSelected ? theme.selectedClass : '';
               if (isVetoed) cardClass = 'card-vetoed opacity-65';
               if (isSuper) cardClass = 'card-superliked';
+
+              if (isMovies) {
+                return `
+                  <div 
+                    data-id="${r.id}"
+                    class="ios-glass-card p-2.5 flex flex-col justify-between min-h-[310px] relative ${cardClass}"
+                  >
+                    <div class="w-full flex items-center justify-between mb-1.5">
+                      <div class="flex items-center gap-1">
+                        <button 
+                          data-action="superlike" 
+                          data-id="${r.id}" 
+                          title="Superlike (Doble probabilidad)"
+                          class="btn-card-superlike w-6 h-6 rounded-full flex items-center justify-center text-xs transition active:scale-90 ${isSuper ? 'bg-amber-500 text-black shadow-md font-bold' : 'bg-white/10 text-neutral-400 hover:text-amber-400'}"
+                        >
+                          <svg class="w-3 h-3 ${isSuper ? 'fill-black stroke-black' : 'fill-none stroke-current'}" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        </button>
+                        <button 
+                          data-action="veto" 
+                          data-id="${r.id}" 
+                          title="Veto (Bloquear)"
+                          class="btn-card-veto w-6 h-6 rounded-full flex items-center justify-center text-xs transition active:scale-90 ${isVetoed ? 'bg-rose-500 text-white shadow-md font-bold' : 'bg-white/10 text-neutral-400 hover:text-rose-400'}"
+                        >
+                          <svg class="w-3 h-3 stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+                        </button>
+                        <button 
+                          data-action="info" 
+                          data-id="${r.id}" 
+                          title="Ver sinopsis completa"
+                          class="btn-card-info w-6 h-6 rounded-full flex items-center justify-center text-xs bg-white/10 hover:bg-white/20 text-neutral-300 hover:text-white transition active:scale-90"
+                        >
+                          <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        </button>
+                      </div>
+
+                      <div class="ios-check ${isSelected ? theme.checkClass : 'ios-check-unselected'} check-badge pointer-events-none">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </div>
+                    </div>
+
+                    <!-- Cartel oficial / Foto poster (aspect-ratio 2:3) -->
+                    <div class="w-full aspect-[2/3] rounded-xl overflow-hidden relative shadow-md bg-neutral-900 border border-white/10 pointer-events-none mb-2">
+                      <img 
+                        src="${r.poster || r.image}" 
+                        alt="${r.name}" 
+                        class="w-full h-full object-cover"
+                        loading="lazy"
+                        onerror="this.src='${r.image}'"
+                      />
+                      <div class="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between pointer-events-none">
+                        <span class="px-1.5 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-[10px] font-bold text-amber-300 border border-amber-300/30 flex items-center gap-0.5 shadow">
+                          <svg class="w-2.5 h-2.5 fill-amber-300 inline" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                          ${r.rating}
+                        </span>
+                        <span class="px-1.5 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-[9px] font-semibold text-neutral-300 border border-white/15 shadow">
+                          ${r.duration || r.price}
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Logos de servicios de streaming -->
+                    <div class="w-full flex items-center flex-wrap gap-1 mb-1.5 pointer-events-none">
+                      ${renderStreamingBadges(r.streaming, false)}
+                    </div>
+
+                    <!-- Título y categoría -->
+                    <div class="w-full text-left pointer-events-none">
+                      <div class="font-bold text-[13px] text-white truncate leading-tight flex items-center gap-1">
+                        <span>${r.name}</span>
+                        ${isSuper ? '<svg class="w-3 h-3 text-amber-400 fill-amber-400 shrink-0 inline" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>' : ''}
+                        ${isVetoed ? '<svg class="w-3 h-3 text-rose-400 shrink-0 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>' : ''}
+                      </div>
+                      <div class="text-[10px] text-neutral-400 truncate mt-0.5">${r.category}</div>
+                    </div>
+
+                    <!-- Pequeña sinopsis de 2 líneas -->
+                    <p class="text-[10px] text-neutral-300 line-clamp-2 leading-tight text-left mt-1 pointer-events-none opacity-85">
+                      ${r.synopsis || r.description}
+                    </p>
+                  </div>
+                `;
+              }
 
               return `
                 <div 
@@ -2451,13 +3374,30 @@
       </div>
     `;
 
+    document.querySelectorAll('.movie-cat-chip').forEach(function (chip) {
+      chip.addEventListener('click', function (e) {
+        e.stopPropagation();
+        sound.playPop();
+        state.movieCategoryFilter = chip.dataset.cat;
+        renderPlayerScreen(playerNum);
+      });
+    });
+
+    document.querySelectorAll('.btn-card-info').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        openMovieDetailModal(id);
+      });
+    });
+
     document.querySelectorAll('.ios-glass-card').forEach(function (card) {
       card.addEventListener('click', function (e) {
         if (e.target.closest('button[data-action]')) return;
         const id = card.dataset.id;
 
         if ((isP1 ? state.player1Veto : state.player2Veto) === id) {
-          showToast('Has vetado este sitio. Quita el veto para seleccionarlo.');
+          showToast('Has vetado este título. Quita el veto para seleccionarlo.');
           sound.playVeto();
           sound.vibrate([40]);
           return;
@@ -2586,9 +3526,107 @@
     });
   }
 
-  // ==========================================
-  // 7. PANTALLA DE TRASPASO (HANDOVER)
-  // ==========================================
+  // Modal para ver sinopsis completa y streaming de una película o serie
+  function openMovieDetailModal(movieId) {
+    const movie = MOVIES_CATALOGUE.find(function(m) { return m.id === movieId; });
+    if (!movie) return;
+    sound.playPop();
+
+    modalContainer.innerHTML = `
+      <div id="movie-modal-backdrop" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/85 backdrop-blur-xl p-0 sm:p-4 animate-ios-slide">
+        <div class="bg-neutral-950 border-t sm:border border-white/[0.12] w-full max-w-md rounded-t-[32px] sm:rounded-[32px] max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+          <!-- Header con imagen / poster difuminado y portada nítida -->
+          <div class="relative w-full h-52 bg-neutral-900 overflow-hidden shrink-0">
+            <img src="${movie.poster || movie.image}" alt="${movie.name}" class="w-full h-full object-cover filter brightness-[0.4] blur-md scale-110 absolute inset-0" />
+            <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-black/60"></div>
+            
+            <button id="btn-close-movie-modal" class="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-neutral-300 hover:text-white flex items-center justify-center font-bold text-xs transition active:scale-90">✕</button>
+
+            <div class="absolute bottom-3 left-4 right-4 flex items-end gap-3.5 z-10">
+              <img src="${movie.poster || movie.image}" alt="${movie.name}" class="w-18 w-[72px] aspect-[2/3] object-cover rounded-xl shadow-2xl border border-white/20 shrink-0" />
+              <div class="text-left flex-1 min-w-0">
+                <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-amber-300 border border-amber-300/30 mb-1">
+                  <span>★ ${movie.rating}</span>
+                  <span class="text-white/40">•</span>
+                  <span class="text-white">${movie.duration || movie.price}</span>
+                  <span class="text-white/40">•</span>
+                  <span class="text-neutral-300">${movie.year}</span>
+                </div>
+                <h3 class="text-lg font-black text-white leading-tight truncate">${movie.name}</h3>
+                <div class="text-xs text-neutral-400 truncate">${movie.category}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contenido deslizable -->
+          <div class="p-5 overflow-y-auto space-y-4 text-left flex-1">
+            <!-- Servicios de streaming disponibles -->
+            <div class="bg-white/[0.04] p-3.5 rounded-2xl border border-white/[0.08]">
+              <div class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2">Disponible para ver en</div>
+              <div class="flex items-center flex-wrap gap-2">
+                ${renderStreamingBadges(movie.streaming, true)}
+              </div>
+            </div>
+
+            <!-- Sinopsis completa -->
+            <div class="space-y-1.5">
+              <div class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Sinopsis</div>
+              <p class="text-xs text-neutral-200 leading-relaxed bg-white/[0.02] p-3.5 rounded-xl border border-white/[0.06]">
+                ${movie.synopsis || movie.description}
+              </p>
+            </div>
+
+            <!-- Curiosidades / Pistas -->
+            ${movie.hints && movie.hints.length ? `
+              <div class="space-y-1.5">
+                <div class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Detalles y curiosidades</div>
+                <ul class="text-xs text-neutral-300 space-y-1.5 pl-1">
+                  ${movie.hints.map(function(h) {
+                    return '<li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[#5E5CE6] mt-1.5 shrink-0"></span><span>' + h + '</span></li>';
+                  }).join('')}
+                </ul>
+              </div>
+            ` : ''}
+
+            <!-- Botón Buscar trailer en YouTube -->
+            <a 
+              href="https://www.youtube.com/results?search_query=trailer+${encodeURIComponent(movie.name)}" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="w-full py-3 px-4 rounded-xl text-xs font-semibold text-white bg-white/[0.08] hover:bg-white/[0.14] border border-white/[0.12] transition flex items-center justify-center gap-2 active:scale-98"
+            >
+              <svg class="w-4 h-4 text-red-500 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+              <span>Ver tráiler oficial en YouTube</span>
+            </a>
+          </div>
+
+          <!-- Footer con botón cerrar -->
+          <div class="p-4 border-t border-white/[0.08] bg-black/60">
+            <button id="btn-modal-close-footer" class="w-full py-3 rounded-2xl bg-white/[0.08] hover:bg-white/[0.15] text-white text-xs font-bold transition active:scale-95">
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    function closeModal() {
+      modalContainer.innerHTML = '';
+    }
+
+    const btnClose = document.getElementById('btn-close-movie-modal');
+    if (btnClose) btnClose.addEventListener('click', closeModal);
+    const btnFooterClose = document.getElementById('btn-modal-close-footer');
+    if (btnFooterClose) btnFooterClose.addEventListener('click', closeModal);
+    const backdrop = document.getElementById('movie-modal-backdrop');
+    if (backdrop) {
+      backdrop.addEventListener('click', function(e) {
+        if (e.target === backdrop) closeModal();
+      });
+    }
+  }
+
+
   function renderHandoverScreen() {
     app.innerHTML = `
       <div class="mobile-shell px-6 justify-between text-center animate-ios-slide">
@@ -2812,20 +3850,20 @@
 
   // 9. PANTALLA RESULTADO MISTERIOSO (MODO CIEGO & PROGRESSIVE DISCLOSURE)
   // ==========================================
-  function renderResultScreen() {
+    function renderResultScreen() {
     sound.playFanfare();
     sound.vibrate([100, 50, 150]);
 
-    // Confetti temático con los colores corporativos de Jugador 1 y Jugador 2
     if (window.confetti) {
       window.confetti({
-        particleCount: 85,
+        particleCount: 70,
         spread: 80,
         origin: { y: 0.6 },
         colors: ['#FF2D55', '#5E5CE6', '#0A84FF', '#FFD60A', '#30D158']
       });
     }
 
+    const isMovies = state.activeMode === 'movies';
     const branch = state.winningBranch;
     const navUrl = getMysteryNavigationUrl(branch);
 
@@ -2835,7 +3873,7 @@
 
     const headerBadge = state.tieBreakerUser
       ? 'Sorteo (' + state.tieBreakerUser + ')'
-      : '¡Coincidencia ganadora! (' + state.matchesCount + ' en común)';
+      : (isMovies ? '¡Elección de cine en común!' : '¡Coincidencia ganadora! (' + state.matchesCount + ' en común)');
 
     const hints = (state.winningRestaurant && state.winningRestaurant.hints) || [
       'Tiene opciones deliciosas y servicio rápido.',
@@ -2858,22 +3896,24 @@
       <div class="mobile-shell px-6 justify-between text-center animate-view-enter">
         <!-- Encabezado con estado y badge de coincidencia -->
         <div class="pt-4">
-          <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-semibold mb-2 backdrop-blur-xl">
-            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full ${isMovies ? 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30' : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'} text-xs font-semibold mb-2 backdrop-blur-xl">
+            <span class="w-2 h-2 rounded-full ${isMovies ? 'bg-indigo-400' : 'bg-emerald-400'}"></span>
             <span>${headerBadge}</span>
           </div>
 
           <h2 class="text-3xl font-extrabold text-white tracking-tight">
-            Destino Secreto
+            ${isMovies ? 'Elección Secreta' : 'Destino Secreto'}
           </h2>
           <p class="text-[11px] text-neutral-400 mt-0.5 max-w-xs mx-auto leading-relaxed">
-            El nombre permanece en incógnito. Pulsad en navegación y Maps os llevará sin desvelarlo.
+            ${isMovies 
+              ? 'El título permanece en incógnito. Podéis pedir pistas en Juegos o desvelarlo para ver las plataformas.'
+              : 'El nombre permanece en incógnito. Pulsad en navegación y Maps os llevará sin desvelarlo.'}
           </p>
         </div>
 
         <!-- Segmented Control estilo iOS / Apple HIG para Progressive Disclosure -->
         <div class="w-full mt-3 mb-1">
-          <div class="grid grid-cols-3 p-1 rounded-2xl bg-white/[0.06] border border-white/[0.1] backdrop-blur-xl">
+          <div class="grid grid-cols-${isMovies ? '2' : '3'} p-1 rounded-2xl bg-white/[0.06] border border-white/[0.1] backdrop-blur-xl">
             <button 
               class="tab-btn py-2 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 ${
                 currentTab === 'destiny' 
@@ -2883,7 +3923,7 @@
               data-tab="destiny"
             >
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-              <span>Destino</span>
+              <span>${isMovies ? 'Elección' : 'Destino'}</span>
             </button>
             <button 
               class="tab-btn py-2 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 ${
@@ -2897,17 +3937,19 @@
               <span>Juegos</span>
               ${state.showClues || hasGuesses || state.payerWinner ? '<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>' : ''}
             </button>
-            <button 
-              class="tab-btn py-2 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 ${
-                currentTab === 'map' 
-                  ? 'bg-white/20 text-white shadow-md border border-white/10' 
-                  : 'text-neutral-400 hover:text-white'
-              }" 
-              data-tab="map"
-            >
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
-              <span>Mapa</span>
-            </button>
+            ${!isMovies ? `
+              <button 
+                class="tab-btn py-2 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 ${
+                  currentTab === 'map' 
+                    ? 'bg-white/20 text-white shadow-md border border-white/10' 
+                    : 'text-neutral-400 hover:text-white'
+                }" 
+                data-tab="map"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+                <span>Mapa</span>
+              </button>
+            ` : ''}
           </div>
         </div>
 
@@ -2920,44 +3962,106 @@
             <div class="ios-glass p-5 rounded-[26px] relative overflow-hidden text-center shadow-2xl animate-tab-slide">
               <div class="relative z-10 flex flex-col items-center">
                 <div class="w-20 h-20 rounded-[22px] bg-white/[0.06] border border-white/[0.15] flex items-center justify-center text-4xl mb-3 shadow-inner">
-                  <svg class="w-10 h-10 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
+                  ${isMovies ? `
+                    <svg class="w-10 h-10 text-neutral-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                      <line x1="7" y1="2" x2="7" y2="22"></line>
+                      <line x1="17" y1="2" x2="17" y2="22"></line>
+                      <line x1="2" y1="12" x2="22" y2="12"></line>
+                      <line x1="2" y1="7" x2="7" y2="7"></line>
+                      <line x1="2" y1="17" x2="7" y2="17"></line>
+                      <line x1="17" y1="17" x2="22" y2="17"></line>
+                      <line x1="17" y1="7" x2="22" y2="7"></line>
+                    </svg>
+                  ` : `
+                    <svg class="w-10 h-10 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                  `}
                 </div>
 
                 <div class="text-base font-bold text-white mb-1 tracking-tight">
-                  Restaurante Sorpresa
+                  ${isMovies ? 'Película o Serie Misteriosa' : 'Restaurante Sorpresa'}
                 </div>
                 
                 <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-200 px-3.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.1] mb-2.5">
-                  <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  </svg>
-                  <span>${distanceText}</span>
+                  ${isMovies ? `
+                    <span class="text-amber-300 font-bold">★ ${state.winningRestaurant.rating}</span>
+                    <span class="opacity-40">•</span>
+                    <span>${state.winningRestaurant.duration || state.winningRestaurant.price}</span>
+                  ` : `
+                    <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span>${distanceText}</span>
+                  `}
                 </div>
 
                 <p class="text-xs text-neutral-400 max-w-xs leading-relaxed mb-3">
-                  Ruta directa calculada hacia la sucursal más óptima por coordenadas secretas.
+                  ${isMovies 
+                    ? (state.winningRestaurant.category + '. Adivinadla en Juegos o desveladla para ver en qué servicios reproducirla.')
+                    : 'Ruta directa calculada hacia la sucursal más óptima por coordenadas secretas.'}
                 </p>
 
-                <!-- Divulgación progresiva para desvelar el sitio -->
+                <!-- Divulgación progresiva para desvelar el sitio / película -->
                 <div class="w-full pt-3 border-t border-white/[0.08]">
                   <button 
                     id="btn-toggle-reveal" 
                     class="w-full py-2 px-3 text-center text-xs font-semibold text-neutral-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] rounded-xl border border-white/[0.08] transition flex items-center justify-center gap-2"
                   >
-                    <span>${state.isNameRevealed ? 'Ocultar nombre de nuevo' : '¿Queréis desvelar el sitio ahora?'}</span>
+                    <span>${state.isNameRevealed ? (isMovies ? 'Ocultar título de nuevo' : 'Ocultar nombre de nuevo') : (isMovies ? '¿Queréis desvelar la película/serie ahora?' : '¿Queréis desvelar el sitio ahora?')}</span>
                     <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${state.isNameRevealed ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'}"/></svg>
                   </button>
                   
-                  <div id="revealed-box" class="${state.isNameRevealed ? 'block' : 'hidden'} mt-3 p-4 rounded-2xl bg-black/60 border border-white/10 text-center animate-reveal">
-                    <div class="w-14 h-14 rounded-2xl p-1 bg-white/[0.06] border border-white/15 mx-auto mb-2 flex items-center justify-center">
-                      <img src="${state.winningRestaurant.logo || state.winningRestaurant.image}" class="w-full h-full object-contain filter drop-shadow" />
-                    </div>
-                    <div class="text-[10px] text-rose-400 font-bold uppercase tracking-wider mb-0.5">Destino confirmado</div>
-                    <div class="text-base font-extrabold text-white">${state.winningRestaurant.name}</div>
-                    <div class="text-xs text-neutral-400 mt-0.5">${branch.address}</div>
+                  <div id="revealed-box" class="${state.isNameRevealed ? 'block' : 'hidden'} mt-3 p-4 rounded-2xl bg-black/75 border border-white/10 text-center animate-reveal">
+                    ${isMovies ? `
+                      <!-- Cartel oficial en grande -->
+                      <div class="w-28 sm:w-36 aspect-[2/3] rounded-2xl overflow-hidden mx-auto mb-3 shadow-2xl border border-white/20 bg-neutral-900">
+                        <img src="${state.winningRestaurant.poster || state.winningRestaurant.image}" class="w-full h-full object-cover" />
+                      </div>
+                      <div class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mb-0.5">Elección desvelada</div>
+                      <div class="text-lg font-black text-white">${state.winningRestaurant.name}</div>
+                      <div class="text-xs text-neutral-300 mt-0.5 flex items-center justify-center gap-2">
+                        <span>${state.winningRestaurant.year}</span>
+                        <span class="opacity-40">•</span>
+                        <span class="text-amber-300 font-bold">★ ${state.winningRestaurant.rating}</span>
+                        <span class="opacity-40">•</span>
+                        <span>${state.winningRestaurant.duration || state.winningRestaurant.price}</span>
+                      </div>
+                      <div class="text-[11px] text-neutral-400 mt-0.5">${state.winningRestaurant.category}</div>
+
+                      <!-- Sinopsis completa -->
+                      <div class="mt-3 p-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-neutral-200 leading-relaxed text-left">
+                        ${state.winningRestaurant.synopsis || state.winningRestaurant.description}
+                      </div>
+
+                      <!-- Disponibilidad en streaming (Logos + Enlaces) -->
+                      <div class="mt-3.5 pt-3 border-t border-white/10 text-left">
+                        <div class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2">Disponible para ver en:</div>
+                        <div class="flex items-center flex-wrap gap-2">
+                          ${renderStreamingBadges(state.winningRestaurant.streaming, true)}
+                        </div>
+                      </div>
+
+                      <!-- Botón ver trailer en YouTube -->
+                      <a 
+                        href="https://www.youtube.com/results?search_query=trailer+${encodeURIComponent(state.winningRestaurant.name)}" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        class="mt-3 w-full py-2.5 px-3 rounded-xl text-xs font-semibold text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] transition flex items-center justify-center gap-2"
+                      >
+                        <svg class="w-4 h-4 text-red-500 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                        <span>Ver tráiler oficial en YouTube</span>
+                      </a>
+                    ` : `
+                      <div class="w-14 h-14 rounded-2xl p-1 bg-white/[0.06] border border-white/15 mx-auto mb-2 flex items-center justify-center">
+                        <img src="${state.winningRestaurant.logo || state.winningRestaurant.image}" class="w-full h-full object-contain filter drop-shadow" />
+                      </div>
+                      <div class="text-[10px] text-rose-400 font-bold uppercase tracking-wider mb-0.5">Destino confirmado</div>
+                      <div class="text-base font-extrabold text-white">${state.winningRestaurant.name}</div>
+                      <div class="text-xs text-neutral-400 mt-0.5">${branch.address}</div>
+                    `}
 
                     ${
                       hasGuesses
@@ -2975,16 +4079,17 @@
                         : ''
                     }
 
-                    <!-- Botón registrar en Historial / Food Diary -->
-                    <div class="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between">
-                      <span class="text-[11px] text-neutral-400">¿Visita finalizada?</span>
-                      <button 
-                        id="btn-log-visit" 
-                        class="px-3 py-1.5 rounded-full text-xs font-bold text-emerald-300 bg-emerald-500/20 border border-emerald-500/35 hover:bg-emerald-500/30 active:scale-95 transition"
-                      >
-                        Guardar en historial
-                      </button>
-                    </div>
+                    ${!isMovies ? `
+                      <div class="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between">
+                        <span class="text-[11px] text-neutral-400">¿Visita finalizada?</span>
+                        <button 
+                          id="btn-log-visit" 
+                          class="px-3 py-1.5 rounded-full text-xs font-bold text-emerald-300 bg-emerald-500/20 border border-emerald-500/35 hover:bg-emerald-500/30 active:scale-95 transition"
+                        >
+                          Guardar en historial
+                        </button>
+                      </div>
+                    ` : ''}
                   </div>
                 </div>
               </div>
@@ -2992,7 +4097,7 @@
           `
               : currentTab === 'games'
               ? `
-            <!-- TAB 2: JUEGOS Y PISTAS EN RUTA (ACORDEONES / SUB-BLOQUES) -->
+            <!-- TAB 2: JUEGOS Y PISTAS -->
             <div class="ios-glass p-4 rounded-[26px] text-left space-y-3 animate-tab-slide">
               <!-- Bloque 1: Pistas progresivas -->
               <div class="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-3.5">
@@ -3005,8 +4110,8 @@
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg>
                       </div>
                       <div>
-                        <div class="text-xs font-bold text-white">Pistas en ruta</div>
-                        <div class="text-[10px] text-neutral-400">Adivinad el sitio por el camino</div>
+                        <div class="text-xs font-bold text-white">${isMovies ? 'Pistas y curiosidades' : 'Pistas en ruta'}</div>
+                        <div class="text-[10px] text-neutral-400">${isMovies ? 'Adivinad el título antes de desvelarlo' : 'Adivinad el sitio por el camino'}</div>
                       </div>
                     </div>
                     <button 
@@ -3054,7 +4159,7 @@
                 <div class="flex items-center justify-between">
                   <span class="text-[10px] font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
-                    <span>¿Quién acierta el sitio?</span>
+                    <span>${isMovies ? '¿Quién acierta el título?' : '¿Quién acierta el sitio?'}</span>
                   </span>
                   <span class="text-[10px] text-neutral-400">Apuesta</span>
                 </div>
@@ -3080,14 +4185,14 @@
                 </div>
               </div>
 
-              <!-- Bloque 3: ¿Quién paga hoy? -->
+              <!-- Bloque 3: ¿Quién paga o quién prepara las palomitas? -->
               <div class="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-3.5 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                   <div id="coin-icon" class="w-9 h-9 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center font-bold text-sm shrink-0 ${state.isPayerSpinning ? 'animate-coin-flip' : ''}">
                     <svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M15 9.5a3.5 3.5 0 0 0-7 0c0 2 2 3 4 3.5s4 1.5 4 3.5a3.5 3.5 0 0 1-7 0"></path></svg>
                   </div>
                   <div>
-                    <div class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">¿Quién paga hoy?</div>
+                    <div class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">${isMovies ? '¿Quién hace las palomitas?' : '¿Quién paga hoy?'}</div>
                     <div class="text-xs font-semibold text-white">
                       ${state.payerWinner ? state.payerWinner : 'Tirad la moneda al azar'}
                     </div>
@@ -3100,42 +4205,10 @@
                   ${state.payerWinner ? 'Repetir' : 'Lanzar'}
                 </button>
               </div>
-
-              <!-- Bloque 4: Misión Secreta / Reto post-elección -->
-              <div class="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-3.5 space-y-2">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 rounded-lg bg-purple-500/15 border border-purple-500/25 flex items-center justify-center text-purple-400">
-                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                      </svg>
-                    </div>
-                    <div>
-                      <div class="text-xs font-bold text-white">Misión secreta</div>
-                      <div class="text-[10px] text-neutral-400">Reto de la comida</div>
-                    </div>
-                  </div>
-                  <button 
-                    id="btn-new-challenge" 
-                    class="px-3 py-1.5 rounded-full text-[11px] font-bold text-purple-300 bg-purple-500/20 border border-purple-500/35 hover:bg-purple-500/30 active:scale-95 transition"
-                  >
-                    ${state.activeChallenge ? 'Cambiar' : 'Pedir misión'}
-                  </button>
-                </div>
-                ${
-                  state.activeChallenge
-                    ? `
-                  <p class="text-xs text-purple-200 italic leading-snug bg-purple-950/30 p-2.5 rounded-xl border border-purple-500/20 animate-ios-fade">
-                    "${state.activeChallenge}"
-                  </p>
-                `
-                    : ''
-                }
-              </div>
             </div>
           `
               : `
-            <!-- TAB 3: OPCIONES DE MAPA Y PREFERENCIAS -->
+            <!-- TAB 3: OPCIONES DE MAPA (SOLO MODO COMIDA / PLANES) -->
             <div class="ios-glass p-5 rounded-[26px] text-left space-y-4 animate-tab-slide">
               <div>
                 <div class="text-xs font-bold text-white mb-1">Navegador Predilecto</div>
@@ -3170,16 +4243,16 @@
           }
         </div>
 
-        <!-- Acciones Fijas Inferiores: Llamada a la acción primaria + Compartir Resultado + Reset -->
+        <!-- Acciones Fijas Inferiores -->
         <div class="space-y-2.5 pb-4">
           <a 
             id="btn-navigate"
             href="${navUrl}" 
             target="_blank" 
             rel="noopener noreferrer"
-            class="w-full py-4 px-6 rounded-2xl font-bold text-base text-white bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 shadow-xl shadow-emerald-500/30 active:scale-[0.97] transition transform flex items-center justify-center gap-3 border-t border-white/20"
+            class="w-full py-4 px-6 rounded-2xl font-bold text-base text-white bg-gradient-to-r ${isMovies ? 'from-indigo-600 via-blue-600 to-cyan-500 shadow-indigo-500/30' : 'from-emerald-500 via-teal-500 to-cyan-500 shadow-emerald-500/30'} shadow-xl active:scale-[0.97] transition transform flex items-center justify-center gap-3 border-t border-white/20"
           >
-            ${state.activeMode === 'movies' ? `
+            ${isMovies ? `
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg>
               <span>Ver dónde reproducir</span>
             ` : `
@@ -3289,7 +4362,7 @@
       });
     }
 
-    // Handler para tirar la moneda de quién paga
+    // Handler para tirar la moneda de quién paga o quién hace las palomitas
     const btnSpinPayer = document.getElementById('btn-spin-payer');
     if (btnSpinPayer) {
       btnSpinPayer.addEventListener('click', function () {
@@ -3299,11 +4372,17 @@
         renderResultScreen();
 
         setTimeout(function () {
-          const outcomes = [
-            '¡Paga ' + state.player1Name + '!',
-            '¡Paga ' + state.player2Name + '!',
-            '¡A medias (50/50)!'
-          ];
+          const outcomes = isMovies 
+            ? [
+                '¡' + state.player1Name + ' hace las palomitas!',
+                '¡' + state.player2Name + ' hace las palomitas!',
+                '¡Hacéis las palomitas a medias!'
+              ]
+            : [
+                '¡Paga ' + state.player1Name + '!',
+                '¡Paga ' + state.player2Name + '!',
+                '¡A medias (50/50)!'
+              ];
           state.payerWinner = outcomes[Math.floor(Math.random() * outcomes.length)];
           state.isPayerSpinning = false;
           sound.playPop();
@@ -3313,21 +4392,7 @@
       });
     }
 
-    // Handler para Misión Secreta
-    const btnNewChallenge = document.getElementById('btn-new-challenge');
-    if (btnNewChallenge) {
-      btnNewChallenge.addEventListener('click', function () {
-        sound.playPop();
-        sound.vibrate([50]);
-        const pool = SECRET_MISSIONS_POOL.filter(function (m) {
-          return m !== state.activeChallenge;
-        });
-        state.activeChallenge = pool[Math.floor(Math.random() * pool.length)];
-        renderResultScreen();
-      });
-    }
-
-    // Selector de app de mapas favorita
+    // Selector de app de mapas favorita (solo si existe en el DOM)
     document.querySelectorAll('.btn-map-choice').forEach(function (btn) {
       btn.addEventListener('click', function () {
         const choice = btn.dataset.app;
@@ -3370,9 +4435,7 @@
     });
   }
 
-  // ==========================================
-  // 10. RULETA INTERACTIVA & DESEMPATE (NO MATCH)
-  // ==========================================
+
   function initInteractiveTieWheel(containerEl, candidateItems, onWinnerChosen) {
     const canvas = containerEl.querySelector('#tiebreak-wheel-canvas');
     const spinBtn = containerEl.querySelector('#btn-spin-wheel');
