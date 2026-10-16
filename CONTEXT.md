@@ -348,6 +348,13 @@ La app cuenta con coordenadas reales precargadas para la zona de **Cartagena y M
 - **Service Worker v10**:
   - Actualización de caché para propagar los cambios inmediatamente.
 
+### [v1.9.9] - 2026-10-16
+- **Iconos Monocromáticos en Píldoras de Categorías de Películas**:
+  - Eliminados los colores fijados (`text-amber-400`, `text-cyan-400`, `text-rose-400`) de los iconos de las categorías *"Recomendadas"*, *"Joyas Ocultas"* y *"Románticas"*.
+  - Ahora utilizan `currentColor` sin clases cromáticas forzadas, adaptándose con elegancia y total coherencia visual: gris neutro monocromático cuando están inactivas y negro puro sobre fondo blanco al seleccionarse.
+- **Service Worker v27**:
+  - Bump de caché a `donde-comemos-v27` en `sw.js` para propagación inmediata.
+
 ### [v1.9.8] - 2026-10-16
 - **Categoría "Joyas Ocultas" (Nicho & Originales de Streaming)**:
   - Nueva categoría especializada para descubrir cine menos convencional, películas de culto y títulos originales de plataformas con gran personalidad que no son los típicos blockbusters comerciales de siempre (*La sociedad de la nieve*, *As Bestas*, *Coherence*, *Ex Machina*, *Klaus*, *Captain Fantastic*, *Drive*, *El hoyo*, *Glass Onion*, *Diamantes en bruto*, *Barbarian*).
