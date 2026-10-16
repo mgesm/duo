@@ -3641,15 +3641,6 @@
     }
   }
 
-    const FOOD_CATEGORIES = [
-      { id: 'all', label: 'Todos' },
-      { id: 'recommended', label: 'Recomendados' },
-      { id: 'Hamburguesas', label: 'Hamburguesas' },
-      { id: 'Pollo', label: 'Pollo' },
-      { id: 'Pizza', label: 'Pizza' },
-      { id: 'Kebab', label: 'Kebab' }
-    ];
-
     const MOVIE_CATEGORIES = [
       { id: 'all', label: 'Todas' },
       { id: 'recommended', label: 'Recomendadas' },
@@ -3717,37 +3708,7 @@
       hasMoreInCat = totalCategoryCount > movieCategoryLimit;
       displayedRestaurants = displayedRestaurants.slice(0, movieCategoryLimit);
     } else if (isFood) {
-      const fcat = state.foodCategoryFilter || 'all';
-      if (fcat === 'recommended') {
-        const poolItems = RECOMMENDED_RESTAURANTS_POOL.map(function (rec) {
-          return {
-            id: rec.id,
-            name: rec.name,
-            category: rec.category,
-            price: rec.price,
-            rating: rec.rating,
-            isRecommended: true,
-            logo: makeRestaurantSvg('#F59E0B'),
-            image: makeRestaurantSvg('#F59E0B'),
-            description: rec.description,
-            branches: [
-              { name: rec.name, address: rec.zone, lat: rec.lat, lng: rec.lng }
-            ]
-          };
-        });
-        displayedRestaurants = poolItems;
-        totalCategoryCount = displayedRestaurants.length;
-        const fLimit = state.foodCategoryLimit || 6;
-        hasMoreInCat = totalCategoryCount > fLimit;
-        displayedRestaurants = displayedRestaurants.slice(0, fLimit);
-      } else if (fcat !== 'all') {
-        displayedRestaurants = displayedRestaurants.filter(function (r) {
-          return r.category === fcat;
-        });
-        totalCategoryCount = displayedRestaurants.length;
-      } else {
-        totalCategoryCount = displayedRestaurants.length;
-      }
+      totalCategoryCount = displayedRestaurants.length;
     }
 
     app.innerHTML = `
@@ -3769,11 +3730,21 @@
                 Turno: ${playerName}
               </div>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5">
               ${isFood ? `
                 <button 
-                  id="btn-food-quick-surprise" 
+                  id="btn-open-food-recommended" 
                   class="px-2.5 py-1 rounded-xl text-xs font-bold text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 active:scale-95 transition flex items-center gap-1.5 shadow-sm"
+                  title="Explorar sitios recomendados con filtros (distancia, notas de Google, precio...)"
+                >
+                  <svg class="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                  </svg>
+                  <span>Recomendados</span>
+                </button>
+                <button 
+                  id="btn-food-quick-surprise" 
+                  class="px-2.5 py-1 rounded-xl text-xs font-bold text-neutral-300 bg-white/[0.08] hover:bg-white/[0.14] border border-white/[0.12] active:scale-95 transition flex items-center gap-1.5 shadow-sm"
                   title="Elegir restaurante al azar (Sorpréndenos)"
                 >
                   <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -3813,27 +3784,6 @@
             </div>
           </div>
         </div>
-
-        ${isFood ? `
-          <!-- Barra de categorías de comida estilo visionOS -->
-          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-black/60 backdrop-blur-xl sticky top-[108px] z-10">
-            ${FOOD_CATEGORIES.map(function(c) {
-              const isAct = (state.foodCategoryFilter || 'all') === c.id;
-              return `
-                <button 
-                  data-food-cat="${c.id}" 
-                  class="food-cat-chip px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 transition ${
-                    isAct 
-                      ? 'bg-white text-black font-bold shadow-lg shadow-white/10 scale-[1.02]' 
-                      : 'bg-white/[0.06] text-neutral-400 hover:text-white border border-white/[0.08] active:scale-95'
-                  }"
-                >
-                  ${c.label}
-                </button>
-              `;
-            }).join('')}
-          </div>
-        ` : ''}
 
         ${isMovies ? `
           <!-- Barra de categorías de películas y series estilo visionOS -->
@@ -4011,14 +3961,14 @@
             })
             .join('')}
 
-          ${(isMovies || (isFood && state.foodCategoryFilter === 'recommended')) && hasMoreInCat ? `
+          ${isMovies && hasMoreInCat ? `
             <div class="col-span-2 pt-1 pb-2 flex justify-center">
               <button 
-                id="${isFood ? 'btn-food-ver-mas' : 'btn-movie-ver-mas'}" 
+                id="btn-movie-ver-mas" 
                 class="w-full py-3.5 px-4 rounded-2xl text-xs font-bold text-white bg-white/[0.08] hover:bg-white/[0.14] border border-white/[0.12] active:scale-[0.98] transition flex items-center justify-center gap-2 shadow-lg backdrop-blur-xl"
               >
                 <svg class="w-4 h-4 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-                <span>Ver más ${isFood ? 'restaurantes' : 'películas'} (${totalCategoryCount - (isFood ? (state.foodCategoryLimit || 6) : movieCategoryLimit)} más)</span>
+                <span>Ver más películas (${totalCategoryCount - movieCategoryLimit} más)</span>
               </button>
             </div>
           ` : ''}
@@ -4036,23 +3986,15 @@
       </div>
     `;
 
-    document.querySelectorAll('.food-cat-chip').forEach(function (chip) {
-      chip.addEventListener('click', function (e) {
+    const btnOpenFoodRec = document.getElementById('btn-open-food-recommended');
+    if (btnOpenFoodRec) {
+      btnOpenFoodRec.addEventListener('click', function (e) {
         e.stopPropagation();
         sound.playPop();
-        state.foodCategoryFilter = chip.dataset.foodCat;
-        renderPlayerScreen(playerNum);
-      });
-    });
-
-    const btnFoodVerMas = document.getElementById('btn-food-ver-mas');
-    if (btnFoodVerMas) {
-      btnFoodVerMas.addEventListener('click', function (e) {
-        e.stopPropagation();
-        sound.playPop();
-        sound.vibrate([20]);
-        state.foodCategoryLimit = (state.foodCategoryLimit || 6) + 6;
-        renderPlayerScreen(playerNum);
+        sound.vibrate([25]);
+        state.recommendedReturnScreen = isP1 ? 'player1' : 'player2';
+        state.screen = 'recommended';
+        render();
       });
     }
 
@@ -5837,7 +5779,7 @@
             id="btn-return-home" 
             class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-neutral-500 hover:text-neutral-300 transition flex items-center justify-center gap-1.5"
           >
-            <span>Volver al inicio</span>
+            <span>${state.recommendedReturnScreen ? 'Volver a la votación' : 'Volver al inicio'}</span>
           </button>
         </div>
       </div>
@@ -5845,13 +5787,15 @@
 
     document.getElementById('btn-back-from-recommended').addEventListener('click', function () {
       sound.playPop();
-      state.screen = 'home';
+      state.screen = state.recommendedReturnScreen || 'home';
+      state.recommendedReturnScreen = null;
       render();
     });
 
     document.getElementById('btn-return-home').addEventListener('click', function () {
       sound.playPop();
-      state.screen = 'home';
+      state.screen = state.recommendedReturnScreen || 'home';
+      state.recommendedReturnScreen = null;
       render();
     });
 

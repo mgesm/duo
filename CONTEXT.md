@@ -427,6 +427,14 @@ La app cuenta con coordenadas reales precargadas para la zona de **Cartagena y M
 - **Service Worker v31**:
   - Bump de caché en `sw.js` para propagar instantáneamente las mejoras sin problemas de assets cacheados.
 
+### [v1.9.14] - 2026-10-16
+- **Integración de Recomendados y Sorpresa dentro de Comida sin categorías artificiales**:
+  - Eliminadas las pestañas / chips de categorías arbitrarias en Comida (`Hamburguesas`, `Pizza`, `Pollo`, `Kebab`), manteniendo el catálogo completo y limpio sin segmentación innecesaria.
+  - Añadido acceso directo y destacado a **Sitios Recomendados** desde la cabecera de la votación de comida, abriendo el explorador completo con todos los filtros reales de Google (búsqueda por ciudad/GPS, radio de distancia 2/5/15/30 km, notas +4.0/+4.3/+4.5 estrellas, y rango de precios € a €€€€).
+  - Navegación bidireccional inteligente: volver desde Recomendados regresa directamente al turno de votación activo (`player1` o `player2`) sin perder selecciones ni forzar reinicio al inicio.
+  - Botón **Al azar (Sorpréndenos)** integrado en la barra superior para resolución express directa dentro del flujo.
+  - Service Worker actualizado a `donde-comemos-v33`.
+
 ### [v1.5.0] - 2026-10-14
 - **Modo Caos (Regla Sagrada)**:
   - Nueva opción directa en el menú rápido (*Action Sheet* de Home): sorteo express inmediato con advertencia lúdica para resolver bloqueos (*"Quien proteste o ponga mala cara por el sitio elegido tiene que pagar la bebida del otro"*).
