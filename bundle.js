@@ -1058,7 +1058,578 @@
       branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
     },
 
-    // --- 8. SERIES (DEDICADAS Y NO MEZCLADAS CON PELÍCULAS) ---
+    // --- 8. JOYAS OCULTAS Y CINE DE NICHO (ORIGINALES STREAMING & CULTO) ---
+    {
+      id: 'movie-sociedad-nieve',
+      name: 'La sociedad de la nieve',
+      type: 'movie',
+      genre: 'drama',
+      isRecommended: false,
+      isNiche: true,
+      category: 'Drama • Supervivencia / Original Netflix',
+      price: '144 min',
+      duration: '144 min',
+      rating: '7.4',
+      year: 2023,
+      streaming: ['netflix'],
+      color: '#0EA5E9',
+      poster: 'https://image.tmdb.org/t/p/w500/2e853FDVSIso600RqAMunPxiZjq.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/2e853FDVSIso600RqAMunPxiZjq.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/2e853FDVSIso600RqAMunPxiZjq.jpg',
+      synopsis: 'En 1972, el vuelo 571 de la Fuerza Aérea Uruguaya con un equipo de rugby se estrella en los Andes. Atrapados en uno de los entornos más hostiles del planeta, los supervivientes se apoyan para seguir vivos.',
+      description: 'La sobrecogedora y humana obra maestra de J.A. Bayona nominada al Óscar para Netflix.',
+      hints: [
+        'El fuselaje del avión partido entre ventisqueros en mitad de la cordillera andina.',
+        'Un zapato de rugby colgado y cartas de afecto escritas a las familias.',
+        'La dura decisión moral y humana para no rendirse ante el frío extremo.',
+        'Una caminata titánica de diez días sobre glaciares hacia los valles chilenos.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-as-bestas',
+      name: 'As Bestas',
+      type: 'movie',
+      genre: 'drama',
+      isRecommended: false,
+      isNiche: true,
+      category: 'Thriller • Tensión rural psicológica',
+      price: '137 min',
+      duration: '137 min',
+      rating: '7.6',
+      year: 2022,
+      streaming: ['movistar', 'prime'],
+      color: '#15803D',
+      poster: 'https://image.tmdb.org/t/p/w500/porCAB66BfEpYwjI5q4cAq3g2Uk.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/porCAB66BfEpYwjI5q4cAq3g2Uk.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/porCAB66BfEpYwjI5q4cAq3g2Uk.jpg',
+      synopsis: 'Antoine y Olga son una pareja francesa que vive pacíficamente en una aldea del interior de Galicia cultivando hortalizas. Su negativa a autorizar un parque eólico despierta la hostilidad letal de dos hermanos vecinos.',
+      description: 'El sobrecogedor thriller de Rodrigo Sorogoyen ganador de 9 premios Goya.',
+      hints: [
+        'La tradición ancestral de la Rapa das Bestas inmovilizando a los caballos salvajes.',
+        'Conversaciones cargadas de veneno y amenazas en la barra de la taberna del pueblo.',
+        'Una cámara de vídeo doméstica escondida en el bosque para documentar el acoso.',
+        'Un duelo dialéctico magistral entre dos madres que defienden su hogar.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-coherence',
+      name: 'Coherence',
+      type: 'movie',
+      genre: 'scifi',
+      isRecommended: false,
+      isNiche: true,
+      category: 'Ciencia Ficción • Suspense cuántico de culto',
+      price: '89 min',
+      duration: '89 min',
+      rating: '7.0',
+      year: 2013,
+      streaming: ['prime'],
+      color: '#3B82F6',
+      poster: 'https://image.tmdb.org/t/p/w500/uD2C7K9T813a34a34bX8bY4vUaE.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/uD2C7K9T813a34a34bX8bY4vUaE.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/uD2C7K9T813a34a34bX8bY4vUaE.jpg',
+      synopsis: 'Ocho amigos se reúnen para cenar la noche en que un cometa anómalo pasa cerca de la Tierra. Cuando la luz se apaga en todo el vecindario excepto en una misteriosa casa cercana, la realidad se fragmenta.',
+      description: 'Aclamada joya independiente de tensión psicológica y paradojas cuánticas.',
+      hints: [
+        'Palos luminosos de colores fluorescentes (rojo, azul y verde) para identificarse en la oscuridad.',
+        'Una caja con una ruleta y fotografías con números escritos en el reverso.',
+        'Descubrir que al doblar la esquina hay otra casa idéntica con ellos mismos dentro.',
+        'El experimento del gato de Schrödinger cobrando vida durante una cena entre amigos.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-ex-machina',
+      name: 'Ex Machina',
+      type: 'movie',
+      genre: 'scifi',
+      isRecommended: false,
+      isNiche: true,
+      category: 'Ciencia Ficción • Inteligencia artificial',
+      price: '108 min',
+      duration: '108 min',
+      rating: '7.1',
+      year: 2014,
+      streaming: ['prime', 'movistar'],
+      color: '#06B6D4',
+      poster: 'https://image.tmdb.org/t/p/w500/wxPhn4lvgbxNCLJGHdLCYApSGeR.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/wxPhn4lvgbxNCLJGHdLCYApSGeR.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/wxPhn4lvgbxNCLJGHdLCYApSGeR.jpg',
+      synopsis: 'Caleb, un joven programador, es seleccionado para pasar una semana en la remota residencia en las montañas del magnate de su empresa. Su tarea: someter al test de Turing a Ava, una avanzada androide.',
+      description: 'Fascinante thriller psicológico sobre los límites éticos y seductores de la IA.',
+      hints: [
+        'Una caja de cristal blindado y una elegante silueta robótica de malla transparente.',
+        'Los cortes de energía que desactivan los micrófonos para susurrar secretos.',
+        'Una sesión de baile disco improvisada y desconcertante entre Oscar Isaac y Sonoya Mizuno.',
+        'El test de Turing puesto a prueba con consecuencias psicológicas impredecibles.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-klaus',
+      name: 'Klaus',
+      type: 'movie',
+      genre: 'animation',
+      isRecommended: false,
+      isNiche: true,
+      category: 'Animación • Joya original Netflix',
+      price: '96 min',
+      duration: '96 min',
+      rating: '7.6',
+      year: 2019,
+      streaming: ['netflix'],
+      color: '#F59E0B',
+      poster: 'https://image.tmdb.org/t/p/w500/q1250yCMGldNTA7kCLSJB0pYCLi.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/q1250yCMGldNTA7kCLSJB0pYCLi.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/q1250yCMGldNTA7kCLSJB0pYCLi.jpg',
+      synopsis: 'Jesper, el peor estudiante de la academia postal, es desterrado a una gélida isla del Círculo Polar Ártico. Allí conoce a Klaus, un ermitaño artesano con quien comenzará a repartir regalos a escondidas.',
+      description: 'El deslumbrante prodigio de animación española nominado al Óscar y original de Netflix.',
+      hints: [
+        'Un cartero consentido transportado en barco a la gélida y enemistada ciudad de Smeerensburg.',
+        'Juguetes de madera tallados a mano entregados en silencio a través de las chimeneas.',
+        'Un trineo volando a la luz de la luna con la ayuda de renos veloces.',
+        'Un acto sincero de bondad siempre provoca otro.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-captain-fantastic',
+      name: 'Captain Fantastic',
+      type: 'movie',
+      genre: 'drama',
+      isRecommended: false,
+      isNiche: true,
+      category: 'Drama • Familia y Contracultura',
+      price: '118 min',
+      duration: '118 min',
+      rating: '7.4',
+      year: 2016,
+      streaming: ['prime', 'apple'],
+      color: '#10B981',
+      poster: 'https://image.tmdb.org/t/p/w500/hrlKoECbUi14fH4mO69d58iVd1T.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/hrlKoECbUi14fH4mO69d58iVd1T.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/hrlKoECbUi14fH4mO69d58iVd1T.jpg',
+      synopsis: 'Ben Cash vive en los bosques del noroeste estadounidense con sus seis hijos, educándolos con una rigurosa preparación física e intelectual lejos del consumismo. Un suceso les forzará a entrar al mundo real.',
+      description: 'Emotiva y provocadora historia familiar protagonizada por Viggo Mortensen.',
+      hints: [
+        'Celebrar el día de Noam Chomsky en lugar de las fiestas tradicionales de Navidad.',
+        'Un autobús escolar antiguo reconvertido en hogar rodante llamado Steve.',
+        'Cazar en el bosque y debatir sobre filosofía cuántica y literatura clásica junto a la hoguera.',
+        'Una emotiva versión acústica de Sweet Child O Mine cantada en familia.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-drive',
+      name: 'Drive',
+      type: 'movie',
+      genre: 'action',
+      isRecommended: false,
+      isNiche: true,
+      category: 'Acción • Neo-noir de culto',
+      price: '100 min',
+      duration: '100 min',
+      rating: '7.2',
+      year: 2011,
+      streaming: ['prime', 'movistar'],
+      color: '#EC4899',
+      poster: 'https://image.tmdb.org/t/p/w500/602vevIURmpDfzbnv5Ubi6wIkQm.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/602vevIURmpDfzbnv5Ubi6wIkQm.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/602vevIURmpDfzbnv5Ubi6wIkQm.jpg',
+      synopsis: 'Un silencioso especialista de cine trabaja de noche como conductor para criminales. Su estricto código moral se ve amenazado cuando decide ayudar al marido de su vecina Irene para salvar a su familia.',
+      description: 'El estilizado thriller neo-noir de Nicolas Winding Refn con Ryan Gosling.',
+      hints: [
+        'Una chaqueta de satén blanca con un escorpión dorado bordado en la espalda.',
+        'Un palillo en la boca y un cronómetro en el salpicadero esperando exactamente 5 minutos.',
+        'El tema musical synthwave Nightcall de Kavinsky iluminando las calles nocturnas de Los Ángeles.',
+        'Un beso a cámara lenta en un ascensor antes de una pelea fulminante.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-el-hoyo',
+      name: 'El hoyo',
+      type: 'movie',
+      genre: 'scifi',
+      isRecommended: false,
+      isNiche: true,
+      category: 'Distopía • Original Netflix de culto',
+      price: '94 min',
+      duration: '94 min',
+      rating: '6.4',
+      year: 2019,
+      streaming: ['netflix'],
+      color: '#EF4444',
+      poster: 'https://image.tmdb.org/t/p/w500/8ZX18L5m6rH5viSYpRnTSbb9eXh.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/8ZX18L5m6rH5viSYpRnTSbb9eXh.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/8ZX18L5m6rH5viSYpRnTSbb9eXh.jpg',
+      synopsis: 'En una estructura vertical con un número desconocido de niveles y dos presos por piso, una plataforma cargada con un banquete desciende a diario. Los de arriba comen bien; los de abajo sufren hambre.',
+      description: 'El viral e impactante fenómeno distópico español que conquistó el catálogo global de Netflix.',
+      hints: [
+        'Una plataforma flotante repleta de comida exquisita bajando por un hueco central sin fin.',
+        'La inquietante palabra "obvio" repetida por un veterano compañero de celda con un cuchillo Samurái.',
+        'Llevar un ejemplar de Don Quijote de la Mancha como único objeto personal al encierro.',
+        'Un postre de panna cotta intacto enviado al nivel cero como mensaje supremo.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-glass-onion',
+      name: 'Glass Onion: Un misterio de Knives Out',
+      type: 'movie',
+      genre: 'comedy',
+      isRecommended: false,
+      isNiche: true,
+      category: 'Misterio • Original Netflix',
+      price: '139 min',
+      duration: '139 min',
+      rating: '6.1',
+      year: 2022,
+      streaming: ['netflix'],
+      color: '#8B5CF6',
+      poster: 'https://image.tmdb.org/t/p/w500/vDGr1YdrlfbU9wxTOdpf3zChmv9.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/vDGr1YdrlfbU9wxTOdpf3zChmv9.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/vDGr1YdrlfbU9wxTOdpf3zChmv9.jpg',
+      synopsis: 'El detective Benoit Blanc viaja a una isla privada griega invitado a una reunión de viejos amigos organizada por un excéntrico magnate de la tecnología para fingir su propio asesinato.',
+      description: 'Divertido whodunnit original de Netflix encabezado por Daniel Craig y Edward Norton.',
+      hints: [
+        'Cajas de rompecabezas mecánicas enviadas como invitación a una isla griega privada.',
+        'Una cúpula de cristal gigante en lo alto de una mansión ultra moderna.',
+        'Daniel Craig con un pañuelo al cuello resolviendo el misterio antes de la cena.',
+        'Giros inesperados, traiciones entre amigos influyentes y una Mona Lisa protegida por código.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-uncut-gems',
+      name: 'Diamantes en bruto',
+      type: 'movie',
+      genre: 'drama',
+      isRecommended: false,
+      isNiche: true,
+      category: 'Thriller • Adrenalina / Original Netflix',
+      price: '135 min',
+      duration: '135 min',
+      rating: '6.6',
+      year: 2019,
+      streaming: ['netflix'],
+      color: '#D97706',
+      poster: 'https://image.tmdb.org/t/p/w500/mZjGNlSTxDZxyc1WNVnXLzGk5oa.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/mZjGNlSTxDZxyc1WNVnXLzGk5oa.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/mZjGNlSTxDZxyc1WNVnXLzGk5oa.jpg',
+      synopsis: 'Howard Ratner, un carismático joyero del distrito de los diamantes de Nueva York, tiene una adicción incontrolable al juego. Con prestamistas pisándole los talones, lo apuesta todo a un valioso ópalo etíope.',
+      description: 'Incesante montaña rusa de tensión dirigida por los hermanos Safdie con Adam Sandler.',
+      hints: [
+        'Un ópalo negro etíope incrustado en roca con destellos multicolores hipnóticos.',
+        'La estrella de la NBA Kevin Garnett obsesionado con la energía de la gema.',
+        'Llamadas telefónicas frenéticas, empeños cruzados y apuestas combinadas en directo.',
+        'Un cristal blindado bloqueado en una joyería abarrotada de tensión.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-barbarian',
+      name: 'Barbarian',
+      type: 'movie',
+      genre: 'horror',
+      isRecommended: false,
+      isNiche: true,
+      category: 'Terror • Suspense impredecible',
+      price: '102 min',
+      duration: '102 min',
+      rating: '6.4',
+      year: 2022,
+      streaming: ['disney'],
+      color: '#7F1D1D',
+      poster: 'https://image.tmdb.org/t/p/w500/id8yQoxgwVOtiuzlTEzT2Gv2T4t.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/id8yQoxgwVOtiuzlTEzT2Gv2T4t.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/id8yQoxgwVOtiuzlTEzT2Gv2T4t.jpg',
+      synopsis: 'Una joven alquila una casa en Detroit para acudir a una entrevista laboral. Al llegar de noche bajo una tormenta, descubre que la casa ya ha sido alquilada por un desconocido, escondiendo túneles secretos.',
+      description: 'El aclamado thriller de terror contemporáneo de Zach Cregger cargado de giros radicales.',
+      hints: [
+        'Llegar a medianoche bajo una lluvia torrencial y encontrar la llave del candado vacía.',
+        'Una cuerda colgada en la pared del sótano que abre un pasadizo secreto en penumbra.',
+        'Un giro de trama radical a mitad de película que cambia por completo de personaje y época.',
+        'Túneles ocultos bajo los cimientos de un barrio abandonado de Detroit.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+
+    // --- 9. ROMÁNTICAS Y COMEDIAS DE PAREJA ---
+    {
+      id: 'movie-3msc',
+      name: 'A tres metros sobre el cielo',
+      type: 'movie',
+      genre: 'romance',
+      isRecommended: false,
+      isRomance: true,
+      category: 'Romance • Éxito Juvenil Español',
+      price: '120 min',
+      duration: '120 min',
+      rating: '4.7',
+      year: 2010,
+      streaming: ['prime', 'netflix'],
+      color: '#E11D48',
+      poster: 'https://image.tmdb.org/t/p/w500/2Mq10FWFbxoYgsZysWlw7T9wSNe.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/2Mq10FWFbxoYgsZysWlw7T9wSNe.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/2Mq10FWFbxoYgsZysWlw7T9wSNe.jpg',
+      synopsis: 'En Barcelona, dos jóvenes de mundos opuestos se enamoran: Babi, una chica de clase alta dulce e inocente, y Hache, un chico rebelde e impulsivo aficionado al riesgo y las carreras ilegales de motos.',
+      description: 'El fenómeno romántico juvenil español protagonizado por Mario Casas y María Valverde.',
+      hints: [
+        'Una moto de gran cilindrada rugiendo a toda velocidad por la noche.',
+        'Un candado grabado cerrado en el puente sobre el río como promesa de amor eterno.',
+        'Mario Casas gritando que se siente a tres metros sobre el cielo.',
+        'Carreras ilegales, adrenalina y un romance apasionado entre dos mundos opuestos.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-it-ends-with-us',
+      name: 'Romper el círculo',
+      type: 'movie',
+      genre: 'romance',
+      isRecommended: false,
+      isRomance: true,
+      category: 'Romance • Drama / Best Seller',
+      price: '130 min',
+      duration: '130 min',
+      rating: '5.6',
+      year: 2024,
+      streaming: ['prime', 'apple', 'movistar'],
+      color: '#DB2777',
+      poster: 'https://image.tmdb.org/t/p/w500/AjV6jFJ2YFIluYo4GQf13AA1tqu.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/AjV6jFJ2YFIluYo4GQf13AA1tqu.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/AjV6jFJ2YFIluYo4GQf13AA1tqu.jpg',
+      synopsis: 'Lily Bloom supera una infancia traumática para abrir una floristería en Boston, enamorándose del neurocirujano Ryle. Pero la reaparición de su primer amor Atlas la obligará a tomar una decisión desgarradora.',
+      description: 'La adaptación del fenómeno editorial de Colleen Hoover con Blake Lively.',
+      hints: [
+        'Una preciosa floristería bohemia inaugurada con ilusión en Boston.',
+        'Blake Lively luciendo un icónico abrigo largo y vaqueros de patchwork.',
+        'El reencuentro casual con su amor de juventud en un restaurante de moda.',
+        'La difícil fuerza necesaria para romper el círculo del dolor en una relación.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-diario-noa',
+      name: 'El diario de Noa',
+      type: 'movie',
+      genre: 'romance',
+      isRecommended: false,
+      isRomance: true,
+      category: 'Romance • Clásico inolvidable',
+      price: '124 min',
+      duration: '124 min',
+      rating: '7.3',
+      year: 2004,
+      streaming: ['hbo', 'movistar'],
+      color: '#BE185D',
+      poster: 'https://image.tmdb.org/t/p/w500/rNzQyW4f8B8cQeg7Dgj3n6eT5k9.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/rNzQyW4f8B8cQeg7Dgj3n6eT5k9.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/rNzQyW4f8B8cQeg7Dgj3n6eT5k9.jpg',
+      synopsis: 'En una residencia de ancianos, un hombre lee a una mujer con Alzheimer un cuaderno que relata el romance entre Noah y Allie, dos jóvenes de Carolina del Norte separados por las clases sociales y la guerra.',
+      description: 'Uno de los romances más aclamados del cine moderno, con Ryan Gosling y Rachel McAdams.',
+      hints: [
+        'Un beso apasionado bajo una lluvia torrencial sobre el lago con cisnes.',
+        'Una vieja casa blanca de campo restaurada con contraventanas azules.',
+        'Cartas de amor que nunca fueron entregadas durante 365 días.',
+        'Un anciano leyendo un gastado cuaderno de notas a su gran amor en la residencia.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-cuestion-tiempo',
+      name: 'Una cuestión de tiempo',
+      type: 'movie',
+      genre: 'romance',
+      isRecommended: false,
+      isRomance: true,
+      category: 'Romance • Comedia / Viajes en el tiempo',
+      price: '123 min',
+      duration: '123 min',
+      rating: '7.6',
+      year: 2013,
+      streaming: ['prime', 'movistar'],
+      color: '#F43F5E',
+      poster: 'https://image.tmdb.org/t/p/w500/iWyvwoCJcgrwiozAVR99qT775z4.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/iWyvwoCJcgrwiozAVR99qT775z4.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/iWyvwoCJcgrwiozAVR99qT775z4.jpg',
+      synopsis: 'Al cumplir 21 años, Tim descubre un secreto familiar: los hombres de su familia pueden viajar en el tiempo al pasado. Tim decide usar su don para conquistar al amor de su vida, Mary.',
+      description: 'Conmovedora comedia romántica de Richard Curtis sobre el amor y apreciar cada día ordinario.',
+      hints: [
+        'Apretar los puños en un armario a oscuras para volver atrás en el tiempo.',
+        'Una primera cita a ciegas en un restaurante completamente en penumbra en Londres.',
+        'Una boda al aire libre arruinada por un vendaval con risas bajo el temporal.',
+        'El emotivo paseo junto al mar con su padre disfrutando de un día extra.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-lalaland',
+      name: 'La La Land',
+      type: 'movie',
+      genre: 'romance',
+      isRecommended: false,
+      isRomance: true,
+      category: 'Romance • Musical y Pasión',
+      price: '128 min',
+      duration: '128 min',
+      rating: '7.5',
+      year: 2016,
+      streaming: ['netflix', 'prime', 'movistar'],
+      color: '#A855F7',
+      poster: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfWwoFdKS4fzkUJt0Rf0.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfWwoFdKS4fzkUJt0Rf0.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfWwoFdKS4fzkUJt0Rf0.jpg',
+      synopsis: 'Mia, una aspirante a actriz, y Sebastian, un pianista de jazz entregado, se enamoran locamente en Los Ángeles mientras luchan por abrirse camino en sus respectivas carreras artísticas.',
+      description: 'Ganadora de 6 premios Óscar con la inolvidable química entre Emma Stone y Ryan Gosling.',
+      hints: [
+        'Un número de claqué al atardecer en el mirador de Griffith Park con vistas a Los Ángeles.',
+        'Un vestido amarillo vibrante y una melodía nostálgica al piano de jazz.',
+        'Bailar flotando entre las estrellas dentro del planetario de Griffith.',
+        'La secuencia final de lo que pudo haber sido resumida en una mirada.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-antes-amanecer',
+      name: 'Antes de amanecer',
+      type: 'movie',
+      genre: 'romance',
+      isRecommended: false,
+      isRomance: true,
+      category: 'Romance • Diálogo / Cine de culto',
+      price: '105 min',
+      duration: '105 min',
+      rating: '7.4',
+      year: 1995,
+      streaming: ['apple', 'prime'],
+      color: '#EC4899',
+      poster: 'https://image.tmdb.org/t/p/w500/z7jjX1a9W9g8j9d00sY5vXlV0h.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/z7jjX1a9W9g8j9d00sY5vXlV0h.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/z7jjX1a9W9g8j9d00sY5vXlV0h.jpg',
+      synopsis: 'Jesse, un joven estadounidense, y Céline, una estudiante francesa, se conocen en un tren europeo y deciden bajarse juntos en Viena para pasar una única noche paseando y conversando antes de que amanezca.',
+      description: 'La obra cumbre del romance conversacional dirigida por Richard Linklater.',
+      hints: [
+        'Miradas tímidas y cómplices dentro de una cabina de escucha de discos de vinilo.',
+        'Un poema improvisado por un vagabundo a orillas del río Danubio.',
+        'Una promesa de encontrarse exactamente en el mismo andén seis meses después.',
+        'Pasear por las calles empedradas de Viena hasta el primer rayo de sol.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-orgullo-prejuicio',
+      name: 'Orgullo y prejuicio',
+      type: 'movie',
+      genre: 'romance',
+      isRecommended: false,
+      isRomance: true,
+      category: 'Romance • Clásico de Época',
+      price: '127 min',
+      duration: '127 min',
+      rating: '7.1',
+      year: 2005,
+      streaming: ['netflix', 'prime'],
+      color: '#9333EA',
+      poster: 'https://image.tmdb.org/t/p/w500/1Onam6oWyFAUCcoxtdWkACtEiNr.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/1Onam6oWyFAUCcoxtdWkACtEiNr.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/1Onam6oWyFAUCcoxtdWkACtEiNr.jpg',
+      synopsis: 'Las cinco hermanas Bennet han sido criadas por su madre con el único propósito de encontrar marido. Elizabeth, inteligente y decidida, desafía las convenciones cuando conoce al arrogante Sr. Darcy.',
+      description: 'La cautivadora adaptación de Jane Austen protagonizada por Keira Knightley y Matthew Macfadyen.',
+      hints: [
+        'El señor Darcy caminando por la pradera envuelta en niebla al amanecer.',
+        'El roce de manos tras ayudar a Elizabeth a subir al carruaje.',
+        'Una declaración bajo la lluvia en un templete de piedra con reproches sinceros.',
+        'Un baile de miradas tensas mientras todo el salón parece desvanecerse.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-500-dias',
+      name: '(500) días juntos',
+      type: 'movie',
+      genre: 'romance',
+      isRecommended: false,
+      isRomance: true,
+      category: 'Romance • Comedia indie',
+      price: '95 min',
+      duration: '95 min',
+      rating: '6.8',
+      year: 2009,
+      streaming: ['disney'],
+      color: '#0284C7',
+      poster: 'https://image.tmdb.org/t/p/w500/fTq8o0k856zW4G99b1r5H1W5WbC.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/fTq8o0k856zW4G99b1r5H1W5WbC.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/fTq8o0k856zW4G99b1r5H1W5WbC.jpg',
+      synopsis: 'Tom, un aspirante a arquitecto que trabaja redactando tarjetas de felicitación, cree en el destino amoroso. Al conocer a Summer, queda deslumbrado, comenzando una crónica no lineal de su relación.',
+      description: 'Una perspectiva fresca, desenfadada y realista sobre el desamor y las expectativas.',
+      hints: [
+        'Cantar a viva voz en una tienda IKEA imaginando que es su apartamento.',
+        'Pantalla dividida comparando expectativa contra cruda realidad en una fiesta en la terraza.',
+        'Ambos coinciden en su devoción por la banda The Smiths en un ascensor.',
+        'Un número musical con baile callejero tras pasar la mejor noche de su vida.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-palm-springs',
+      name: 'Palm Springs',
+      type: 'movie',
+      genre: 'romance',
+      isRecommended: false,
+      isRomance: true,
+      category: 'Romance • Comedia / Bucle temporal',
+      price: '90 min',
+      duration: '90 min',
+      rating: '6.6',
+      year: 2020,
+      streaming: ['prime'],
+      color: '#F59E0B',
+      poster: 'https://image.tmdb.org/t/p/w500/gnAfqiV7yO3Jq9IntTmwkcaICqc.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/gnAfqiV7yO3Jq9IntTmwkcaICqc.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/gnAfqiV7yO3Jq9IntTmwkcaICqc.jpg',
+      synopsis: 'El despreocupado Nyles y la dama de honor Sarah se conocen en una boda en Palm Springs. Tras un inesperado accidente en una cueva del desierto, quedan atrapados juntos en el mismo día eternamente.',
+      description: 'Divertida y original comedia romántica con Andy Samberg y Cristin Milioti.',
+      hints: [
+        'Un flotador de piscina con camisa hawaiana y cerveza fresca cada mañana.',
+        'Una cueva misteriosa con un resplandor ámbar en mitad del desierto de California.',
+        'Ensayar un baile sincronizado en un bar de carretera para pasar el rato en el bucle.',
+        'Dinosaurios paseando en el horizonte alucinando juntos al atardecer.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+    {
+      id: 'movie-anyone-but-you',
+      name: 'Cualquiera menos tú',
+      type: 'movie',
+      genre: 'romance',
+      isRecommended: false,
+      isRomance: true,
+      category: 'Romance • Comedia desenfadada',
+      price: '103 min',
+      duration: '103 min',
+      rating: '5.1',
+      year: 2023,
+      streaming: ['movistar', 'prime', 'apple'],
+      color: '#06B6D4',
+      poster: 'https://image.tmdb.org/t/p/w500/wNEHNqo3MgHmj3BUiPSqqq5czcm.jpg',
+      logo: 'https://image.tmdb.org/t/p/w500/wNEHNqo3MgHmj3BUiPSqqq5czcm.jpg',
+      image: 'https://image.tmdb.org/t/p/w500/wNEHNqo3MgHmj3BUiPSqqq5czcm.jpg',
+      synopsis: 'Tras una primera cita idílica que termina en malentendido, Bea y Ben descubren que ambos están invitados a la misma boda en Australia. Deciden fingir ser pareja por conveniencia con resultados disparatados.',
+      description: 'El éxito viral de taquilla de comedia romántica con Sydney Sweeney y Glen Powell.',
+      hints: [
+        'Fingir ser la pareja perfecta frente a los invitados de una boda en Sídney.',
+        'Cantar a voz en grito Unwritten de Natasha Bedingfield para calmar los nervios en helicóptero.',
+        'Un incidente cómico con una araña gigante en los pantalones en pleno bosque.',
+        'La recreación moderna de Mucho ruido y pocas nueces con sol y playas australianas.'
+      ],
+      branches: [{ name: 'En casa en el sofá', address: 'Salón con manta y palomitas', lat: 37.6000, lng: -0.9850 }]
+    },
+
+    // --- 10. SERIES DEDICADAS (NO MEZCLADAS CON PELÍCULAS) ---
     {
       id: 'series-stranger-things',
       name: 'Stranger Things',
@@ -1915,6 +2486,7 @@
     restaurants: [],
     selectedCategory: 'all',
     movieCategoryFilter: 'recommended',
+    movieCategoryLimits: {},
     winningRestaurant: null,
     winningBranch: null,
     userCoords: null,
@@ -3026,6 +3598,7 @@
       sound.init();
       sound.playWhoosh();
       sound.vibrate([40]);
+      state.movieCategoryLimits = {};
       state.player1Selections.clear();
       state.player2Selections.clear();
       state.player1Veto = null;
@@ -3162,14 +3735,24 @@
       icon: '<svg class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
     },
     {
-      id: 'all',
-      label: 'Todas',
-      icon: '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>'
+      id: 'niche',
+      label: 'Joyas Ocultas',
+      icon: '<svg class="w-3.5 h-3.5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9z"></path><path d="M11 3 8 9l4 13 4-13-3-6"></path><path d="M2 9h20"></path></svg>'
+    },
+    {
+      id: 'romance',
+      label: 'Románticas',
+      icon: '<svg class="w-3.5 h-3.5 text-rose-400" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>'
     },
     {
       id: 'series',
       label: 'Series',
       icon: '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>'
+    },
+    {
+      id: 'all',
+      label: 'Todas',
+      icon: '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>'
     },
     { id: 'action', label: 'Acción' },
     { id: 'scifi', label: 'Ciencia Ficción' },
@@ -3210,14 +3793,26 @@
       return true;
     });
 
+    let totalCategoryCount = 0;
+    let movieCategoryLimit = 6;
+    let hasMoreInCat = false;
+
     if (isMovies) {
       const cat = state.movieCategoryFilter || 'recommended';
       displayedRestaurants = displayedRestaurants.filter(function (r) {
         if (cat === 'all') return r.type === 'movie';
         if (cat === 'recommended') return r.type === 'movie' && !!r.isRecommended;
+        if (cat === 'niche') return r.type === 'movie' && (r.genre === 'niche' || !!r.isNiche);
+        if (cat === 'romance') return r.type === 'movie' && (r.genre === 'romance' || !!r.isRomance);
         if (cat === 'series') return r.type === 'series';
         return r.type === 'movie' && r.genre === cat;
       });
+
+      totalCategoryCount = displayedRestaurants.length;
+      if (!state.movieCategoryLimits) state.movieCategoryLimits = {};
+      movieCategoryLimit = state.movieCategoryLimits[cat] || 6;
+      hasMoreInCat = totalCategoryCount > movieCategoryLimit;
+      displayedRestaurants = displayedRestaurants.slice(0, movieCategoryLimit);
     }
 
     app.innerHTML = `
@@ -3441,6 +4036,18 @@
               `;
             })
             .join('')}
+
+          ${isMovies && hasMoreInCat ? `
+            <div class="col-span-2 pt-1 pb-2 flex justify-center">
+              <button 
+                id="btn-movie-ver-mas" 
+                class="w-full py-3.5 px-4 rounded-2xl text-xs font-bold text-white bg-white/[0.08] hover:bg-white/[0.14] border border-white/[0.12] active:scale-[0.98] transition flex items-center justify-center gap-2 shadow-lg backdrop-blur-xl"
+              >
+                <svg class="w-4 h-4 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                <span>Ver más películas (${totalCategoryCount - movieCategoryLimit} más)</span>
+              </button>
+            </div>
+          ` : ''}
         </div>
 
         <div class="sticky bottom-0 z-20 px-4 pt-3 floating-bottom-bar border-t border-white/[0.08]">
@@ -3463,6 +4070,19 @@
         renderPlayerScreen(playerNum);
       });
     });
+
+    const btnMovieVerMas = document.getElementById('btn-movie-ver-mas');
+    if (btnMovieVerMas) {
+      btnMovieVerMas.addEventListener('click', function (e) {
+        e.stopPropagation();
+        sound.playPop();
+        sound.vibrate([20]);
+        const cat = state.movieCategoryFilter || 'recommended';
+        if (!state.movieCategoryLimits) state.movieCategoryLimits = {};
+        state.movieCategoryLimits[cat] = (state.movieCategoryLimits[cat] || 6) + 6;
+        renderPlayerScreen(playerNum);
+      });
+    }
 
     document.querySelectorAll('.btn-card-info').forEach(function (btn) {
       btn.addEventListener('click', function (e) {

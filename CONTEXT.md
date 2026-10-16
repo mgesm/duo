@@ -348,6 +348,18 @@ La app cuenta con coordenadas reales precargadas para la zona de **Cartagena y M
 - **Service Worker v10**:
   - Actualización de caché para propagar los cambios inmediatamente.
 
+### [v1.9.8] - 2026-10-16
+- **Categoría "Joyas Ocultas" (Nicho & Originales de Streaming)**:
+  - Nueva categoría especializada para descubrir cine menos convencional, películas de culto y títulos originales de plataformas con gran personalidad que no son los típicos blockbusters comerciales de siempre (*La sociedad de la nieve*, *As Bestas*, *Coherence*, *Ex Machina*, *Klaus*, *Captain Fantastic*, *Drive*, *El hoyo*, *Glass Onion*, *Diamantes en bruto*, *Barbarian*).
+- **Categoría "Románticas"**:
+  - Nueva categoría para películas románticas icónicas y recientes para disfrutar en pareja (*A tres metros sobre el cielo*, *Romper el círculo*, *El diario de Noa*, *Una cuestión de tiempo*, *La La Land*, *Antes de amanecer*, *Orgullo y prejuicio*, *(500) días juntos*, *Palm Springs*, *Cualquiera menos tú*).
+- **Botón "Ver más" (Paginación Progresiva por Categoría)**:
+  - Implementado control dinámico *"Ver más películas (+X más)"* estilo visionOS con `backdrop-blur` en cada categoría, mostrando inicialmente 6 tarjetas (3 filas de 2) y desplegando las siguientes de forma incremental con feedback háptico y sonoro.
+- **Catálogo Ampliado y Puntuaciones FilmAffinity**:
+  - Catálogo de entretenimiento ampliado a un total de 59 títulos (50 películas y 9 series), todos con sus notas oficiales de FilmAffinity, enlaces a plataformas de streaming (Netflix, Prime Video, Max, Apple TV+, Movistar+, Disney+) y carteles de alta definición de TMDB.
+- **Service Worker v26**:
+  - Bump de versión de caché a `donde-comemos-v26` para actualización instantánea.
+
 ### [v1.9.7] - 2026-10-16
 - **Corrección de Codificación UTF-8 (Tildes y Caracteres Especiales)**:
   - Eliminado el problema de doble codificación UTF-8 / mojibake (`Ã³`, `Ã­`, `Ã±`, `â€¢`).
