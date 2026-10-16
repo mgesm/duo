@@ -3833,50 +3833,95 @@
 
           ${(state.foodCategoryFilter === 'recommended') ? `
             <!-- Panel de Filtros de Recomendados Google -->
-            <div class="px-4 pt-3 pb-2 border-b border-white/[0.08] bg-black/40 backdrop-blur-md space-y-2.5">
-              <!-- Búsqueda de ciudad o zona -->
-              <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-400">
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <div class="px-4 pt-3 pb-2.5 border-b border-white/[0.08] bg-black/40 backdrop-blur-md space-y-2.5">
+              <!-- Búsqueda de ciudad o zona y botón GPS -->
+              <div class="flex items-center gap-2">
+                <div class="relative flex-1">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-400">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                  </div>
+                  <input 
+                    id="tab-rec-city" 
+                    type="text" 
+                    placeholder="Buscar ciudad o zona (Cartagena, Murcia...)" 
+                    value="${(state.recommendedCityQuery || '').replace(/"/g, '&quot;')}"
+                    class="w-full bg-white/[0.06] border border-white/[0.12] focus:border-amber-500/50 rounded-xl pl-8 pr-8 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none transition shadow-inner"
+                  />
+                  ${state.recommendedCityQuery ? `
+                    <button id="btn-tab-clear-city" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-neutral-400 hover:text-white transition">
+                      <div class="w-3.5 h-3.5 rounded-full bg-white/10 flex items-center justify-center text-[9px] font-bold">✕</div>
+                    </button>
+                  ` : ''}
                 </div>
-                <input 
-                  id="tab-rec-city" 
-                  type="text" 
-                  placeholder="Buscar ciudad o zona (Cartagena, Murcia...)" 
-                  value="${(state.recommendedCityQuery || '').replace(/"/g, '&quot;')}"
-                  class="w-full bg-white/[0.06] border border-white/[0.12] focus:border-amber-500/50 rounded-xl pl-8 pr-8 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none transition shadow-inner"
-                />
-                ${state.recommendedCityQuery ? `
-                  <button id="btn-tab-clear-city" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-neutral-400 hover:text-white transition">
-                    <div class="w-3.5 h-3.5 rounded-full bg-white/10 flex items-center justify-center text-[9px] font-bold">✕</div>
-                  </button>
-                ` : ''}
-              </div>
-
-              <!-- Filtros en línea: Estrellas y Distancia -->
-              <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 text-[11px]">
-                <button id="btn-tab-use-gps" class="shrink-0 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1 transition ${!state.recommendedCityQuery ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-white/[0.05] text-neutral-400 border border-white/[0.08]'}">
-                  <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+                <button 
+                  id="btn-tab-use-gps" 
+                  title="Usar mi ubicación actual por GPS"
+                  class="shrink-0 px-2.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 ${!state.recommendedCityQuery ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm' : 'bg-white/[0.06] text-neutral-400 hover:text-white border border-white/[0.1]'}"
+                >
+                  <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
                   <span>GPS</span>
                 </button>
-                <div class="w-px h-4 bg-white/10 shrink-0"></div>
-                <button data-tab-rec-rating="4.5" class="shrink-0 px-2.5 py-1 rounded-lg font-semibold transition ${state.recommendedMinRating === 4.5 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/35' : 'bg-white/[0.05] text-neutral-400 border border-white/[0.08]'}">
-                  +4.5★
-                </button>
-                <button data-tab-rec-rating="4.3" class="shrink-0 px-2.5 py-1 rounded-lg font-semibold transition ${state.recommendedMinRating === 4.3 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/35' : 'bg-white/[0.05] text-neutral-400 border border-white/[0.08]'}">
-                  +4.3★
-                </button>
-                <button data-tab-rec-rating="0" class="shrink-0 px-2.5 py-1 rounded-lg font-semibold transition ${state.recommendedMinRating === 0 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/35' : 'bg-white/[0.05] text-neutral-400 border border-white/[0.08]'}">
-                  Todas★
-                </button>
-                <div class="w-px h-4 bg-white/10 shrink-0"></div>
-                <button data-tab-rec-dist="5" class="shrink-0 px-2 py-1 rounded-lg font-semibold transition ${state.recommendedMaxDistance === 5 ? 'bg-white/20 text-white border border-white/25' : 'bg-white/[0.05] text-neutral-400 border border-white/[0.08]'}">&lt;5km</button>
-                <button data-tab-rec-dist="15" class="shrink-0 px-2 py-1 rounded-lg font-semibold transition ${state.recommendedMaxDistance === 15 ? 'bg-white/20 text-white border border-white/25' : 'bg-white/[0.05] text-neutral-400 border border-white/[0.08]'}">&lt;15km</button>
-                <button data-tab-rec-dist="30" class="shrink-0 px-2 py-1 rounded-lg font-semibold transition ${state.recommendedMaxDistance === 30 ? 'bg-white/20 text-white border border-white/25' : 'bg-white/[0.05] text-neutral-400 border border-white/[0.08]'}">&lt;30km</button>
-                <button data-tab-rec-dist="all" class="shrink-0 px-2 py-1 rounded-lg font-semibold transition ${state.recommendedMaxDistance === null ? 'bg-white/20 text-white border border-white/25' : 'bg-white/[0.05] text-neutral-400 border border-white/[0.08]'}">Todas dist.</button>
               </div>
 
-              <div class="flex items-center justify-between text-[10px] text-neutral-400 pt-0.5">
+              <!-- Fila 1: Estrellas mínimas en Google -->
+              <div class="p-2 rounded-xl bg-white/[0.03] border border-white/[0.06] space-y-1">
+                <div class="flex items-center justify-between text-[11px] px-0.5">
+                  <span class="text-neutral-400 font-medium">Estrellas Google mínimas</span>
+                  <span class="text-amber-400 font-semibold flex items-center gap-1 text-[11px]">
+                    <svg class="w-3 h-3 fill-amber-400 text-amber-400" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    <span>${state.recommendedMinRating > 0 ? `${state.recommendedMinRating.toFixed(1)}+` : 'Todas'}</span>
+                  </span>
+                </div>
+                <div class="grid grid-cols-4 gap-1">
+                  <button data-tab-rec-rating="4.5" class="py-1 rounded-lg text-center text-[11px] font-semibold transition ${state.recommendedMinRating === 4.5 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/35 shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.06]'}">
+                    4.5+ (Top)
+                  </button>
+                  <button data-tab-rec-rating="4.3" class="py-1 rounded-lg text-center text-[11px] font-semibold transition ${state.recommendedMinRating === 4.3 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/35 shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.06]'}">
+                    4.3+
+                  </button>
+                  <button data-tab-rec-rating="4.0" class="py-1 rounded-lg text-center text-[11px] font-semibold transition ${state.recommendedMinRating === 4.0 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/35 shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.06]'}">
+                    4.0+
+                  </button>
+                  <button data-tab-rec-rating="0" class="py-1 rounded-lg text-center text-[11px] font-semibold transition ${state.recommendedMinRating === 0 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/35 shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.06]'}">
+                    Todas
+                  </button>
+                </div>
+              </div>
+
+              <!-- Fila 2: Rango de Precio -->
+              <div class="p-2 rounded-xl bg-white/[0.03] border border-white/[0.06] space-y-1">
+                <div class="flex items-center justify-between text-[11px] px-0.5">
+                  <span class="text-neutral-400 font-medium">Rango de precio</span>
+                  <span class="text-emerald-400 font-semibold text-[11px]">${state.recommendedPrice === 'all' ? 'Todos los precios' : state.recommendedPrice}</span>
+                </div>
+                <div class="grid grid-cols-5 gap-1">
+                  <button data-tab-rec-price="all" class="py-1 rounded-lg text-center text-[11px] font-semibold transition ${state.recommendedPrice === 'all' ? 'bg-white/15 text-white shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.06]'}">Todos</button>
+                  <button data-tab-rec-price="€" class="py-1 rounded-lg text-center text-[11px] font-semibold transition ${state.recommendedPrice === '€' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/35 shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.06]'}">€</button>
+                  <button data-tab-rec-price="€€" class="py-1 rounded-lg text-center text-[11px] font-semibold transition ${state.recommendedPrice === '€€' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/35 shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.06]'}">€€</button>
+                  <button data-tab-rec-price="€€€" class="py-1 rounded-lg text-center text-[11px] font-semibold transition ${state.recommendedPrice === '€€€' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/35 shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.06]'}">€€€</button>
+                  <button data-tab-rec-price="€€€€" class="py-1 rounded-lg text-center text-[11px] font-semibold transition ${state.recommendedPrice === '€€€€' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/35 shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.06]'}">€€€€</button>
+                </div>
+              </div>
+
+              <!-- Fila 3: Radio de distancia -->
+              <div class="p-2 rounded-xl bg-white/[0.03] border border-white/[0.06] space-y-1">
+                <div class="flex items-center justify-between text-[11px] px-0.5">
+                  <span class="text-neutral-400 font-medium">Distancia máxima</span>
+                  <span class="text-neutral-300 font-semibold text-[11px] flex items-center gap-1 truncate max-w-[190px]">
+                    <svg class="w-3 h-3 text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <span class="truncate">Desde ${(state.recommendedCityQuery ? state.recommendedCityQuery : (state.userCoords ? 'tu GPS' : 'Cartagena'))}</span>
+                  </span>
+                </div>
+                <div class="grid grid-cols-5 gap-1">
+                  <button data-tab-rec-dist="2" class="py-1 rounded-lg text-center text-[11px] font-semibold transition ${state.recommendedMaxDistance === 2 ? 'bg-white/20 text-white shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.06]'}">&lt;2km</button>
+                  <button data-tab-rec-dist="5" class="py-1 rounded-lg text-center text-[11px] font-semibold transition ${state.recommendedMaxDistance === 5 ? 'bg-white/20 text-white shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.06]'}">&lt;5km</button>
+                  <button data-tab-rec-dist="15" class="py-1 rounded-lg text-center text-[11px] font-semibold transition ${state.recommendedMaxDistance === 15 ? 'bg-white/20 text-white shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.06]'}">&lt;15km</button>
+                  <button data-tab-rec-dist="30" class="py-1 rounded-lg text-center text-[11px] font-semibold transition ${state.recommendedMaxDistance === 30 ? 'bg-white/20 text-white shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.06]'}">&lt;30km</button>
+                  <button data-tab-rec-dist="all" class="py-1 rounded-lg text-center text-[11px] font-semibold transition ${state.recommendedMaxDistance === null ? 'bg-white/20 text-white shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.06]'}">Todas</button>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between text-[10px] text-neutral-400 pt-0.5 px-0.5">
                 <span>${totalCategoryCount > 0 ? ('Mostrando ' + displayedRestaurants.length + ' de ' + totalCategoryCount + ' restaurantes Google') : 'Sin resultados con estos filtros'}</span>
                 <span class="text-amber-400 font-medium">Google Reviews</span>
               </div>
@@ -4279,6 +4324,18 @@
         e.stopPropagation();
         const val = Number(btn.dataset.tabRecRating);
         state.recommendedMinRating = val;
+        state.recommendedLimit = 5;
+        sound.playPop();
+        sound.vibrate([20]);
+        renderPlayerScreen(playerNum);
+      });
+    });
+
+    document.querySelectorAll('[data-tab-rec-price]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const val = btn.dataset.tabRecPrice;
+        state.recommendedPrice = val;
         state.recommendedLimit = 5;
         sound.playPop();
         sound.vibrate([20]);

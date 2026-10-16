@@ -427,6 +427,14 @@ La app cuenta con coordenadas reales precargadas para la zona de **Cartagena y M
 - **Service Worker v31**:
   - Bump de caché en `sw.js` para propagar instantáneamente las mejoras sin problemas de assets cacheados.
 
+### [v1.9.17] - 2026-10-16
+- **Ampliación Completa de Filtros en Pestaña 'Recomendados'**:
+  - Restablecido el selector de **Rango de Precio** (`Todos`, `€`, `€€`, `€€€`, `€€€€`) con feedback activo y badge dinámico en color esmeralda.
+  - Ampliado el selector de **Estrellas Google mínimas** con todas las opciones originales (`4.5+ (Top)`, `4.3+`, `4.0+`, `Todas`).
+  - Reincorporado el selector completo de **Distancia máxima** (`<2km`, `<5km`, `<15km`, `<30km`, `Todas`) junto con el botón de geolocalización GPS inmediata.
+  - Actualizados todos los event listeners correspondientes en la pantalla de votación.
+  - Service Worker actualizado a `donde-comemos-v36`.
+
 ### [v1.9.16] - 2026-10-16
 - **Tarjetas Detalladas a 1 por Fila en Pestaña 'Recomendados' de Comida**:
   - En la pestaña "Recomendados", las opciones ahora se muestran a **una tarjeta grande por fila** (`flex flex-col gap-3.5`) en lugar de cuadrícula 2x2.
