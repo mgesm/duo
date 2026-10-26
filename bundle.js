@@ -15,7 +15,6 @@
       id: 'mcdonalds',
       name: "McDonald's",
       category: 'Hamburguesas',
-      emoji: '🍟',
       logo: './mcdonalds.png',
       image: './mcdonalds.png',
       description: 'Hamburguesas clásicas, Big Mac, patatas y McFlurry.',
@@ -39,7 +38,6 @@
       id: 'burger-king',
       name: 'Burger King',
       category: 'Hamburguesas',
-      emoji: '👑',
       logo: './burger_king.png',
       image: './burger_king.png',
       description: 'Hamburguesas a la parrilla, Whopper, aros de cebolla y King Fries.',
@@ -64,7 +62,6 @@
       id: 'kfc',
       name: 'KFC',
       category: 'Pollo',
-      emoji: '🍗',
       logo: './kfc.png',
       image: './kfc.png',
       description: 'Pollo frito receta original, tiras crujientes y cubos para compartir.',
@@ -87,7 +84,6 @@
       id: 'popeyes',
       name: 'Popeyes',
       category: 'Pollo',
-      emoji: '🌶️',
       logo: './popeyes.png',
       image: './popeyes.png',
       description: 'Pollo crujiente de Louisiana marinado 12h, The Chicken Sandwich.',
@@ -109,7 +105,6 @@
       id: 'unica',
       name: 'Única Burgers',
       category: 'Hamburguesas',
-      emoji: '🔥',
       logo: './unica.png',
       image: './unica.png',
       description: 'Hamburguesería artesanal de Cartagena. Smash burgers y patatas épicas.',
@@ -130,7 +125,6 @@
       id: 'kebab',
       name: 'Kebab',
       category: 'Kebab',
-      emoji: '🥙',
       logo: './kebab.png',
       image: './kebab.png',
       description: 'Döner Kebab auténtico, durum y especialidades en pan recién horneado.',
@@ -151,7 +145,6 @@
       id: 'telepizza',
       name: 'Telepizza',
       category: 'Pizza',
-      emoji: '🍕',
       logo: './telepizza.png',
       image: './telepizza.png',
       description: 'El secreto está en la masa. Barbacoa, 4 quesos, carbonara y masa fina.',
@@ -3953,29 +3946,44 @@
         <div class="grid grid-cols-3 gap-2 my-2">
           <button 
             id="btn-home-wishlist" 
-            class="py-2.5 px-2 rounded-2xl bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.08] active:scale-95 transition flex flex-col items-center justify-center gap-1 text-center shadow-sm"
+            class="py-2.5 px-2 rounded-2xl bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.08] active:scale-95 transition flex flex-col items-center justify-center gap-1.5 text-center shadow-sm"
           >
-            <span class="text-base">📌</span>
-            <span class="text-[11px] font-bold text-white">Wishlist</span>
-            <span class="text-[9px] text-amber-300 font-semibold">${wishlist.length} pendientes</span>
+            <div class="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </div>
+            <span class="text-[11px] font-bold text-white leading-none">Wishlist</span>
+            <span class="text-[9px] text-amber-300 font-semibold leading-none">${wishlist.length} pendientes</span>
           </button>
 
           <button 
             id="btn-home-diary" 
-            class="py-2.5 px-2 rounded-2xl bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.08] active:scale-95 transition flex flex-col items-center justify-center gap-1 text-center shadow-sm"
+            class="py-2.5 px-2 rounded-2xl bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.08] active:scale-95 transition flex flex-col items-center justify-center gap-1.5 text-center shadow-sm"
           >
-            <span class="text-base">📖</span>
-            <span class="text-[11px] font-bold text-white">Diario</span>
-            <span class="text-[9px] text-indigo-300 font-semibold">${visits.length} recuerdos</span>
+            <div class="w-6 h-6 rounded-lg bg-indigo-500/15 text-indigo-400 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+            </div>
+            <span class="text-[11px] font-bold text-white leading-none">Diario</span>
+            <span class="text-[9px] text-indigo-300 font-semibold leading-none">${visits.length} recuerdos</span>
           </button>
 
           <button 
             id="btn-home-stats" 
-            class="py-2.5 px-2 rounded-2xl bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.08] active:scale-95 transition flex flex-col items-center justify-center gap-1 text-center shadow-sm"
+            class="py-2.5 px-2 rounded-2xl bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.08] active:scale-95 transition flex flex-col items-center justify-center gap-1.5 text-center shadow-sm"
           >
-            <span class="text-base">📊</span>
-            <span class="text-[11px] font-bold text-white">Wrapped</span>
-            <span class="text-[9px] text-rose-300 font-semibold">${statsHistory.length} partidas</span>
+            <div class="w-6 h-6 rounded-lg bg-rose-500/15 text-rose-400 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+            </div>
+            <span class="text-[11px] font-bold text-white leading-none">Wrapped</span>
+            <span class="text-[9px] text-rose-300 font-semibold leading-none">${statsHistory.length} partidas</span>
           </button>
         </div>
 
@@ -4487,7 +4495,7 @@
               </span>
               <span class="text-white font-bold text-[11px]">
                 ${isP1 
-                  ? (state.remoteP2Done ? '✅ Voto completado' : (state.remoteP2Count > 0 ? state.remoteP2Count + ' elegidos' : 'Votando en su móvil...'))
+                  ? (state.remoteP2Done ? 'Listo' : (state.remoteP2Count > 0 ? state.remoteP2Count + ' elegidos' : 'Votando en su móvil...'))
                   : (state.remoteP1Count > 0 ? state.remoteP1Count + ' elegidos' : 'Conectado')}
               </span>
             </div>
@@ -7398,17 +7406,6 @@
         return;
       }
 
-      const emojiMap = {
-        Hamburguesas: '🍔',
-        Pizza: '🍕',
-        Pollo: '🍗',
-        Kebab: '🥙',
-        Asiático: '🍣',
-        Mexicano: '🌮',
-        Tapas: '🥘',
-        Otro: '🍽️'
-      };
-
       const coords = state.userCoords || { lat: 37.6000, lng: -0.9850 };
 
       const newRes = {
@@ -7416,7 +7413,6 @@
         name: name,
         category: category,
         price: price,
-        emoji: emojiMap[category] || '🍽️',
         logo: './unica.svg',
         image: './unica.svg',
         description: 'Restaurante añadido por vosotros.',
@@ -7583,7 +7579,12 @@
 
                 ${currentVisits.length === 0 ? `
                   <div class="p-8 text-center text-xs text-neutral-500 border border-white/[0.06] rounded-2xl ios-glass">
-                    <div class="text-2xl mb-2">📸</div>
+                    <div class="w-10 h-10 rounded-2xl bg-white/[0.06] border border-white/[0.1] text-neutral-400 mx-auto mb-2.5 flex items-center justify-center">
+                      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                      </svg>
+                    </div>
                     <div class="text-neutral-300 font-semibold mb-1">Aún no tenéis recuerdos guardados</div>
                     <div>Añadid vuestro primer momento arriba o guardadlo automáticamente al finalizar una votación.</div>
                   </div>
@@ -7591,7 +7592,11 @@
                   <div class="space-y-3">
                     ${currentVisits.map(function (v) {
                       const starsHtml = '★'.repeat(v.rating || 5) + '☆'.repeat(5 - (v.rating || 5));
-                      const modeEmoji = v.mode === 'movies' ? '🎬' : v.mode === 'plans' ? '✨' : '🍽️';
+                      const modeIcon = v.mode === 'movies'
+                        ? '<svg class="w-3.5 h-3.5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg>'
+                        : v.mode === 'plans'
+                        ? '<svg class="w-3.5 h-3.5 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>'
+                        : '<svg class="w-3.5 h-3.5 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path></svg>';
                       return `
                         <div class="ios-glass p-3.5 rounded-2xl border border-white/[0.08] text-left space-y-2">
                           ${v.photo ? `
@@ -7603,7 +7608,7 @@
                           <div class="flex items-start justify-between gap-2">
                             <div>
                               <div class="flex items-center gap-1.5">
-                                <span class="text-xs">${modeEmoji}</span>
+                                <span class="shrink-0">${modeIcon}</span>
                                 <h4 class="text-xs font-bold text-white">${v.restaurantName}</h4>
                               </div>
                               <div class="text-[11px] text-amber-400 font-bold tracking-wider mt-0.5">${starsHtml}</div>
@@ -7811,13 +7816,13 @@
                   <!-- Selector de categoría rápida -->
                   <div class="flex items-center gap-1.5" id="wishlist-type-chips">
                     <button type="button" data-type="food" class="btn-wish-type px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-amber-500/20 text-amber-300 border-amber-500/40">
-                      🍽️ Comida
+                      Comida
                     </button>
                     <button type="button" data-type="movies" class="btn-wish-type px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-white/5 text-neutral-400 border-white/10">
-                      🎬 Pelis
+                      Pelis
                     </button>
                     <button type="button" data-type="plans" class="btn-wish-type px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-white/5 text-neutral-400 border-white/10">
-                      ✨ Plan
+                      Plan
                     </button>
                   </div>
 
@@ -7836,13 +7841,13 @@
                   Todos (${allItems.length})
                 </button>
                 <button data-cat="food" class="btn-filter-wish px-3 py-1 rounded-full text-[11px] font-semibold transition ${activeWishlistFilter === 'food' ? 'bg-white text-black' : 'bg-white/5 text-neutral-400 border border-white/10'}">
-                  🍽️ Comida
+                  Comida
                 </button>
                 <button data-cat="movies" class="btn-filter-wish px-3 py-1 rounded-full text-[11px] font-semibold transition ${activeWishlistFilter === 'movies' ? 'bg-white text-black' : 'bg-white/5 text-neutral-400 border border-white/10'}">
-                  🎬 Pelis
+                  Pelis
                 </button>
                 <button data-cat="plans" class="btn-filter-wish px-3 py-1 rounded-full text-[11px] font-semibold transition ${activeWishlistFilter === 'plans' ? 'bg-white text-black' : 'bg-white/5 text-neutral-400 border border-white/10'}">
-                  ✨ Planes
+                  Planes
                 </button>
               </div>
 
@@ -7859,13 +7864,12 @@
                       : w.mode === 'plans' 
                       ? 'bg-purple-500/15 text-purple-300 border-purple-500/25' 
                       : 'bg-rose-500/15 text-rose-300 border-rose-500/25';
-                    const iconEmoji = w.mode === 'movies' ? '🎬' : w.mode === 'plans' ? '✨' : '🍽️';
                     return `
                       <div class="ios-glass p-3 rounded-2xl border border-white/[0.08] flex items-center justify-between gap-3 text-left">
                         <div class="min-w-0 flex-1">
                           <div class="flex items-center gap-2 mb-1">
                             <span class="px-2 py-0.5 rounded-full text-[9px] font-bold border ${badgeColor}">
-                              ${iconEmoji} ${w.category || 'General'}
+                              ${w.category || 'General'}
                             </span>
                             <span class="text-[10px] text-neutral-400">${w.date}</span>
                           </div>
@@ -7997,16 +8001,16 @@
     const matchesCount = history.filter(function (h) { return (h.matchesCount || 0) >= 1; }).length;
     const affinityPct = totalSessions > 0 ? Math.round((matchesCount / totalSessions) * 100) : 100;
 
-    let verdict = '✨ ¡Telepatía Total! Vuestras mentes están conectadas.';
+    let verdict = 'Telepatía total. Vuestras mentes están conectadas.';
     let verdictColor = 'text-emerald-400';
     if (affinityPct < 50) {
-      verdict = '🌶️ Polos Opuestos. ¡La emoción del desempate!';
+      verdict = 'Polos opuestos. Emoción en cada votación.';
       verdictColor = 'text-rose-400';
     } else if (affinityPct < 70) {
-      verdict = '⚖️ Buen Equilibrio. Mucho debate constructivo.';
+      verdict = 'Buen equilibrio y debate constante.';
       verdictColor = 'text-amber-400';
     } else if (affinityPct < 90) {
-      verdict = '❤️ ¡Súper Compenetrados! Rara vez hay conflicto.';
+      verdict = 'Súper compenetrados. Rara vez hay conflicto.';
       verdictColor = 'text-indigo-400';
     }
 
@@ -8109,7 +8113,10 @@
             <div class="ios-glass p-4 rounded-[24px] border border-white/[0.08] space-y-3">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                  <span>🪙</span>
+                  <svg class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 6v12M15 9.5a3.5 3.5 0 0 0-7 0c0 2 1.5 3 3.5 3.5s3.5 1.5 3.5 3.5a3.5 3.5 0 0 1-7 0"></path>
+                  </svg>
                   <span>Marcador de la Moneda</span>
                 </span>
                 <span class="text-[10px] text-neutral-400">${totalFlips} tiradas</span>
@@ -8140,10 +8147,10 @@
 
                   <div class="text-[11px] font-semibold text-center text-neutral-300 pt-1 border-t border-white/[0.06]">
                     ${p1Pays > p2Pays 
-                      ? '💸 ' + state.player1Name + ' lleva el récord de pagar' 
+                      ? state.player1Name + ' lleva el récord de pagar' 
                       : p2Pays > p1Pays 
-                      ? '💸 ' + state.player2Name + ' lleva el récord de pagar' 
-                      : '🤝 ¡Empate perfecto en gastos de pareja!'}
+                      ? state.player2Name + ' lleva el récord de pagar' 
+                      : 'Empate perfecto en gastos de pareja'}
                   </div>
                 </div>
               `}
@@ -8152,7 +8159,10 @@
             <!-- Tarjeta 3: Podio de Favoritos de Pareja -->
             <div class="ios-glass p-4 rounded-[24px] border border-white/[0.08] space-y-2.5">
               <div class="text-xs font-bold text-white flex items-center gap-1.5">
-                <span>🏆</span>
+                <svg class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="8" r="6"></circle>
+                  <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
+                </svg>
                 <span>Top Sitios & Planes Favoritos</span>
               </div>
 
@@ -8163,12 +8173,12 @@
               ` : `
                 <div class="space-y-2">
                   ${sortedWinners.map(function (w, idx) {
-                    const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉';
+                    const rankNum = idx + 1;
                     const glow = idx === 0 ? 'text-amber-300' : 'text-neutral-300';
                     return `
                       <div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                        <div class="flex items-center gap-2 min-w-0">
-                          <span class="text-base">${medal}</span>
+                        <div class="flex items-center gap-2.5 min-w-0">
+                          <span class="w-5 h-5 rounded-full bg-white/10 text-white flex items-center justify-center text-[10px] font-bold shrink-0">${rankNum}</span>
                           <span class="text-xs font-bold ${glow} truncate">${w.name}</span>
                         </div>
                         <span class="text-[10px] font-bold text-neutral-400 shrink-0">${w.count} vez${w.count === 1 ? '' : 'es'}</span>
@@ -8181,20 +8191,36 @@
 
             <!-- Tarjeta 4: Desglose de Planes -->
             <div class="grid grid-cols-3 gap-2 text-center">
-              <div class="ios-glass p-3 rounded-2xl border border-white/[0.08]">
-                <div class="text-lg mb-0.5">🍽️</div>
+              <div class="ios-glass p-3 rounded-2xl border border-white/[0.08] flex flex-col items-center">
+                <div class="w-6 h-6 rounded-lg bg-rose-500/15 text-rose-400 flex items-center justify-center mb-1">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                    <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                  </svg>
+                </div>
                 <div class="text-sm font-black text-white">${foodModeCount}</div>
                 <div class="text-[9px] text-neutral-400 font-bold uppercase">Comidas</div>
               </div>
 
-              <div class="ios-glass p-3 rounded-2xl border border-white/[0.08]">
-                <div class="text-lg mb-0.5">🎬</div>
+              <div class="ios-glass p-3 rounded-2xl border border-white/[0.08] flex flex-col items-center">
+                <div class="w-6 h-6 rounded-lg bg-indigo-500/15 text-indigo-400 flex items-center justify-center mb-1">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                    <line x1="7" y1="2" x2="7" y2="22"></line>
+                    <line x1="17" y1="2" x2="17" y2="22"></line>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                  </svg>
+                </div>
                 <div class="text-sm font-black text-white">${moviesModeCount}</div>
                 <div class="text-[9px] text-neutral-400 font-bold uppercase">Películas</div>
               </div>
 
-              <div class="ios-glass p-3 rounded-2xl border border-white/[0.08]">
-                <div class="text-lg mb-0.5">✨</div>
+              <div class="ios-glass p-3 rounded-2xl border border-white/[0.08] flex flex-col items-center">
+                <div class="w-6 h-6 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center mb-1">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                  </svg>
+                </div>
                 <div class="text-sm font-black text-white">${plansModeCount}</div>
                 <div class="text-[9px] text-neutral-400 font-bold uppercase">Planes</div>
               </div>
