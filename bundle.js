@@ -3018,6 +3018,48 @@
     }
   ];
 
+  function getAnyItemById(id) {
+    if (!id) return null;
+    let found = state.restaurants.find(function (r) { return r.id === id; });
+    if (found) return found;
+    found = MOVIES_CATALOGUE.find(function (m) { return m.id === id; });
+    if (found) return found;
+    found = PLANS_CATALOGUE.find(function (p) { return p.id === id; });
+    if (found) return found;
+    const rec = RECOMMENDED_RESTAURANTS_POOL.find(function (rc) { return rc.id === id; });
+    if (rec) {
+      return {
+        id: rec.id,
+        name: rec.name,
+        category: rec.category,
+        price: rec.price,
+        rating: rec.rating,
+        reviewsCount: rec.reviewsCount,
+        city: rec.city,
+        zone: rec.zone,
+        accolades: rec.accolades,
+        description: rec.description,
+        googleUrl: rec.googleUrl,
+        lat: rec.lat,
+        lng: rec.lng,
+        computedDistanceKm: rec.computedDistanceKm,
+        isRecommended: true,
+        logo: makeRestaurantSvg('#F59E0B'),
+        image: makeRestaurantSvg('#F59E0B'),
+        hints: [
+          'Famoso por su cocina de ' + rec.category + ' en ' + rec.city + '.',
+          rec.accolades || 'Cuenta con excelente valoración en Google (' + rec.rating + '★).',
+          'Ubicado en ' + rec.zone + '.',
+          rec.description || 'Una opción gastronómica altamente recomendada.'
+        ],
+        branches: [
+          { name: rec.name, address: rec.zone + ', ' + rec.city, lat: rec.lat, lng: rec.lng }
+        ]
+      };
+    }
+    return null;
+  }
+
   function getRecommendedCandidates() {
     let center = state.userCoords || { lat: 37.6000, lng: -0.9850 };
     const query = normalizeSearchText(state.recommendedCityQuery);
@@ -3227,7 +3269,7 @@
           loadModeCatalogue();
           state.player1Name = data.p1 || 'Jugador 1';
           state.player2Name = data.p2 || 'Jugador 2';
-          state.winningRestaurant = state.restaurants.find(function (r) { return r.id === data.w; }) || state.restaurants[0];
+          state.winningRestaurant = getAnyItemById(data.w) || state.restaurants[0];
           state.matchesCount = data.mc || 1;
           state.tieBreakerUser = data.tb || null;
           state.winningBranch = findClosestBranch(state.winningRestaurant, state.userCoords);
@@ -3238,8 +3280,9 @@
           if (window.history && window.history.replaceState) {
             window.history.replaceState(null, '', window.location.pathname);
           }
+          render();
           setTimeout(function () {
-            showToast('Resultado recibido en Duo');
+            showToast('¡Resultado recibido y desbloqueado!');
           }, 350);
         }
       }
@@ -3277,6 +3320,9 @@
   function init() {
     loadModeCatalogue();
     checkRemoteHash();
+    window.addEventListener('hashchange', function () {
+      checkRemoteHash();
+    });
     setupPwaBanner();
     render();
   }
@@ -3312,6 +3358,9 @@
         break;
       case 'handover':
         renderHandoverScreen();
+        break;
+      case 'waiting_remote':
+        renderWaitingRemoteScreen();
         break;
       case 'player2':
         renderPlayerScreen(2);
@@ -4927,16 +4976,25 @@
     if (btnShareP2) {
       btnShareP2.addEventListener('click', function () {
         const url = getRemoteP2ShareUrl();
+        state.isRemoteSession = true;
+        state.remoteRole = 'player1';
         if (navigator.share) {
           navigator.share({
             title: 'Duo - Te toca votar a ti',
             text: state.player1Name + ' ya ha votado en secreto en Duo. ¡Entra aquí y vota tus opciones!',
             url: url
+          }).then(function () {
+            state.screen = 'waiting_remote';
+            render();
           }).catch(function () {
             copyToClipboard(url);
+            state.screen = 'waiting_remote';
+            render();
           });
         } else {
           copyToClipboard(url);
+          state.screen = 'waiting_remote';
+          render();
         }
       });
     }
@@ -4954,6 +5012,130 @@
       state.screen = 'player1';
       render();
     });
+  }
+
+  function renderWaitingRemoteScreen() {
+    app.innerHTML = `
+      <div class="mobile-shell px-6 justify-between text-center animate-ios-slide">
+        <div class="pt-10">
+          <div class="relative w-20 h-20 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-[#5E5CE6] flex items-center justify-center mx-auto mb-6 shadow-xl shadow-indigo-500/20">
+            <span class="absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-25 animate-ping"></span>
+            <svg class="w-10 h-10 relative z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/>
+            </svg>
+          </div>
+
+          <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 text-xs font-semibold mb-3">
+            <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+            <span>Votación en dos móviles</span>
+          </div>
+
+          <h2 class="text-3xl font-extrabold text-white mb-2 tracking-tight">
+            Esperando a ${state.player2Name}...
+          </h2>
+          <p class="text-xs sm:text-sm text-neutral-400 max-w-xs mx-auto leading-relaxed">
+            Le has enviado el enlace para votar en su móvil. En cuanto termine, te enviará el enlace de vuelta con el resultado.
+          </p>
+        </div>
+
+        <div class="my-auto py-4 space-y-3">
+          <div class="ios-glass p-5 rounded-[24px] max-w-xs mx-auto text-left border border-white/10 space-y-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <div>
+                <div class="text-xs font-bold text-white">¿${state.player2Name} ya ha votado?</div>
+                <div class="text-[10px] text-neutral-400">Si te envió el enlace, pulsa aquí:</div>
+              </div>
+            </div>
+
+            <button 
+              id="btn-paste-result" 
+              class="w-full py-3 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition flex items-center justify-center gap-2 border-t border-white/20"
+            >
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+              <span>Pegar o abrir enlace de resultado</span>
+            </button>
+
+            <button 
+              id="btn-resend-p2" 
+              class="w-full py-2 px-3 rounded-xl text-[11px] font-semibold text-neutral-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] active:scale-[0.98] transition flex items-center justify-center gap-1.5"
+            >
+              <svg class="w-3.5 h-3.5 text-indigo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+              <span>Reenviar enlace a ${state.player2Name}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="pb-4 space-y-2">
+          <button 
+            id="btn-waiting-pass-local" 
+            class="w-full py-3 px-4 rounded-xl text-xs font-semibold text-neutral-300 hover:text-white bg-white/[0.06] border border-white/10 active:scale-[0.98] transition flex items-center justify-center gap-1.5"
+          >
+            <span>Votar en este mismo móvil en su lugar</span>
+          </button>
+
+          <button 
+            id="btn-waiting-back" 
+            class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-neutral-400 hover:text-white bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.06] active:scale-[0.98] transition flex items-center justify-center gap-1.5"
+          >
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <span>Modificar selecciones de ${state.player1Name}</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('btn-resend-p2').addEventListener('click', function () {
+      const url = getRemoteP2ShareUrl();
+      if (navigator.share) {
+        navigator.share({
+          title: 'Duo - Te toca votar a ti',
+          text: state.player1Name + ' ya ha votado en secreto en Duo. ¡Entra aquí y vota tus opciones!',
+          url: url
+        }).catch(function () {
+          copyToClipboard(url);
+        });
+      } else {
+        copyToClipboard(url);
+      }
+    });
+
+    document.getElementById('btn-paste-result').addEventListener('click', async function () {
+      sound.playPop();
+      let inputUrl = '';
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        try {
+          inputUrl = await navigator.clipboard.readText();
+        } catch (e) {
+          inputUrl = '';
+        }
+      }
+      if (!inputUrl || !inputUrl.includes('#duo_result=')) {
+        inputUrl = prompt('Pega el enlace que te ha enviado ' + state.player2Name + ':') || '';
+      }
+      if (inputUrl && inputUrl.includes('#duo_result=')) {
+        const hashPart = inputUrl.substring(inputUrl.indexOf('#duo_result='));
+        window.location.hash = hashPart;
+        checkRemoteHash();
+      } else if (inputUrl) {
+        showToast('El enlace no parece un resultado válido de Duo');
+      }
+    });
+
+    document.getElementById('btn-waiting-pass-local').addEventListener('click', function () {
+      sound.playWhoosh();
+      state.screen = 'player2';
+      render();
+    });
+
+    document.getElementById('btn-waiting-back').addEventListener('click', function () {
+      sound.playPop();
+      state.screen = 'player1';
+      render();
+    });
+  }
   }
 
   // ==========================================
@@ -5035,7 +5217,7 @@
 
         const randomIndex = Math.floor(Math.random() * lotteryPool.length);
         const winnerId = lotteryPool[randomIndex];
-        state.winningRestaurant = state.restaurants.find(function (r) { return r.id === winnerId; });
+        state.winningRestaurant = getAnyItemById(winnerId) || state.restaurants[0];
 
         // Guardar ganador en el historial para "no repetir"
         state.lastWinnerId = state.winningRestaurant.id;
@@ -5077,9 +5259,21 @@
       });
     }
 
+    if (!state.winningRestaurant) {
+      state.winningRestaurant = state.restaurants[0] || {
+        id: 'default',
+        name: 'Opción Ganadora',
+        category: 'Gastronomía',
+        rating: 4.8,
+        price: '€€',
+        hints: ['Una excelente elección seleccionada para vosotros.'],
+        branches: [{ name: 'Destino', address: 'Dirección seleccionada', lat: 37.6000, lng: -0.9850 }]
+      };
+    }
+
     const isMovies = state.activeMode === 'movies';
     const isPlans = state.activeMode === 'plans';
-    const branch = state.winningBranch;
+    const branch = state.winningBranch || (state.winningRestaurant.branches && state.winningRestaurant.branches[0]) || { name: state.winningRestaurant.name, address: 'Coordenadas calculadas', lat: 37.6000, lng: -0.9850 };
     const navUrl = getMysteryNavigationUrl(branch);
 
     const distanceText = branch && branch.distanceKm !== null && branch.distanceKm !== undefined
@@ -5090,7 +5284,7 @@
       ? 'Sorteo (' + state.tieBreakerUser + ')'
       : (isMovies ? '¡Elección de cine en común!' : (isPlans ? '¡Plan en común! (' + state.matchesCount + ' en común)' : '¡Coincidencia ganadora! (' + state.matchesCount + ' en común)'));
 
-    const hints = (state.winningRestaurant && state.winningRestaurant.hints) || [
+    const hints = (state.winningRestaurant && state.winningRestaurant.hints && state.winningRestaurant.hints.length) ? state.winningRestaurant.hints : [
       'Tiene opciones deliciosas y servicio rápido.',
       'Su aroma inconfundible os abrirá el apetito en cuanto lleguéis.',
       'Es un clásico que nunca defrauda.',
@@ -5102,15 +5296,38 @@
 
     // Verificar si alguno acertó en su apuesta
     const hasGuesses = state.p1Guess || state.p2Guess;
-    const isP1Correct = state.p1Guess === state.winningRestaurant.id;
-    const isP2Correct = state.p2Guess === state.winningRestaurant.id;
+    const isP1Correct = state.winningRestaurant && state.p1Guess === state.winningRestaurant.id;
+    const isP2Correct = state.winningRestaurant && state.p2Guess === state.winningRestaurant.id;
 
     const currentTab = state.activeResultTab || 'destiny';
 
+    const isRemoteP2 = state.remoteRole === 'player2';
+
     app.innerHTML = `
       <div class="mobile-shell px-6 justify-between text-center animate-view-enter">
+        <!-- Banner para enviar resultado a Player 1 si es sesión a distancia -->
+        ${isRemoteP2 ? `
+          <div class="mt-3 p-3.5 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-left flex items-center justify-between gap-3 animate-ios-pop">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-indigo-500/25 text-indigo-300 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+              </div>
+              <div>
+                <div class="text-xs font-bold text-white">Desbloquear en móvil de ${state.player1Name}</div>
+                <div class="text-[10px] text-indigo-200/80">Envíale el resultado para verlo a la vez</div>
+              </div>
+            </div>
+            <button 
+              id="btn-quick-send-p1" 
+              class="px-3 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold shadow-md shadow-indigo-500/30 active:scale-95 transition shrink-0"
+            >
+              Enviar
+            </button>
+          </div>
+        ` : ''}
+
         <!-- Encabezado con estado y badge de coincidencia -->
-        <div class="pt-4">
+        <div class="pt-3">
           <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full ${isMovies ? 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30' : (isPlans ? 'bg-purple-500/15 text-purple-300 border-purple-500/30' : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30')} text-xs font-semibold mb-2 backdrop-blur-xl">
             <span class="w-2 h-2 rounded-full ${isMovies ? 'bg-indigo-400' : (isPlans ? 'bg-purple-400' : 'bg-emerald-400')}"></span>
             <span>${headerBadge}</span>
@@ -5510,6 +5727,24 @@
       });
     });
 
+    const btnQuickSendP1 = document.getElementById('btn-quick-send-p1');
+    if (btnQuickSendP1) {
+      btnQuickSendP1.addEventListener('click', function () {
+        const url = getRemoteResultShareUrl();
+        if (navigator.share) {
+          navigator.share({
+            title: 'Duo - ¡Tenemos resultado!',
+            text: '¡Ya he votado en Duo! Abre este enlace para desbloquear el resultado en tu móvil:',
+            url: url
+          }).catch(function () {
+            copyToClipboard(url);
+          });
+        } else {
+          copyToClipboard(url);
+        }
+      });
+    }
+
     const btnShareRes = document.getElementById('btn-share-result');
     if (btnShareRes) {
       btnShareRes.addEventListener('click', function () {
@@ -5905,7 +6140,7 @@
         : Array.from(state.player2Selections);
 
       let candidateItems = candidateIds
-        .map(function (id) { return state.restaurants.find(function (r) { return r.id === id; }); })
+        .map(function (id) { return getAnyItemById(id); })
         .filter(Boolean);
 
       if (candidateItems.length === 0) {

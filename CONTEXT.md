@@ -135,6 +135,15 @@ Ideas aprobadas para incorporar progresivamente en futuras iteraciones de Duo:
 - **Service Worker v8**:
   - Incremento de versión de caché para actualización inmediata.
 
+### [v1.9.19] - 2026-10-26
+- **Resolución integral de votación multidispositivo (dos móviles)**:
+  - **Soporte unificado de items ganadores (`getAnyItemById`)**: Resuelto el error donde restaurantes recomendados por reseñas (`rec-...`), películas o planes provocaban un `TypeError` no capturado al acceder a `.id` en `renderMatchingScreen` o `renderResultScreen`. La búsqueda del ganador ahora abarca simultáneamente restaurantes base, recomendados, películas y planes con fallback seguro.
+  - **Desbloqueo de pantalla de resultados**: Agregadas defensas null-safe en sucursales, pistas, navegación y apuestas en `renderResultScreen()`, eliminando los bloqueos ("pantalla congelada donde no se puede pulsar nada").
+  - **Pantalla de espera para Jugador 1 (`waiting_remote`)**: Cuando Jugador 1 comparte el enlace de votación a Jugador 2, pasa a una pantalla de espera con indicador de estado ("Esperando a Jugador 2..."), botón para reenviar el enlace o pegar/abrir el enlace de vuelta con el resultado.
+  - **Botón directo de retorno de resultado para Jugador 2**: Si Jugador 2 vota mediante enlace a distancia, al terminar se muestra un banner superior destacado con botón "Enviar" para desbloquear inmediatamente la app en el móvil de Jugador 1.
+  - **Escucha en tiempo real de enlaces (`hashchange`)**: Añadido listener de `hashchange` a nivel de ventana para que abrir o cambiar de enlace dentro del navegador desbloquee la pantalla sin requerir recargar la web.
+  - **Incremento de caché en Service Worker a `donde-comemos-v38`**.
+
 ### [v1.3.0] - 2026-10-14
 - **Sistema de Veto ("Ni de coña")**:
   - Cada jugador dispone de **1 veto exclusivo** por votación (botón circular con icono ✕).
@@ -161,6 +170,15 @@ Ideas aprobadas para incorporar progresivamente en futuras iteraciones de Duo:
 - **Actualización Emblema Burger King**:
   - Reemplazado el logo por la versión oficial con silueta squircle beige/crema y panecillos (`burger_king.png`), aportada directamente por el usuario.
   - Incrementada la clave de almacenamiento local a `v7` y caché de Service Worker a `v6`.
+
+### [v1.9.19] - 2026-10-26
+- **Resolución integral de votación multidispositivo (dos móviles)**:
+  - **Soporte unificado de items ganadores (`getAnyItemById`)**: Resuelto el error donde restaurantes recomendados por reseñas (`rec-...`), películas o planes provocaban un `TypeError` no capturado al acceder a `.id` en `renderMatchingScreen` o `renderResultScreen`. La búsqueda del ganador ahora abarca simultáneamente restaurantes base, recomendados, películas y planes con fallback seguro.
+  - **Desbloqueo de pantalla de resultados**: Agregadas defensas null-safe en sucursales, pistas, navegación y apuestas en `renderResultScreen()`, eliminando los bloqueos ("pantalla congelada donde no se puede pulsar nada").
+  - **Pantalla de espera para Jugador 1 (`waiting_remote`)**: Cuando Jugador 1 comparte el enlace de votación a Jugador 2, pasa a una pantalla de espera con indicador de estado ("Esperando a Jugador 2..."), botón para reenviar el enlace o pegar/abrir el enlace de vuelta con el resultado.
+  - **Botón directo de retorno de resultado para Jugador 2**: Si Jugador 2 vota mediante enlace a distancia, al terminar se muestra un banner superior destacado con botón "Enviar" para desbloquear inmediatamente la app en el móvil de Jugador 1.
+  - **Escucha en tiempo real de enlaces (`hashchange`)**: Añadido listener de `hashchange` a nivel de ventana para que abrir o cambiar de enlace dentro del navegador desbloquee la pantalla sin requerir recargar la web.
+  - **Incremento de caché en Service Worker a `donde-comemos-v38`**.
 
 ### [v1.3.0] - 2026-10-14
 - **Auditoría & Refactorización de Arquitectura UX (Decluttering y Progressive Disclosure)**:
