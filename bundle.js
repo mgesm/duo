@@ -2685,7 +2685,10 @@
     remoteP2Count: 0,
     remoteP1Done: false,
     remoteP2Done: false,
-    useWishlistOnly: false
+    useWishlistOnly: false,
+    foodDistanceFilter: 'all', // 'all' | '2' | '5' | '15'
+    foodOpenNowFilter: false,
+    lastQuickNoteSeenAt: 0
   };
 
   const KNOWN_CITY_COORDS = {
@@ -3490,6 +3493,16 @@
         }
       }
 
+      // Evento de nota rápida secreta en tiempo real (Dynamic Island)
+      if (data.quickNote && data.quickNote.at && data.quickNote.at > (state.lastQuickNoteSeenAt || 0)) {
+        const isFromOther = (role === 'player1' && data.quickNote.fromRole !== 'player1') ||
+                            (role === 'player2' && data.quickNote.fromRole !== 'player2');
+        if (isFromOther) {
+          state.lastQuickNoteSeenAt = data.quickNote.at;
+          showDynamicIslandNote(data.quickNote.text, data.quickNote.fromName);
+        }
+      }
+
       // Si Jugador 1 está esperando y Jugador 2 ha completado la votación:
       if (role === 'player1' && data.status === 'completed' && data.result) {
         state.winningRestaurant = getAnyItemById(data.result.winnerId) || state.restaurants[0];
@@ -3536,6 +3549,173 @@
       syncCoinOutcome: outcome,
       syncCoinAt: Date.now()
     }).catch(function () {});
+  }
+
+  function broadcastQuickNote(text) {
+    const db = initFirebase();
+    if (!db || !state.roomId || !text) return;
+    const isP1 = state.remoteRole !== 'player2';
+    db.ref('rooms/' + state.roomId).update({
+      quickNote: {
+        text: text,
+        fromRole: isP1 ? 'player1' : 'player2',
+        fromName: isP1 ? state.player1Name : state.player2Name,
+        at: Date.now()
+      }
+    }).catch(function () {});
+  }
+
+  function showDynamicIslandNote(text, senderName) {
+    sound.playPop();
+    sound.vibrate([30, 20]);
+    let container = document.getElementById('dynamic-island-banner');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'dynamic-island-banner';
+      container.className = 'fixed top-3 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-sm transition-all duration-300 ease-out transform -translate-y-12 opacity-0 pointer-events-auto';
+      document.body.appendChild(container);
+    }
+    container.innerHTML = `
+      <div class="p-3 rounded-2xl bg-black/90 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white shrink-0 shadow">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0 text-left">
+          <div class="text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1">
+            <span>Nota de ${senderName || 'Pareja'}</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          </div>
+          <div class="text-xs font-semibold text-white truncate">${text}</div>
+        </div>
+        <button id="btn-close-dynamic-island" class="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-neutral-400 hover:text-white flex items-center justify-center text-[10px] font-bold">✕</button>
+      </div>
+    `;
+
+    // Animar entrada
+    requestAnimationFrame(function () {
+      container.classList.remove('-translate-y-12', 'opacity-0');
+      container.classList.add('translate-y-0', 'opacity-100');
+    });
+
+    const closeBtn = container.querySelector('#btn-close-dynamic-island');
+    if (closeBtn) {
+      closeBtn.onclick = function () {
+        container.classList.remove('translate-y-0', 'opacity-100');
+        container.classList.add('-translate-y-12', 'opacity-0');
+      };
+    }
+
+    if (container._timeout) clearTimeout(container._timeout);
+    container._timeout = setTimeout(function () {
+      container.classList.remove('translate-y-0', 'opacity-100');
+      container.classList.add('-translate-y-12', 'opacity-0');
+    }, 6000);
+  }
+
+  function openQuickNoteModal() {
+    const isP1 = state.remoteRole !== 'player2';
+    const partnerName = isP1 ? state.player2Name : state.player1Name;
+    const presets = [
+      '¡Hoy tengo antojo de algo dulce!',
+      'Invito yo, sin problema',
+      '¡Me apetece picante o exótico!',
+      'Tengo mucha hambre ya',
+      'Prefiero algo ligero y sano',
+      '¡Sorpréndeme hoy!'
+    ];
+
+    modalContainer.innerHTML = `
+      <div id="quicknote-modal-backdrop" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4 animate-ios-slide">
+        <div class="bg-neutral-950 border-t sm:border border-white/[0.12] w-full max-w-sm rounded-t-[32px] sm:rounded-[32px] flex flex-col overflow-hidden shadow-2xl p-5 space-y-4">
+          <div class="w-10 h-1 bg-white/25 rounded-full mx-auto -mt-2 mb-1 sm:hidden"></div>
+
+          <div class="flex items-center justify-between pb-2 border-b border-white/[0.08]">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              </div>
+              <h3 class="text-sm font-bold text-white">Nota Secreta en Vivo</h3>
+            </div>
+            <button id="btn-close-quicknote" class="w-7 h-7 rounded-full bg-white/10 text-neutral-300 hover:text-white flex items-center justify-center text-xs">✕</button>
+          </div>
+
+          <div class="text-[11px] text-neutral-400">
+            Aparecerá en el móvil de <strong class="text-white">${partnerName}</strong> como una notificación flotante al instante:
+          </div>
+
+          <!-- Presets -->
+          <div class="space-y-1.5">
+            <span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider block">Mensajes rápidos</span>
+            <div class="grid grid-cols-1 gap-1.5">
+              ${presets.map(function (p) {
+                return `
+                  <button type="button" class="btn-preset-note text-left text-xs font-semibold px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.09] border border-white/[0.08] text-neutral-200 hover:text-white transition active:scale-98">
+                    ${p}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- Input personalizado -->
+          <div class="space-y-1.5 pt-1">
+            <span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider block">O escribe tu nota</span>
+            <div class="flex items-center gap-2">
+              <input 
+                id="input-custom-note" 
+                type="text" 
+                maxlength="60" 
+                placeholder="Ej: Si quieres pizza yo me apunto..." 
+                class="flex-1 bg-white/[0.06] border border-white/[0.12] rounded-xl px-3 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-amber-500/50"
+              />
+              <button 
+                id="btn-send-custom-note" 
+                class="px-3.5 py-2 rounded-xl bg-amber-500 text-black font-bold text-xs hover:bg-amber-400 active:scale-95 transition"
+              >
+                Enviar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('btn-close-quicknote').onclick = function () {
+      modalContainer.innerHTML = '';
+    };
+
+    document.querySelectorAll('.btn-preset-note').forEach(function (btn) {
+      btn.onclick = function () {
+        const text = btn.textContent.trim();
+        broadcastQuickNote(text);
+        sound.playPop();
+        sound.vibrate([30]);
+        modalContainer.innerHTML = '';
+        showToast('Nota enviada a ' + partnerName);
+      };
+    });
+
+    const sendCustomBtn = document.getElementById('btn-send-custom-note');
+    const inputCustom = document.getElementById('input-custom-note');
+    if (sendCustomBtn && inputCustom) {
+      sendCustomBtn.onclick = function () {
+        const text = inputCustom.value.trim();
+        if (!text) return;
+        broadcastQuickNote(text);
+        sound.playPop();
+        sound.vibrate([30]);
+        modalContainer.innerHTML = '';
+        showToast('Nota enviada a ' + partnerName);
+      };
+      inputCustom.onkeydown = function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          sendCustomBtn.click();
+        }
+      };
+    }
   }
 
   function broadcastWheelWinner(winnerId, byName) {
@@ -4438,6 +4618,27 @@
         totalCategoryCount = recData.total;
         hasMoreInCat = recData.hasMore;
       } else {
+        // Filtro por distancia máxima para Mis Restaurantes
+        if (state.foodDistanceFilter && state.foodDistanceFilter !== 'all') {
+          const maxKm = Number(state.foodDistanceFilter);
+          const center = state.userCoords || { lat: 37.6000, lng: -0.9850 };
+          displayedRestaurants = displayedRestaurants.filter(function (r) {
+            if (!r.branches || r.branches.length === 0) return true;
+            const closest = findClosestBranch(r, center);
+            if (!closest) return true;
+            const dist = calculateDistanceKm(center.lat, center.lng, closest.lat, closest.lng);
+            return dist <= maxKm;
+          });
+        }
+
+        // Filtro por Abierto ahora
+        if (state.foodOpenNowFilter) {
+          displayedRestaurants = displayedRestaurants.filter(function (r) {
+            const op = getOpeningStatus(r);
+            return op.status === 'open';
+          });
+        }
+
         totalCategoryCount = displayedRestaurants.length;
       }
     }
@@ -4493,11 +4694,21 @@
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span>En directo con ${isP1 ? state.player2Name : state.player1Name}</span>
               </span>
-              <span class="text-white font-bold text-[11px]">
-                ${isP1 
-                  ? (state.remoteP2Done ? 'Listo' : (state.remoteP2Count > 0 ? state.remoteP2Count + ' elegidos' : 'Votando en su móvil...'))
-                  : (state.remoteP1Count > 0 ? state.remoteP1Count + ' elegidos' : 'Conectado')}
-              </span>
+              <div class="flex items-center gap-2">
+                <button 
+                  id="btn-open-quicknote" 
+                  class="px-2 py-0.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-[10px] font-bold text-amber-300 flex items-center gap-1 active:scale-95 transition"
+                  title="Enviar nota secreta"
+                >
+                  <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                  <span>Nota</span>
+                </button>
+                <span class="text-white font-bold text-[11px]">
+                  ${isP1 
+                    ? (state.remoteP2Done ? 'Listo' : (state.remoteP2Count > 0 ? state.remoteP2Count + ' elegidos' : 'Votando...'))
+                    : (state.remoteP1Count > 0 ? state.remoteP1Count + ' elegidos' : 'Conectado')}
+                </span>
+              </div>
             </div>
           ` : ''}
 
@@ -4539,6 +4750,32 @@
               `;
             }).join('')}
           </div>
+
+          ${(state.foodCategoryFilter !== 'recommended') ? `
+            <!-- Barra de Radar de Distancia & Horarios en Mis Restaurantes -->
+            <div class="px-3 py-2 flex items-center justify-between border-b border-white/[0.08] bg-black/40 backdrop-blur-md text-[11px] gap-2 overflow-x-auto no-scrollbar">
+              <div class="flex items-center gap-1 shrink-0">
+                <span class="text-[10px] uppercase font-bold text-neutral-500 tracking-wider flex items-center gap-0.5">
+                  <svg class="w-3 h-3 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+                  <span>Radar:</span>
+                </span>
+                <button data-food-dist="all" class="px-2 py-0.5 rounded-lg font-semibold transition ${state.foodDistanceFilter === 'all' ? 'bg-white/20 text-white shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white'}">Todos</button>
+                <button data-food-dist="2" class="px-2 py-0.5 rounded-lg font-semibold transition ${state.foodDistanceFilter === '2' ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white'}">&lt;2km</button>
+                <button data-food-dist="5" class="px-2 py-0.5 rounded-lg font-semibold transition ${state.foodDistanceFilter === '5' ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white'}">&lt;5km</button>
+                <button data-food-dist="15" class="px-2 py-0.5 rounded-lg font-semibold transition ${state.foodDistanceFilter === '15' ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white'}">&lt;15km</button>
+              </div>
+
+              <div class="w-px h-3.5 bg-white/10 shrink-0"></div>
+
+              <button 
+                id="btn-food-open-now" 
+                class="shrink-0 px-2.5 py-0.5 rounded-lg font-semibold transition flex items-center gap-1.5 ${state.foodOpenNowFilter ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.06]'}"
+              >
+                <span class="w-1.5 h-1.5 rounded-full ${state.foodOpenNowFilter ? 'bg-emerald-400 animate-pulse' : 'bg-neutral-500'}"></span>
+                <span>Abierto ahora</span>
+              </button>
+            </div>
+          ` : ''}
 
           ${(state.foodCategoryFilter === 'recommended') ? `
             <!-- Panel de Filtros de Recomendados Google -->
@@ -5014,6 +5251,46 @@
         renderPlayerScreen(playerNum);
       });
     });
+
+    // Radar de distancia en Mis Restaurantes
+    document.querySelectorAll('[data-food-dist]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        sound.playPop();
+        sound.vibrate([15]);
+        state.foodDistanceFilter = btn.dataset.foodDist;
+        if (!state.userCoords) {
+          getUserLocation().then(function (coords) {
+            if (coords) state.userCoords = coords;
+            renderPlayerScreen(playerNum);
+          });
+        } else {
+          renderPlayerScreen(playerNum);
+        }
+      });
+    });
+
+    // Toggle Abierto ahora
+    const btnOpenNow = document.getElementById('btn-food-open-now');
+    if (btnOpenNow) {
+      btnOpenNow.addEventListener('click', function (e) {
+        e.stopPropagation();
+        sound.playPop();
+        sound.vibrate([20]);
+        state.foodOpenNowFilter = !state.foodOpenNowFilter;
+        renderPlayerScreen(playerNum);
+      });
+    }
+
+    // Botón de nota secreta en vivo
+    const btnQuickNote = document.getElementById('btn-open-quicknote');
+    if (btnQuickNote) {
+      btnQuickNote.addEventListener('click', function (e) {
+        e.stopPropagation();
+        sound.playPop();
+        openQuickNoteModal();
+      });
+    }
 
     const btnFoodVerMas = document.getElementById('btn-food-ver-mas');
     if (btnFoodVerMas) {
@@ -6101,17 +6378,16 @@
                         : ''
                     }
 
-                    ${!isMovies ? `
-                      <div class="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between">
-                        <span class="text-[11px] text-neutral-400">¿Visita finalizada?</span>
-                        <button 
-                          id="btn-log-visit" 
-                          class="px-3 py-1.5 rounded-full text-xs font-bold text-emerald-300 bg-emerald-500/20 border border-emerald-500/35 hover:bg-emerald-500/30 active:scale-95 transition"
-                        >
-                          Guardar en historial
-                        </button>
-                      </div>
-                    ` : ''}
+                    <div class="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between gap-2">
+                      <span class="text-[11px] text-neutral-400">¿Cita completada?</span>
+                      <button 
+                        id="btn-log-visit" 
+                        class="px-3.5 py-1.5 rounded-full text-xs font-bold text-amber-300 bg-amber-500/20 border border-amber-500/35 hover:bg-amber-500/30 active:scale-95 transition flex items-center gap-1.5"
+                      >
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        <span>Emitir Duo Pass</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -7589,47 +7865,111 @@
                     <div>Añadid vuestro primer momento arriba o guardadlo automáticamente al finalizar una votación.</div>
                   </div>
                 ` : `
-                  <div class="space-y-3">
+                  <div class="space-y-4">
                     ${currentVisits.map(function (v) {
                       const starsHtml = '★'.repeat(v.rating || 5) + '☆'.repeat(5 - (v.rating || 5));
+                      const ticketNum = v.id ? v.id.slice(-6).toUpperCase() : '000001';
+                      const modeLabel = v.mode === 'movies' ? 'CINE DUO' : v.mode === 'plans' ? 'PLAN DUO' : 'RESTAURANTE';
                       const modeIcon = v.mode === 'movies'
                         ? '<svg class="w-3.5 h-3.5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg>'
                         : v.mode === 'plans'
                         ? '<svg class="w-3.5 h-3.5 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>'
                         : '<svg class="w-3.5 h-3.5 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path></svg>';
+                      
                       return `
-                        <div class="ios-glass p-3.5 rounded-2xl border border-white/[0.08] text-left space-y-2">
-                          ${v.photo ? `
-                            <div class="rounded-xl overflow-hidden max-h-48 border border-white/10 shadow-md">
-                              <img src="${v.photo}" alt="${v.restaurantName}" class="w-full h-44 object-cover hover:scale-105 transition duration-300" />
-                            </div>
-                          ` : ''}
+                        <!-- Duo Boarding Pass / Ticket de Recuerdo -->
+                        <div class="relative bg-gradient-to-b from-neutral-900 to-neutral-950 border border-white/[0.14] rounded-3xl overflow-hidden shadow-2xl text-left select-none transition transform hover:scale-[1.01]">
+                          <!-- Muescas semicirculares laterales (Notches de billete) -->
+                          <div class="absolute -left-3.5 top-[148px] w-7 h-7 rounded-full bg-black border border-white/10 z-10"></div>
+                          <div class="absolute -right-3.5 top-[148px] w-7 h-7 rounded-full bg-black border border-white/10 z-10"></div>
 
-                          <div class="flex items-start justify-between gap-2">
-                            <div>
-                              <div class="flex items-center gap-1.5">
-                                <span class="shrink-0">${modeIcon}</span>
-                                <h4 class="text-xs font-bold text-white">${v.restaurantName}</h4>
-                              </div>
-                              <div class="text-[11px] text-amber-400 font-bold tracking-wider mt-0.5">${starsHtml}</div>
+                          <!-- Cabecera de Billete / Tarjeta de Embarque -->
+                          <div class="px-5 pt-3.5 pb-2.5 bg-white/[0.04] border-b border-white/[0.08] flex items-center justify-between text-[10px] font-mono tracking-widest text-neutral-400">
+                            <div class="flex items-center gap-1.5 font-bold text-white">
+                              <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                              <span>DUO PASS • ${modeLabel}</span>
                             </div>
-                            <button data-id="${v.id}" class="btn-delete-visit p-1.5 rounded-lg text-neutral-500 hover:text-rose-400 hover:bg-rose-500/10 transition" title="Eliminar recuerdo">
-                              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                            </button>
+                            <div class="flex items-center gap-2">
+                              <span>Nº ${ticketNum}</span>
+                              <button data-id="${v.id}" class="btn-delete-visit p-1 text-neutral-500 hover:text-rose-400 transition" title="Eliminar billete">✕</button>
+                            </div>
                           </div>
 
-                          ${v.note ? `
-                            <p class="text-[11px] text-neutral-300 bg-white/[0.03] p-2 rounded-xl border border-white/[0.05] leading-relaxed italic">
-                              "${v.note}"
-                            </p>
-                          ` : ''}
+                          <!-- Cuerpo Principal del Billete -->
+                          <div class="p-5 space-y-3">
+                            <div class="flex items-start justify-between gap-3">
+                              <div class="min-w-0">
+                                <div class="flex items-center gap-1.5 mb-1">
+                                  ${modeIcon}
+                                  <span class="text-[10px] uppercase font-bold text-neutral-400 tracking-wider">Destino & Cita</span>
+                                </div>
+                                <h4 class="text-base font-extrabold text-white tracking-tight leading-snug truncate">${v.restaurantName}</h4>
+                                <div class="text-xs text-amber-400 font-bold tracking-widest mt-1">${starsHtml}</div>
+                              </div>
+                              <div class="text-right shrink-0">
+                                <span class="text-[9px] uppercase font-mono text-neutral-500 block">ASIENTOS</span>
+                                <span class="text-xs font-bold text-neutral-200">${(v.p1Name || state.player1Name).slice(0, 1)} + ${(v.p2Name || state.player2Name).slice(0, 1)} (PAREJA)</span>
+                              </div>
+                            </div>
 
-                          <div class="flex items-center justify-between text-[10px] text-neutral-400 pt-1 border-t border-white/[0.06]">
-                            <span class="flex items-center gap-1">
-                              <svg class="w-3 h-3 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                              <span>${v.date}</span>
-                            </span>
-                            <span class="text-neutral-400 font-medium">${v.p1Name || state.player1Name} & ${v.p2Name || state.player2Name}</span>
+                            ${v.photo ? `
+                              <!-- Foto integrada en el billete con marco perforado -->
+                              <div class="rounded-2xl overflow-hidden max-h-48 border border-white/10 shadow-lg relative group">
+                                <img src="${v.photo}" alt="${v.restaurantName}" class="w-full h-44 object-cover" />
+                                <div class="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-[9px] font-mono text-white/80 border border-white/10">PHOTO ADMIT ONE</div>
+                              </div>
+                            ` : ''}
+
+                            ${v.note ? `
+                              <div class="bg-black/40 p-3 rounded-xl border border-white/[0.06] text-[11px] text-neutral-300 italic leading-relaxed">
+                                "${v.note}"
+                              </div>
+                            ` : ''}
+                          </div>
+
+                          <!-- Línea de corte / Perforación horizontal -->
+                          <div class="relative flex items-center px-6 my-1">
+                            <div class="w-full border-b border-dashed border-white/20"></div>
+                          </div>
+
+                          <!-- Talón de Entrada / Stub separable inferior -->
+                          <div class="p-4 bg-white/[0.02] flex items-center justify-between text-[10px] text-neutral-400">
+                            <div>
+                              <div class="font-mono text-[9px] uppercase text-neutral-500 tracking-wider">FECHA EMISIÓN</div>
+                              <div class="font-semibold text-neutral-200 mt-0.5">${v.date}</div>
+                              <div class="text-[10px] text-neutral-400 mt-0.5">${v.p1Name || state.player1Name} & ${v.p2Name || state.player2Name}</div>
+                            </div>
+
+                            <!-- Código de barras SVG decorativo auténtico -->
+                            <div class="flex flex-col items-end gap-1">
+                              <svg class="w-24 h-7 text-neutral-400" viewBox="0 0 100 28" fill="currentColor">
+                                <rect x="2" y="2" width="2" height="24"/>
+                                <rect x="6" y="2" width="1" height="24"/>
+                                <rect x="9" y="2" width="3" height="24"/>
+                                <rect x="14" y="2" width="1" height="24"/>
+                                <rect x="17" y="2" width="2" height="24"/>
+                                <rect x="21" y="2" width="4" height="24"/>
+                                <rect x="27" y="2" width="1" height="24"/>
+                                <rect x="30" y="2" width="2" height="24"/>
+                                <rect x="34" y="2" width="3" height="24"/>
+                                <rect x="39" y="2" width="1" height="24"/>
+                                <rect x="42" y="2" width="2" height="24"/>
+                                <rect x="46" y="2" width="4" height="24"/>
+                                <rect x="52" y="2" width="1" height="24"/>
+                                <rect x="55" y="2" width="3" height="24"/>
+                                <rect x="60" y="2" width="2" height="24"/>
+                                <rect x="64" y="2" width="1" height="24"/>
+                                <rect x="67" y="2" width="4" height="24"/>
+                                <rect x="73" y="2" width="2" height="24"/>
+                                <rect x="77" y="2" width="1" height="24"/>
+                                <rect x="80" y="2" width="3" height="24"/>
+                                <rect x="85" y="2" width="2" height="24"/>
+                                <rect x="89" y="2" width="1" height="24"/>
+                                <rect x="92" y="2" width="3" height="24"/>
+                                <rect x="97" y="2" width="1" height="24"/>
+                              </svg>
+                              <span class="font-mono text-[8px] text-neutral-500 tracking-widest">${ticketNum}</span>
+                            </div>
                           </div>
                         </div>
                       `;
@@ -8223,6 +8563,136 @@
                 </div>
                 <div class="text-sm font-black text-white">${plansModeCount}</div>
                 <div class="text-[9px] text-neutral-400 font-bold uppercase">Planes</div>
+              </div>
+            </div>
+
+            <!-- Tarjeta 5: Retos & Logros de Pareja Desbloqueables -->
+            <div class="ios-glass p-4 rounded-[24px] border border-white/[0.08] space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="7"></circle>
+                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                  </svg>
+                  <span>Retos & Logros de Pareja</span>
+                </span>
+                <span class="text-[10px] text-amber-400 font-bold">
+                  ${[
+                    affinityPct >= 80 && totalSessions >= 3,
+                    Object.keys(winnerFrequency).length >= 5,
+                    totalFlips >= 3,
+                    moviesModeCount >= 3,
+                    diary.some(function (d) { return (d.rating || 0) === 5 && !!d.photo; })
+                  ].filter(Boolean).length} / 5 Desbloqueados
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 gap-2">
+                <!-- Logro 1: Telepatía Máxima -->
+                ${(function () {
+                  const unlocked = affinityPct >= 80 && totalSessions >= 3;
+                  return `
+                    <div class="p-2.5 rounded-xl border flex items-center justify-between gap-3 transition ${unlocked ? 'bg-indigo-500/10 border-indigo-500/30 text-white' : 'bg-white/[0.02] border-white/[0.06] text-neutral-500 opacity-60'}">
+                      <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-8 h-8 rounded-xl ${unlocked ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/35' : 'bg-white/5 text-neutral-500'} flex items-center justify-center shrink-0">
+                          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"></path></svg>
+                        </div>
+                        <div class="min-w-0">
+                          <div class="text-xs font-bold leading-tight ${unlocked ? 'text-white' : 'text-neutral-400'}">Telepatía Máxima</div>
+                          <div class="text-[10px] leading-tight mt-0.5 truncate">Mantener &gt;80% afinidad en 3+ partidas</div>
+                        </div>
+                      </div>
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${unlocked ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'bg-white/5 text-neutral-500'}">
+                        ${unlocked ? 'Completado' : (affinityPct + '% / 80%')}
+                      </span>
+                    </div>
+                  `;
+                })()}
+
+                <!-- Logro 2: Pareja Exploradora -->
+                ${(function () {
+                  const distinctCount = Object.keys(winnerFrequency).length;
+                  const unlocked = distinctCount >= 5;
+                  return `
+                    <div class="p-2.5 rounded-xl border flex items-center justify-between gap-3 transition ${unlocked ? 'bg-emerald-500/10 border-emerald-500/30 text-white' : 'bg-white/[0.02] border-white/[0.06] text-neutral-500 opacity-60'}">
+                      <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-8 h-8 rounded-xl ${unlocked ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/35' : 'bg-white/5 text-neutral-500'} flex items-center justify-center shrink-0">
+                          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                        </div>
+                        <div class="min-w-0">
+                          <div class="text-xs font-bold leading-tight ${unlocked ? 'text-white' : 'text-neutral-400'}">Exploradores Urbanos</div>
+                          <div class="text-[10px] leading-tight mt-0.5 truncate">Elegir al menos 5 sitios o planes distintos</div>
+                        </div>
+                      </div>
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${unlocked ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-white/5 text-neutral-500'}">
+                        ${unlocked ? 'Completado' : (distinctCount + ' / 5')}
+                      </span>
+                    </div>
+                  `;
+                })()}
+
+                <!-- Logro 3: El Pagador Oficial -->
+                ${(function () {
+                  const unlocked = totalFlips >= 3;
+                  return `
+                    <div class="p-2.5 rounded-xl border flex items-center justify-between gap-3 transition ${unlocked ? 'bg-amber-500/10 border-amber-500/30 text-white' : 'bg-white/[0.02] border-white/[0.06] text-neutral-500 opacity-60'}">
+                      <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-8 h-8 rounded-xl ${unlocked ? 'bg-amber-500/20 text-amber-400 border border-amber-500/35' : 'bg-white/5 text-neutral-500'} flex items-center justify-center shrink-0">
+                          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M15 9.5a3.5 3.5 0 0 0-7 0c0 2 1.5 3 3.5 3.5s3.5 1.5 3.5 3.5a3.5 3.5 0 0 1-7 0"></path></svg>
+                        </div>
+                        <div class="min-w-0">
+                          <div class="text-xs font-bold leading-tight ${unlocked ? 'text-white' : 'text-neutral-400'}">El Pagador Oficial</div>
+                          <div class="text-[10px] leading-tight mt-0.5 truncate">Lanzar la moneda al menos 3 veces</div>
+                        </div>
+                      </div>
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${unlocked ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-white/5 text-neutral-500'}">
+                        ${unlocked ? 'Completado' : (totalFlips + ' / 3')}
+                      </span>
+                    </div>
+                  `;
+                })()}
+
+                <!-- Logro 4: Cinéfilos de Sofá -->
+                ${(function () {
+                  const unlocked = moviesModeCount >= 3;
+                  return `
+                    <div class="p-2.5 rounded-xl border flex items-center justify-between gap-3 transition ${unlocked ? 'bg-rose-500/10 border-rose-500/30 text-white' : 'bg-white/[0.02] border-white/[0.06] text-neutral-500 opacity-60'}">
+                      <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-8 h-8 rounded-xl ${unlocked ? 'bg-rose-500/20 text-rose-400 border border-rose-500/35' : 'bg-white/5 text-neutral-500'} flex items-center justify-center shrink-0">
+                          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+                        </div>
+                        <div class="min-w-0">
+                          <div class="text-xs font-bold leading-tight ${unlocked ? 'text-white' : 'text-neutral-400'}">Cinéfilos de Sofá</div>
+                          <div class="text-[10px] leading-tight mt-0.5 truncate">Elegir 3 películas o series con palomitas</div>
+                        </div>
+                      </div>
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${unlocked ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'bg-white/5 text-neutral-500'}">
+                        ${unlocked ? 'Completado' : (moviesModeCount + ' / 3')}
+                      </span>
+                    </div>
+                  `;
+                })()}
+
+                <!-- Logro 5: Gourmet de 5 Estrellas -->
+                ${(function () {
+                  const hasFiveStarPhoto = diary.some(function (d) { return (d.rating || 0) === 5 && !!d.photo; });
+                  return `
+                    <div class="p-2.5 rounded-xl border flex items-center justify-between gap-3 transition ${hasFiveStarPhoto ? 'bg-yellow-500/10 border-yellow-500/30 text-white' : 'bg-white/[0.02] border-white/[0.06] text-neutral-500 opacity-60'}">
+                      <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-8 h-8 rounded-xl ${hasFiveStarPhoto ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/35' : 'bg-white/5 text-neutral-500'} flex items-center justify-center shrink-0">
+                          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        </div>
+                        <div class="min-w-0">
+                          <div class="text-xs font-bold leading-tight ${hasFiveStarPhoto ? 'text-white' : 'text-neutral-400'}">Cita de 5 Estrellas</div>
+                          <div class="text-[10px] leading-tight mt-0.5 truncate">Guardar un recuerdo de 5★ con foto en el Diario</div>
+                        </div>
+                      </div>
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${hasFiveStarPhoto ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' : 'bg-white/5 text-neutral-500'}">
+                        ${hasFiveStarPhoto ? 'Completado' : 'Pendiente'}
+                      </span>
+                    </div>
+                  `;
+                })()}
               </div>
             </div>
           </div>

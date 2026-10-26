@@ -518,6 +518,29 @@ Ideas aprobadas para incorporar progresivamente en futuras iteraciones de Duo:
   - Las tarjetas de recomendados se seleccionan directamente con las mecánicas del juego (voto, veto, superlike) sin cambiar de pantalla.
   - Service Worker actualizado a `donde-comemos-v34`.
 
+### [v1.9.22] - 2026-10-26
+- **Billetes / Boarding Pass de Citas & Duo Pass (Feature 1)**:
+  - Rediseño completo de los recuerdos en el Diario de Citas: cada momento guardado se presenta como una tarjeta de embarque / entrada coleccionable de alta gama estilo Apple Wallet.
+  - Estética visual con muescas semicirculares laterales (*notches*), cabecera perforada, tipografía monoespaciada para número de pase (`DUO PASS • Nº ...`), foto recortada estilo fotomatón y talón inferior con código de barras vectorial.
+  - Botón de emisión directa *"Emitir Duo Pass"* en la pantalla de resultados de cualquier cita o comida.
+- **Radar Inteligente de Distancia Real & Horarios (Feature 4)**:
+  - Selector de radio en tiempo real para restaurantes (`Todos`, `< 2km`, `< 5km`, `< 15km`) con cálculo geodésico Haversine.
+  - Interruptor dinámico *"Abierto ahora"* que evalúa la hora local del dispositivo para filtrar locales que están en servicio (comidas y cenas).
+- **Post-its / Notas Rápidas Secretas entre Móviles (Feature 5)**:
+  - Sistema de comunicación en vivo durante sesiones sincronizadas con Firebase Realtime Database.
+  - Notificación flotante estilo **Dynamic Island** que desciende en la pantalla de la pareja con animación suave, haptic feedback y sonido `pop`.
+  - Selector de mensajes rápidos (*"Hoy tengo antojo de algo dulce"*, *"Invito yo"*, *"Algo ligero"*) o notas personalizadas.
+- **Retos de Pareja & Medallas en Duo Wrapped (Feature 6)**:
+  - Sistema de 5 logros desbloqueables en la pantalla de estadísticas:
+    1. *Telepatía Máxima* (>80% afinidad en 3+ partidas).
+    2. *Exploradores Urbanos* (5 o más sitios/planes distintos).
+    3. *El Pagador Oficial* (lanzar la moneda 3+ veces).
+    4. *Cinéfilos de Sofá* (3+ sesiones de cine con palomitas).
+    5. *Cita de 5 Estrellas* (guardar un recuerdo de 5★ con foto en el Diario).
+- **Service Worker v42**:
+  - Bump de versión a `donde-comemos-v42` para actualización instantánea en móviles.
+- **Cero emojis**: 100% iconos vectoriales monocromáticos SVG según la directriz Apple HIG.
+
 ### [v1.9.21] - 2026-10-26
 - **Firebase Suite Completa: Diario de Citas, Wishlist, Duo Wrapped & Sincronización Simultánea en Vivo**:
   - **1. Diario de Citas & Recuerdos ("Duo Moments")**:
