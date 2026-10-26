@@ -2148,6 +2148,63 @@
   }
 
   const DIARY_STORAGE_KEY = 'donde_comemos_food_diary_v1';
+  const WISHLIST_STORAGE_KEY = 'donde_comemos_wishlist_v1';
+
+  function getWishlist() {
+    try {
+      const raw = localStorage.getItem(WISHLIST_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveWishlist(list) {
+    try {
+      localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(list));
+      const db = initFirebase();
+      if (db) {
+        db.ref('shared_wishlist').set(list).catch(function () {});
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function addToWishlist(item) {
+    const list = getWishlist();
+    const exists = list.some(function (w) { return w.name.toLowerCase() === item.name.toLowerCase(); });
+    if (exists) return false;
+    list.unshift({
+      id: 'wish-' + Date.now(),
+      name: item.name,
+      category: item.category || 'Gastronomía',
+      price: item.price || '€€',
+      mode: item.mode || state.activeMode || 'food',
+      note: item.note || '',
+      date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
+      timestamp: Date.now()
+    });
+    saveWishlist(list);
+    return true;
+  }
+
+  function removeFromWishlist(id) {
+    const list = getWishlist().filter(function (w) { return w.id !== id; });
+    saveWishlist(list);
+  }
+
+  function syncWishlistFromFirebase() {
+    const db = initFirebase();
+    if (!db) return;
+    db.ref('shared_wishlist').on('value', function (snap) {
+      const val = snap.val();
+      if (val && Array.isArray(val)) {
+        localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(val));
+      }
+    });
+  }
 
   function getFoodDiary() {
     try {
@@ -2158,22 +2215,47 @@
     }
   }
 
-  function addFoodVisit(restaurantId, restaurantName, rating) {
+  function addFoodVisit(restaurantId, restaurantName, rating, note, photoBase64) {
     try {
       const list = getFoodDiary();
-      list.unshift({
+      const newVisit = {
         id: 'visit-' + Date.now(),
         restaurantId: restaurantId,
         restaurantName: restaurantName,
         rating: rating || 5,
-        date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
+        note: note || '',
+        photo: photoBase64 || null,
+        mode: state.activeMode,
+        p1Name: state.player1Name,
+        p2Name: state.player2Name,
+        date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }),
         timestamp: Date.now()
-      });
+      };
+      list.unshift(newVisit);
       localStorage.setItem(DIARY_STORAGE_KEY, JSON.stringify(list));
+
+      const db = initFirebase();
+      if (db) {
+        db.ref('shared_diary/' + newVisit.id).set(newVisit).catch(function () {});
+      }
       return true;
     } catch (e) {
       return false;
     }
+  }
+
+  function syncDiaryFromFirebase() {
+    const db = initFirebase();
+    if (!db) return;
+    db.ref('shared_diary').on('value', function (snap) {
+      const val = snap.val();
+      if (val && typeof val === 'object') {
+        const remoteList = Object.values(val).sort(function (a, b) {
+          return (b.timestamp || 0) - (a.timestamp || 0);
+        });
+        localStorage.setItem(DIARY_STORAGE_KEY, JSON.stringify(remoteList));
+      }
+    });
   }
 
   function getRestaurantVisitStats() {
@@ -2183,6 +2265,105 @@
       counts[v.restaurantId] = (counts[v.restaurantId] || 0) + 1;
     });
     return counts;
+  }
+
+  // Historial de resultados para estadísticas de afinidad y moneda
+  const STATS_HISTORY_KEY = 'donde_comemos_stats_history_v1';
+  function getDuoStatsHistory() {
+    try {
+      const raw = localStorage.getItem(STATS_HISTORY_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function recordSessionOutcome(winnerName, mode, matchesCount, payerWinner) {
+    try {
+      const list = getDuoStatsHistory();
+      const item = {
+        id: 'session-' + Date.now(),
+        winnerName: winnerName,
+        mode: mode || state.activeMode,
+        matchesCount: matchesCount || 1,
+        payerWinner: payerWinner || null,
+        p1Name: state.player1Name,
+        p2Name: state.player2Name,
+        timestamp: Date.now()
+      };
+      list.unshift(item);
+      localStorage.setItem(STATS_HISTORY_KEY, JSON.stringify(list));
+
+      const db = initFirebase();
+      if (db) {
+        db.ref('shared_stats/' + item.id).set(item).catch(function () {});
+      }
+    } catch (e) {}
+  }
+
+  function syncStatsFromFirebase() {
+    const db = initFirebase();
+    if (!db) return;
+    db.ref('shared_stats').on('value', function (snap) {
+      const val = snap.val();
+      if (val && typeof val === 'object') {
+        const remoteList = Object.values(val).sort(function (a, b) {
+          return (b.timestamp || 0) - (a.timestamp || 0);
+        });
+        localStorage.setItem(STATS_HISTORY_KEY, JSON.stringify(remoteList));
+      }
+    });
+  }
+
+  function removeFoodVisit(id) {
+    try {
+      const list = getFoodDiary().filter(function (v) { return v.id !== id; });
+      localStorage.setItem(DIARY_STORAGE_KEY, JSON.stringify(list));
+      const db = initFirebase();
+      if (db) {
+        db.ref('shared_diary/' + id).remove().catch(function () {});
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function compressImageFile(file, maxWidth, maxHeight, quality, callback) {
+    try {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+          let w = img.width;
+          let h = img.height;
+          if (w > h) {
+            if (w > maxWidth) {
+              h = Math.round((h * maxWidth) / w);
+              w = maxWidth;
+            }
+          } else {
+            if (h > maxHeight) {
+              w = Math.round((w * maxHeight) / h);
+              h = maxHeight;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL('image/jpeg', quality || 0.65);
+          callback(dataUrl);
+        };
+        img.onerror = function () { callback(null); };
+        img.src = e.target.result;
+      };
+      reader.onerror = function () { callback(null); };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      callback(null);
+    }
   }
 
   // ==========================================
@@ -2506,7 +2687,12 @@
     recommendedCityQuery: '',
     recommendedLimit: 5,
     roomId: null,
-    fbRoomUnsub: null
+    fbRoomUnsub: null,
+    remoteP1Count: 0,
+    remoteP2Count: 0,
+    remoteP1Done: false,
+    remoteP2Done: false,
+    useWishlistOnly: false
   };
 
   const KNOWN_CITY_COORDS = {
@@ -3271,6 +3457,46 @@
       const data = snapshot.val();
       if (!data) return;
 
+      // Actualizar contadores de selecciones en vivo
+      state.remoteP1Count = (data.p1Selections || []).length;
+      state.remoteP2Count = (data.p2Selections || []).length;
+      state.remoteP1Done = !!data.p1Done;
+      state.remoteP2Done = !!data.p2Done;
+
+      // Evento de ruleta sincronizada en ambos móviles
+      if (data.syncWheelWinner && state.screen === 'no_match') {
+        const winner = getAnyItemById(data.syncWheelWinner.winnerId);
+        if (winner && !state._syncedWheelTriggered) {
+          state._syncedWheelTriggered = true;
+          state._showWheelEarly = false;
+          state.winningRestaurant = winner;
+          state.winningBranch = findClosestBranch(state.winningRestaurant, state.userCoords);
+          state.matchesCount = 1;
+          state.isNameRevealed = false;
+          state.showClues = false;
+          state.clueIndex = 0;
+          state.tieBreakerUser = data.syncWheelWinner.by || 'Ruleta';
+          state.screen = 'result';
+          sound.playFanfare();
+          sound.vibrate([100, 50, 150]);
+          render();
+          showToast('¡Ruleta decidida!');
+        }
+      }
+
+      // Evento de moneda sincronizada en ambos móviles
+      if (data.syncCoinOutcome && data.syncCoinAt && Date.now() - data.syncCoinAt < 3000) {
+        if (state.payerWinner !== data.syncCoinOutcome) {
+          state.payerWinner = data.syncCoinOutcome;
+          state.isPayerSpinning = false;
+          sound.playCoin();
+          sound.vibrate([40, 40]);
+          if (state.screen === 'result') {
+            renderResultScreen();
+          }
+        }
+      }
+
       // Si Jugador 1 está esperando y Jugador 2 ha completado la votación:
       if (role === 'player1' && data.status === 'completed' && data.result) {
         state.winningRestaurant = getAnyItemById(data.result.winnerId) || state.restaurants[0];
@@ -3283,6 +3509,7 @@
         state.screen = 'result';
         sound.playFanfare();
         sound.vibrate([100, 50, 150]);
+        recordSessionOutcome(state.winningRestaurant.name, state.activeMode, state.matchesCount, state.payerWinner);
         render();
         showToast('¡' + state.player2Name + ' ha votado! Resultado listo');
       }
@@ -3292,6 +3519,42 @@
     state.fbRoomUnsub = function () {
       roomRef.off('value', handler);
     };
+  }
+
+  function broadcastLiveVoteProgress() {
+    const db = initFirebase();
+    if (!db || !state.roomId) return;
+    const isP1 = state.remoteRole !== 'player2';
+    const updateObj = {};
+    if (isP1) {
+      updateObj.p1Selections = Array.from(state.player1Selections);
+      updateObj.p1Count = state.player1Selections.size;
+    } else {
+      updateObj.p2Selections = Array.from(state.player2Selections);
+      updateObj.p2Count = state.player2Selections.size;
+    }
+    db.ref('rooms/' + state.roomId).update(updateObj).catch(function () {});
+  }
+
+  function broadcastCoinFlip(outcome) {
+    const db = initFirebase();
+    if (!db || !state.roomId) return;
+    db.ref('rooms/' + state.roomId).update({
+      syncCoinOutcome: outcome,
+      syncCoinAt: Date.now()
+    }).catch(function () {});
+  }
+
+  function broadcastWheelWinner(winnerId, byName) {
+    const db = initFirebase();
+    if (!db || !state.roomId) return;
+    db.ref('rooms/' + state.roomId).update({
+      syncWheelWinner: {
+        winnerId: winnerId,
+        by: byName,
+        at: Date.now()
+      }
+    }).catch(function () {});
   }
 
   async function pushResultToFirebaseRoom(resultData) {
@@ -3512,6 +3775,9 @@
 
   function init() {
     loadModeCatalogue();
+    syncWishlistFromFirebase();
+    syncDiaryFromFirebase();
+    syncStatsFromFirebase();
     checkRemoteHash();
     window.addEventListener('hashchange', function () {
       checkRemoteHash();
@@ -3581,6 +3847,8 @@
   function renderHomeScreen() {
     const hasLastWinner = state.lastWinnerId && state.lastWinnerName;
     const visits = getFoodDiary();
+    const wishlist = getWishlist();
+    const statsHistory = getDuoStatsHistory();
 
     app.innerHTML = `
       <div class="mobile-shell px-6 justify-between animate-view-enter">
@@ -3628,7 +3896,7 @@
           </div>
         </div>
 
-        <div class="ios-glass p-5 rounded-[26px] my-3 space-y-3.5">
+        <div class="ios-glass p-5 rounded-[26px] my-2.5 space-y-3.5">
           <div class="text-[11px] font-bold text-neutral-400 uppercase tracking-widest pl-1">
             ${state.activeMode === 'food' ? 'Comensales' : state.activeMode === 'movies' ? 'Espectadores' : 'Participantes'}
           </div>
@@ -3681,6 +3949,36 @@
           }
         </div>
 
+        <!-- Acceso Rápido Duo: Wishlist, Diario y Estadísticas Wrapped -->
+        <div class="grid grid-cols-3 gap-2 my-2">
+          <button 
+            id="btn-home-wishlist" 
+            class="py-2.5 px-2 rounded-2xl bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.08] active:scale-95 transition flex flex-col items-center justify-center gap-1 text-center shadow-sm"
+          >
+            <span class="text-base">📌</span>
+            <span class="text-[11px] font-bold text-white">Wishlist</span>
+            <span class="text-[9px] text-amber-300 font-semibold">${wishlist.length} pendientes</span>
+          </button>
+
+          <button 
+            id="btn-home-diary" 
+            class="py-2.5 px-2 rounded-2xl bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.08] active:scale-95 transition flex flex-col items-center justify-center gap-1 text-center shadow-sm"
+          >
+            <span class="text-base">📖</span>
+            <span class="text-[11px] font-bold text-white">Diario</span>
+            <span class="text-[9px] text-indigo-300 font-semibold">${visits.length} recuerdos</span>
+          </button>
+
+          <button 
+            id="btn-home-stats" 
+            class="py-2.5 px-2 rounded-2xl bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.08] active:scale-95 transition flex flex-col items-center justify-center gap-1 text-center shadow-sm"
+          >
+            <span class="text-base">📊</span>
+            <span class="text-[11px] font-bold text-white">Wrapped</span>
+            <span class="text-[9px] text-rose-300 font-semibold">${statsHistory.length} partidas</span>
+          </button>
+        </div>
+
         <!-- Zona de acción limpia: CTA Único Dominante + Acciones Secundarias agrupadas -->
         <div class="space-y-3 pb-4">
           <button 
@@ -3696,7 +3994,7 @@
             id="btn-open-more-actions" 
             class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-neutral-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] active:scale-[0.98] transition flex items-center justify-center gap-2 backdrop-blur-md"
           >
-            <span>Más opciones y modos rápidos</span>
+            <span>Más herramientas y opciones</span>
             <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </button>
         </div>
@@ -3709,8 +4007,8 @@
           
           <div class="flex items-center justify-between pb-2 border-b border-white/[0.08]">
             <div>
-              <h3 class="text-sm font-bold text-white">Opciones Rápidas</h3>
-              <p class="text-[11px] text-neutral-400">Herramientas y modos alternativos</p>
+              <h3 class="text-sm font-bold text-white">Herramientas Duo</h3>
+              <p class="text-[11px] text-neutral-400">Funciones compartidas de pareja</p>
             </div>
             <button id="btn-close-actions-sheet" class="w-7 h-7 rounded-full bg-white/[0.08] text-neutral-300 hover:text-white flex items-center justify-center transition">
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -3718,6 +4016,22 @@
           </div>
 
           <div class="space-y-2 pt-1">
+            <!-- Acción 1: Wishlist Compartida -->
+            <button 
+              id="btn-sheet-wishlist" 
+              class="w-full py-3 px-4 rounded-2xl text-xs font-semibold text-neutral-200 bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.1] active:scale-[0.98] transition flex items-center justify-between text-left"
+            >
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-300 shrink-0">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                </div>
+                <div>
+                  <div class="font-bold">Wishlist compartida</div>
+                  <div class="text-[10px] text-neutral-400 font-normal">${wishlist.length} sitios pendientes guardados</div>
+                </div>
+              </div>
+              <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
 
             <!-- Acción 2: Historial / Food Diary -->
             <button 
@@ -3733,8 +4047,25 @@
                   </svg>
                 </div>
                 <div>
-                  <div class="font-bold">Historial de visitas</div>
-                  <div class="text-[10px] text-neutral-400 font-normal">${visits.length} visitas registradas</div>
+                  <div class="font-bold">Diario de citas & recuerdos</div>
+                  <div class="text-[10px] text-neutral-400 font-normal">${visits.length} recuerdos con foto y notas</div>
+                </div>
+              </div>
+              <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+
+            <!-- Acción 3: Estadísticas / Duo Wrapped -->
+            <button 
+              id="btn-sheet-stats" 
+              class="w-full py-3 px-4 rounded-2xl text-xs font-semibold text-neutral-200 bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.1] active:scale-[0.98] transition flex items-center justify-between text-left"
+            >
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-300 shrink-0">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                </div>
+                <div>
+                  <div class="font-bold">Estadísticas & Duo Wrapped</div>
+                  <div class="text-[10px] text-neutral-400 font-normal">Afinidad histórica, quién paga y récords</div>
                 </div>
               </div>
               <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
@@ -3753,7 +4084,7 @@
                   </svg>
                 </div>
                 <div>
-                  <div class="font-bold">Gestionar restaurantes</div>
+                  <div class="font-bold">Gestionar catálogo</div>
                   <div class="text-[10px] text-neutral-400 font-normal">${state.restaurants.length} disponibles en catálogo</div>
                 </div>
               </div>
@@ -3813,6 +4144,31 @@
       });
     }
 
+    // Botones rápidos directos de la pantalla de inicio
+    const btnHomeWishlist = document.getElementById('btn-home-wishlist');
+    if (btnHomeWishlist) {
+      btnHomeWishlist.addEventListener('click', function () {
+        sound.playPop();
+        openWishlistModal();
+      });
+    }
+
+    const btnHomeDiary = document.getElementById('btn-home-diary');
+    if (btnHomeDiary) {
+      btnHomeDiary.addEventListener('click', function () {
+        sound.playPop();
+        openDiaryModal();
+      });
+    }
+
+    const btnHomeStats = document.getElementById('btn-home-stats');
+    if (btnHomeStats) {
+      btnHomeStats.addEventListener('click', function () {
+        sound.playPop();
+        openStatsModal();
+      });
+    }
+
     document.getElementById('btn-start').addEventListener('click', function () {
       sound.init();
       sound.playWhoosh();
@@ -3868,12 +4224,30 @@
       });
     }
 
+    const btnSheetWishlist = document.getElementById('btn-sheet-wishlist');
+    if (btnSheetWishlist) {
+      btnSheetWishlist.addEventListener('click', function () {
+        state.showHomeActionsSheet = false;
+        sound.playPop();
+        openWishlistModal();
+      });
+    }
+
     const btnFoodDiary = document.getElementById('btn-food-diary');
     if (btnFoodDiary) {
       btnFoodDiary.addEventListener('click', function () {
         state.showHomeActionsSheet = false;
         sound.playPop();
         openDiaryModal();
+      });
+    }
+
+    const btnSheetStats = document.getElementById('btn-sheet-stats');
+    if (btnSheetStats) {
+      btnSheetStats.addEventListener('click', function () {
+        state.showHomeActionsSheet = false;
+        sound.playPop();
+        openStatsModal();
       });
     }
 
@@ -4104,6 +4478,20 @@
               </div>
             </div>
           </div>
+
+          ${state.roomId ? `
+            <div class="mb-2 px-3.5 py-1.5 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-between text-xs animate-ios-slide">
+              <span class="flex items-center gap-1.5 text-indigo-300 font-semibold">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>En directo con ${isP1 ? state.player2Name : state.player1Name}</span>
+              </span>
+              <span class="text-white font-bold text-[11px]">
+                ${isP1 
+                  ? (state.remoteP2Done ? '✅ Voto completado' : (state.remoteP2Count > 0 ? state.remoteP2Count + ' elegidos' : 'Votando en su móvil...'))
+                  : (state.remoteP1Count > 0 ? state.remoteP1Count + ' elegidos' : 'Conectado')}
+              </span>
+            </div>
+          ` : ''}
 
           <div class="flex items-center justify-between text-[11px] text-neutral-400">
             <span>Toca para elegir. Botones superiores para veto, superlike e info:</span>
@@ -4881,6 +5269,7 @@
         if (counterEl) {
           counterEl.textContent = currentSelections.size;
         }
+        broadcastLiveVoteProgress();
       });
     });
 
@@ -4913,6 +5302,7 @@
             showToast('Veto aplicado');
           }
         }
+        broadcastLiveVoteProgress();
         renderPlayerScreen(playerNum);
       });
     });
@@ -4946,6 +5336,7 @@
             showToast('Superlike: doble voto');
           }
         }
+        broadcastLiveVoteProgress();
         renderPlayerScreen(playerNum);
       });
     });
@@ -4972,6 +5363,14 @@
       }
       sound.playWhoosh();
       sound.vibrate([35]);
+      broadcastLiveVoteProgress();
+      if (state.roomId) {
+        const db = initFirebase();
+        if (db) {
+          const upd = isP1 ? { p1Done: true } : { p2Done: true };
+          db.ref('rooms/' + state.roomId).update(upd).catch(function () {});
+        }
+      }
       if (isP1) {
         state.screen = 'handover';
       } else {
@@ -5231,6 +5630,13 @@
           <p class="text-xs sm:text-sm text-neutral-400 max-w-xs mx-auto leading-relaxed">
             En cuanto ${state.player2Name} vote en su móvil, tu pantalla se actualizará automáticamente con el resultado.
           </p>
+
+          ${state.remoteP2Count > 0 ? `
+            <div class="mt-3 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold animate-pulse">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span>${state.player2Name} lleva ${state.remoteP2Count} opciones seleccionadas</span>
+            </div>
+          ` : ''}
         </div>
 
         <div class="my-auto py-4 space-y-3">
@@ -6013,6 +6419,8 @@
           state.isPayerSpinning = false;
           sound.playPop();
           sound.vibrate([60]);
+          broadcastCoinFlip(state.payerWinner);
+          recordSessionOutcome(state.winningRestaurant.name, state.activeMode, state.matchesCount, state.payerWinner);
           renderResultScreen();
         }, 1200);
       });
@@ -6029,17 +6437,13 @@
       });
     });
 
-    // Guardar visita en el Food Diary
+    // Guardar recuerdo / visita en el Diario de Pareja
     const btnLogVisit = document.getElementById('btn-log-visit');
     if (btnLogVisit) {
       btnLogVisit.addEventListener('click', function () {
-        addFoodVisit(state.winningRestaurant.id, state.winningRestaurant.name, 5);
         sound.playPop();
-        sound.vibrate([50, 50]);
-        showToast('Visita registrada en tu historial');
-        btnLogVisit.disabled = true;
-        btnLogVisit.innerText = 'Registrado';
-        btnLogVisit.classList.add('opacity-50');
+        sound.vibrate([35]);
+        openDiaryModal(state.winningRestaurant.name, state.winningRestaurant.id);
       });
     }
 
@@ -6390,7 +6794,9 @@
             matchesCount: 1,
             tieBreakerUser: state.player2Name
           });
+          broadcastWheelWinner(state.winningRestaurant.id, state.remoteRole === 'player2' ? state.player2Name : state.player1Name);
         }
+        recordSessionOutcome(state.winningRestaurant.name, state.activeMode, 1, state.payerWinner);
 
         render();
       });
@@ -7044,96 +7450,761 @@
   }
 
   // ==========================================
-  // 12. MODAL DE HISTORIAL & DIARIO DE VISITAS (APPLE SHEET)
+  // 12. MODAL DE HISTORIAL & DIARIO DE RECUERDOS (DUO MOMENTS)
   // ==========================================
-  function openDiaryModal() {
-    const visits = getFoodDiary();
-    const stats = getRestaurantVisitStats();
+  function openDiaryModal(prefillName, prefillId) {
+    let currentRating = 5;
+    let currentPhotoBase64 = null;
+    let isFormOpen = !!prefillName;
 
-    modalContainer.innerHTML = `
-      <div class="fixed inset-0 z-50 flex items-end justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4 animate-ios-slide">
-        <div class="bg-neutral-950 border-t border-white/[0.12] w-full max-w-md rounded-t-[32px] sm:rounded-[32px] max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
-          <div class="w-10 h-1 bg-white/25 rounded-full mx-auto my-3"></div>
+    function renderModalContent() {
+      const currentVisits = getFoodDiary();
+      modalContainer.innerHTML = `
+        <div id="diary-modal-backdrop" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4 animate-ios-slide">
+          <div class="bg-neutral-950 border-t sm:border border-white/[0.12] w-full max-w-md rounded-t-[32px] sm:rounded-[32px] max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+            <div class="w-10 h-1 bg-white/25 rounded-full mx-auto my-3 sm:hidden"></div>
 
-          <div class="px-6 pb-3 flex items-center justify-between border-b border-white/[0.08]">
-            <div>
-              <h3 class="font-bold text-base text-white flex items-center gap-2">
-                <svg class="w-4 h-4 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                <span>Historial de Comidas</span>
-              </h3>
-              <div class="text-[11px] text-neutral-400">¿De qué soléis pecar más?</div>
-            </div>
-            <button id="btn-close-diary" class="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-neutral-300 flex items-center justify-center font-bold text-xs transition">✕</button>
-          </div>
-
-          <div class="p-5 overflow-y-auto no-scrollbar space-y-4 flex-1">
-            <!-- Estadísticas rápidas estilo Apple Health / Fitness -->
-            <div class="ios-glass p-4 rounded-2xl">
-              <div class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2.5">Frecuencia por restaurante</div>
-              <div class="space-y-2.5">
-                ${state.restaurants
-                  .map(function (r) {
-                    const count = stats[r.id] || 0;
-                    const maxCount = Math.max.apply(null, Object.values(stats).concat([1]));
-                    const pct = Math.round((count / maxCount) * 100);
-                    return `
-                      <div class="space-y-1">
-                        <div class="flex items-center justify-between text-xs">
-                          <span class="text-white font-medium flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400/80"></span>
-                            <span>${r.name}</span>
-                          </span>
-                          <span class="text-neutral-400 font-bold">${count} vez${count === 1 ? '' : 'es'}</span>
-                        </div>
-                        <div class="w-full h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                          <div class="h-full bg-gradient-to-r from-amber-500 to-rose-500 rounded-full" style="width: ${pct}%"></div>
-                        </div>
-                      </div>
-                    `;
-                  })
-                  .join('')}
-              </div>
-            </div>
-
-            <!-- Registro de visitas cronológico -->
-            <div>
-              <div class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2 pl-1">
-                Últimas visitas registradas (${visits.length})
-              </div>
-              ${
-                visits.length === 0
-                  ? `
-                <div class="p-6 text-center text-xs text-neutral-500 border border-white/[0.06] rounded-2xl">
-                  Aún no habéis guardado ninguna visita. Al salir el resultado, podréis pulsar "Registrar visita".
+            <!-- Modal Header -->
+            <div class="px-5 py-3 flex items-center justify-between border-b border-white/[0.08]">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
+                  </svg>
                 </div>
-              `
-                  : `
-                <div class="space-y-2">
-                  ${visits
-                    .map(function (v) {
+                <div>
+                  <h3 class="font-bold text-sm sm:text-base text-white flex items-center gap-1.5">
+                    <span>Diario de Citas & Recuerdos</span>
+                  </h3>
+                  <div class="text-[10px] text-neutral-400">Vuestros momentos, fotos y notas compartidas</div>
+                </div>
+              </div>
+              <button id="btn-close-diary" class="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-neutral-300 hover:text-white flex items-center justify-center font-bold text-xs transition">✕</button>
+            </div>
+
+            <!-- Scrollable Body -->
+            <div class="p-4 sm:p-5 overflow-y-auto no-scrollbar space-y-4 flex-1">
+              <!-- Botón desplegar formulario de nuevo recuerdo -->
+              ${!isFormOpen ? `
+                <button 
+                  id="btn-toggle-add-memory" 
+                  class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-indigo-500/20 via-rose-500/20 to-amber-500/20 border border-indigo-500/30 hover:border-indigo-500/50 text-xs font-bold text-white flex items-center justify-center gap-2 active:scale-98 transition shadow-sm"
+                >
+                  <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                  <span>Añadir nuevo recuerdo de cita</span>
+                </button>
+              ` : `
+                <!-- Formulario Añadir Recuerdo (Apple visionOS Card) -->
+                <div class="ios-glass p-4 rounded-2xl border border-indigo-500/30 bg-indigo-500/5 space-y-3 animate-ios-slide">
+                  <div class="flex items-center justify-between pb-1 border-b border-white/10">
+                    <span class="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                      <span>Registrar Recuerdo</span>
+                    </span>
+                    <button id="btn-cancel-add-memory" class="text-[11px] text-neutral-400 hover:text-neutral-200">Cancelar</button>
+                  </div>
+
+                  <div>
+                    <label class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">Sitio, Película o Plan</label>
+                    <input 
+                      id="diary-input-name" 
+                      type="text" 
+                      value="${prefillName || ''}" 
+                      placeholder="Ej: Goiko Grill, La La Land, Escapada..." 
+                      class="w-full bg-white/[0.06] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-indigo-500/60"
+                    />
+                  </div>
+
+                  <!-- Selector de Estrellas 1-5 -->
+                  <div>
+                    <label class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">Valoración en pareja</label>
+                    <div class="flex items-center gap-2" id="diary-star-picker">
+                      ${[1, 2, 3, 4, 5].map(function (s) {
+                        const isFilled = s <= currentRating;
+                        return `
+                          <button type="button" data-star="${s}" class="btn-star-pick p-1 text-lg transition transform hover:scale-125 active:scale-95 ${isFilled ? 'text-amber-400' : 'text-neutral-600'}">
+                            ★
+                          </button>
+                        `;
+                      }).join('')}
+                      <span class="text-xs font-bold text-amber-400 ml-2" id="star-rating-label">${currentRating}/5</span>
+                    </div>
+                  </div>
+
+                  <!-- Nota / Experiencia -->
+                  <div>
+                    <label class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">Nota o anécdota especial</label>
+                    <textarea 
+                      id="diary-input-note" 
+                      rows="2" 
+                      placeholder="Ej: La pizza buenísima, nos reímos un montón con el camarero..." 
+                      class="w-full bg-white/[0.06] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-indigo-500/60 resize-none"
+                    ></textarea>
+                  </div>
+
+                  <!-- Foto del Momento -->
+                  <div>
+                    <label class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">Foto del recuerdo</label>
+                    <input type="file" id="diary-photo-input" accept="image/*" class="hidden" />
+                    ${currentPhotoBase64 ? `
+                      <div class="relative w-full h-36 rounded-xl overflow-hidden border border-white/20">
+                        <img src="${currentPhotoBase64}" class="w-full h-full object-cover" />
+                        <button id="btn-remove-diary-photo" class="absolute top-2 right-2 px-2 py-1 rounded-lg bg-black/70 backdrop-blur-md text-[10px] font-bold text-rose-300 hover:text-rose-100 border border-white/20">
+                          Quitar foto
+                        </button>
+                      </div>
+                    ` : `
+                      <button 
+                        type="button" 
+                        id="btn-trigger-photo-upload" 
+                        class="w-full py-2.5 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-dashed border-white/20 text-xs font-medium text-neutral-300 flex items-center justify-center gap-2 active:scale-98 transition"
+                      >
+                        <svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                        <span>Hacer o subir foto del momento</span>
+                      </button>
+                    `}
+                  </div>
+
+                  <button 
+                    id="btn-save-memory" 
+                    class="w-full py-3 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-indigo-500 to-rose-500 shadow-lg shadow-rose-500/20 active:scale-98 transition flex items-center justify-center gap-2"
+                  >
+                    <span>Guardar Recuerdo en Duo</span>
+                  </button>
+                </div>
+              `}
+
+              <!-- Timeline de Recuerdos -->
+              <div>
+                <div class="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-2.5 pl-1 flex items-center justify-between">
+                  <span>Recuerdos Guardados (${currentVisits.length})</span>
+                  <span class="text-[10px] text-indigo-400 font-semibold">Sincronizado en la nube</span>
+                </div>
+
+                ${currentVisits.length === 0 ? `
+                  <div class="p-8 text-center text-xs text-neutral-500 border border-white/[0.06] rounded-2xl ios-glass">
+                    <div class="text-2xl mb-2">📸</div>
+                    <div class="text-neutral-300 font-semibold mb-1">Aún no tenéis recuerdos guardados</div>
+                    <div>Añadid vuestro primer momento arriba o guardadlo automáticamente al finalizar una votación.</div>
+                  </div>
+                ` : `
+                  <div class="space-y-3">
+                    ${currentVisits.map(function (v) {
+                      const starsHtml = '★'.repeat(v.rating || 5) + '☆'.repeat(5 - (v.rating || 5));
+                      const modeEmoji = v.mode === 'movies' ? '🎬' : v.mode === 'plans' ? '✨' : '🍽️';
                       return `
-                        <div class="ios-glass p-3 rounded-2xl flex items-center justify-between">
-                          <div>
-                            <div class="text-xs font-bold text-white">${v.restaurantName}</div>
-                            <div class="text-[10px] text-neutral-400">${v.date}</div>
+                        <div class="ios-glass p-3.5 rounded-2xl border border-white/[0.08] text-left space-y-2">
+                          ${v.photo ? `
+                            <div class="rounded-xl overflow-hidden max-h-48 border border-white/10 shadow-md">
+                              <img src="${v.photo}" alt="${v.restaurantName}" class="w-full h-44 object-cover hover:scale-105 transition duration-300" />
+                            </div>
+                          ` : ''}
+
+                          <div class="flex items-start justify-between gap-2">
+                            <div>
+                              <div class="flex items-center gap-1.5">
+                                <span class="text-xs">${modeEmoji}</span>
+                                <h4 class="text-xs font-bold text-white">${v.restaurantName}</h4>
+                              </div>
+                              <div class="text-[11px] text-amber-400 font-bold tracking-wider mt-0.5">${starsHtml}</div>
+                            </div>
+                            <button data-id="${v.id}" class="btn-delete-visit p-1.5 rounded-lg text-neutral-500 hover:text-rose-400 hover:bg-rose-500/10 transition" title="Eliminar recuerdo">
+                              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            </button>
                           </div>
-                          <div class="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 text-[10px] font-bold border border-emerald-500/25">
-                            Visitado
+
+                          ${v.note ? `
+                            <p class="text-[11px] text-neutral-300 bg-white/[0.03] p-2 rounded-xl border border-white/[0.05] leading-relaxed italic">
+                              "${v.note}"
+                            </p>
+                          ` : ''}
+
+                          <div class="flex items-center justify-between text-[10px] text-neutral-400 pt-1 border-t border-white/[0.06]">
+                            <span class="flex items-center gap-1">
+                              <svg class="w-3 h-3 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                              <span>${v.date}</span>
+                            </span>
+                            <span class="text-neutral-400 font-medium">${v.p1Name || state.player1Name} & ${v.p2Name || state.player2Name}</span>
                           </div>
                         </div>
                       `;
-                    })
-                    .join('')}
-                </div>
-              `
+                    }).join('')}
+                  </div>
+                `}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Event listeners del modal
+      document.getElementById('btn-close-diary').addEventListener('click', function () {
+        modalContainer.innerHTML = '';
+      });
+
+      const btnToggleAdd = document.getElementById('btn-toggle-add-memory');
+      if (btnToggleAdd) {
+        btnToggleAdd.addEventListener('click', function () {
+          sound.playPop();
+          isFormOpen = true;
+          renderModalContent();
+        });
+      }
+
+      const btnCancelAdd = document.getElementById('btn-cancel-add-memory');
+      if (btnCancelAdd) {
+        btnCancelAdd.addEventListener('click', function () {
+          sound.playPop();
+          isFormOpen = false;
+          currentPhotoBase64 = null;
+          renderModalContent();
+        });
+      }
+
+      document.querySelectorAll('.btn-star-pick').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          currentRating = parseInt(btn.dataset.star, 10) || 5;
+          sound.playPop();
+          sound.vibrate([20]);
+          document.querySelectorAll('.btn-star-pick').forEach(function (b) {
+            const s = parseInt(b.dataset.star, 10);
+            if (s <= currentRating) {
+              b.className = 'btn-star-pick p-1 text-lg transition transform hover:scale-125 active:scale-95 text-amber-400';
+            } else {
+              b.className = 'btn-star-pick p-1 text-lg transition transform hover:scale-125 active:scale-95 text-neutral-600';
+            }
+          });
+          const lbl = document.getElementById('star-rating-label');
+          if (lbl) lbl.textContent = currentRating + '/5';
+        });
+      });
+
+      const btnTriggerPhoto = document.getElementById('btn-trigger-photo-upload');
+      const photoInput = document.getElementById('diary-photo-input');
+      if (btnTriggerPhoto && photoInput) {
+        btnTriggerPhoto.addEventListener('click', function () {
+          photoInput.click();
+        });
+        photoInput.addEventListener('change', function (e) {
+          const file = e.target.files && e.target.files[0];
+          if (file) {
+            compressImageFile(file, 640, 640, 0.65, function (dataUrl) {
+              if (dataUrl) {
+                currentPhotoBase64 = dataUrl;
+                sound.playPop();
+                renderModalContent();
               }
+            });
+          }
+        });
+      }
+
+      const btnRemovePhoto = document.getElementById('btn-remove-diary-photo');
+      if (btnRemovePhoto) {
+        btnRemovePhoto.addEventListener('click', function () {
+          currentPhotoBase64 = null;
+          sound.playPop();
+          renderModalContent();
+        });
+      }
+
+      const btnSaveMemory = document.getElementById('btn-save-memory');
+      if (btnSaveMemory) {
+        btnSaveMemory.addEventListener('click', function () {
+          const inputName = document.getElementById('diary-input-name');
+          const inputNote = document.getElementById('diary-input-note');
+          const nameVal = inputName ? inputName.value.trim() : '';
+          const noteVal = inputNote ? inputNote.value.trim() : '';
+
+          if (!nameVal) {
+            sound.vibrate([50, 50]);
+            showToast('Escribe el nombre del sitio o plan');
+            return;
+          }
+
+          addFoodVisit(prefillId || ('item-' + Date.now()), nameVal, currentRating, noteVal, currentPhotoBase64);
+          sound.playFanfare();
+          sound.vibrate([40, 40]);
+          showToast('¡Recuerdo guardado en el Diario!');
+          isFormOpen = false;
+          currentPhotoBase64 = null;
+          renderModalContent();
+        });
+      }
+
+      document.querySelectorAll('.btn-delete-visit').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const id = btn.dataset.id;
+          removeFoodVisit(id);
+          sound.playPop();
+          sound.vibrate([30]);
+          showToast('Recuerdo eliminado');
+          renderModalContent();
+        });
+      });
+    }
+
+    renderModalContent();
+  }
+
+  // ==========================================
+  // 13. MODAL DE WISHLIST COMPARTIDA (BUCKET LIST)
+  // ==========================================
+  function openWishlistModal() {
+    let activeWishlistFilter = 'all';
+
+    function renderModalContent() {
+      const allItems = getWishlist();
+      const filtered = activeWishlistFilter === 'all' 
+        ? allItems 
+        : allItems.filter(function (w) { return w.mode === activeWishlistFilter; });
+
+      modalContainer.innerHTML = `
+        <div id="wishlist-modal-backdrop" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4 animate-ios-slide">
+          <div class="bg-neutral-950 border-t sm:border border-white/[0.12] w-full max-w-md rounded-t-[32px] sm:rounded-[32px] max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+            <div class="w-10 h-1 bg-white/25 rounded-full mx-auto my-3 sm:hidden"></div>
+
+            <!-- Modal Header -->
+            <div class="px-5 py-3 flex items-center justify-between border-b border-white/[0.08]">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="font-bold text-sm sm:text-base text-white flex items-center gap-1.5">
+                    <span>Wishlist Compartida</span>
+                  </h3>
+                  <div class="text-[10px] text-neutral-400">Vuestro baúl de planes y sitios pendientes</div>
+                </div>
+              </div>
+              <button id="btn-close-wishlist" class="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-neutral-300 hover:text-white flex items-center justify-center font-bold text-xs transition">✕</button>
+            </div>
+
+            <!-- Scrollable Body -->
+            <div class="p-4 sm:p-5 overflow-y-auto no-scrollbar space-y-4 flex-1">
+              <!-- CTA Votar con la Wishlist si hay al menos 2 elementos -->
+              ${allItems.length >= 2 ? `
+                <button 
+                  id="btn-vote-wishlist" 
+                  class="w-full py-3.5 px-4 rounded-2xl font-bold text-xs text-white bg-gradient-to-r from-amber-500 via-rose-500 to-indigo-600 shadow-xl shadow-rose-500/25 active:scale-98 transition flex items-center justify-center gap-2 border-t border-white/20"
+                >
+                  <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                  <span>Votar entre los ${allItems.length} sitios de la Wishlist</span>
+                </button>
+              ` : ''}
+
+              <!-- Formulario Rápido Añadir a Wishlist -->
+              <div class="ios-glass p-3.5 rounded-2xl border border-white/[0.08] space-y-2.5">
+                <div class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Añadir nuevo pendiente</div>
+                <div class="flex items-center gap-2">
+                  <input 
+                    id="wishlist-input-name" 
+                    type="text" 
+                    placeholder="Nombre del restaurante, película o plan..." 
+                    class="flex-1 bg-white/[0.06] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-amber-500/60"
+                  />
+                </div>
+
+                <div class="flex items-center justify-between gap-2 pt-1">
+                  <!-- Selector de categoría rápida -->
+                  <div class="flex items-center gap-1.5" id="wishlist-type-chips">
+                    <button type="button" data-type="food" class="btn-wish-type px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-amber-500/20 text-amber-300 border-amber-500/40">
+                      🍽️ Comida
+                    </button>
+                    <button type="button" data-type="movies" class="btn-wish-type px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-white/5 text-neutral-400 border-white/10">
+                      🎬 Pelis
+                    </button>
+                    <button type="button" data-type="plans" class="btn-wish-type px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-white/5 text-neutral-400 border-white/10">
+                      ✨ Plan
+                    </button>
+                  </div>
+
+                  <button 
+                    id="btn-add-wishlist-item" 
+                    class="py-1.5 px-3 rounded-xl bg-amber-500 text-black font-bold text-xs hover:bg-amber-400 active:scale-95 transition flex items-center gap-1 shadow-sm"
+                  >
+                    <span>+ Añadir</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Filtros de categoría -->
+              <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1">
+                <button data-cat="all" class="btn-filter-wish px-3 py-1 rounded-full text-[11px] font-semibold transition ${activeWishlistFilter === 'all' ? 'bg-white text-black' : 'bg-white/5 text-neutral-400 border border-white/10'}">
+                  Todos (${allItems.length})
+                </button>
+                <button data-cat="food" class="btn-filter-wish px-3 py-1 rounded-full text-[11px] font-semibold transition ${activeWishlistFilter === 'food' ? 'bg-white text-black' : 'bg-white/5 text-neutral-400 border border-white/10'}">
+                  🍽️ Comida
+                </button>
+                <button data-cat="movies" class="btn-filter-wish px-3 py-1 rounded-full text-[11px] font-semibold transition ${activeWishlistFilter === 'movies' ? 'bg-white text-black' : 'bg-white/5 text-neutral-400 border border-white/10'}">
+                  🎬 Pelis
+                </button>
+                <button data-cat="plans" class="btn-filter-wish px-3 py-1 rounded-full text-[11px] font-semibold transition ${activeWishlistFilter === 'plans' ? 'bg-white text-black' : 'bg-white/5 text-neutral-400 border border-white/10'}">
+                  ✨ Planes
+                </button>
+              </div>
+
+              <!-- Lista de Items -->
+              <div class="space-y-2">
+                ${filtered.length === 0 ? `
+                  <div class="p-6 text-center text-xs text-neutral-500 border border-white/[0.06] rounded-2xl ios-glass">
+                    No hay ningún sitio guardado en esta categoría.
+                  </div>
+                ` : `
+                  ${filtered.map(function (w) {
+                    const badgeColor = w.mode === 'movies' 
+                      ? 'bg-indigo-500/15 text-indigo-300 border-indigo-500/25' 
+                      : w.mode === 'plans' 
+                      ? 'bg-purple-500/15 text-purple-300 border-purple-500/25' 
+                      : 'bg-rose-500/15 text-rose-300 border-rose-500/25';
+                    const iconEmoji = w.mode === 'movies' ? '🎬' : w.mode === 'plans' ? '✨' : '🍽️';
+                    return `
+                      <div class="ios-glass p-3 rounded-2xl border border-white/[0.08] flex items-center justify-between gap-3 text-left">
+                        <div class="min-w-0 flex-1">
+                          <div class="flex items-center gap-2 mb-1">
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold border ${badgeColor}">
+                              ${iconEmoji} ${w.category || 'General'}
+                            </span>
+                            <span class="text-[10px] text-neutral-400">${w.date}</span>
+                          </div>
+                          <div class="text-xs font-bold text-white truncate">${w.name}</div>
+                          ${w.note ? `<div class="text-[10px] text-neutral-400 italic truncate">${w.note}</div>` : ''}
+                        </div>
+                        <button data-id="${w.id}" class="btn-remove-wishlist p-1.5 rounded-lg text-neutral-500 hover:text-rose-400 hover:bg-rose-500/10 transition shrink-0" title="Eliminar de Wishlist">
+                          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </button>
+                      </div>
+                    `;
+                  }).join('')}
+                `}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      let selectedType = 'food';
+
+      document.getElementById('btn-close-wishlist').addEventListener('click', function () {
+        modalContainer.innerHTML = '';
+      });
+
+      document.querySelectorAll('.btn-wish-type').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          selectedType = btn.dataset.type;
+          sound.playPop();
+          document.querySelectorAll('.btn-wish-type').forEach(function (b) {
+            if (b.dataset.type === selectedType) {
+              b.className = 'btn-wish-type px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-amber-500/20 text-amber-300 border-amber-500/40';
+            } else {
+              b.className = 'btn-wish-type px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-white/5 text-neutral-400 border-white/10';
+            }
+          });
+        });
+      });
+
+      document.querySelectorAll('.btn-filter-wish').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          activeWishlistFilter = btn.dataset.cat;
+          sound.playPop();
+          renderModalContent();
+        });
+      });
+
+      const btnAddWish = document.getElementById('btn-add-wishlist-item');
+      if (btnAddWish) {
+        btnAddWish.addEventListener('click', function () {
+          const input = document.getElementById('wishlist-input-name');
+          const name = input ? input.value.trim() : '';
+          if (!name) {
+            sound.vibrate([40, 40]);
+            showToast('Escribe el nombre del sitio');
+            return;
+          }
+          addToWishlist({
+            name: name,
+            mode: selectedType,
+            category: selectedType === 'movies' ? 'Cine / Serie' : selectedType === 'plans' ? 'Plan' : 'Restaurante',
+            price: selectedType === 'movies' ? 'Gratis / Suscripción' : '€€'
+          });
+          sound.playFanfare();
+          sound.vibrate([30]);
+          showToast('Añadido a vuestra Wishlist');
+          renderModalContent();
+        });
+      }
+
+      document.querySelectorAll('.btn-remove-wishlist').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          removeFromWishlist(btn.dataset.id);
+          sound.playPop();
+          sound.vibrate([25]);
+          showToast('Eliminado de la Wishlist');
+          renderModalContent();
+        });
+      });
+
+      const btnVoteWishlist = document.getElementById('btn-vote-wishlist');
+      if (btnVoteWishlist) {
+        btnVoteWishlist.addEventListener('click', function () {
+          const items = getWishlist();
+          if (items.length < 2) {
+            showToast('Se necesitan al menos 2 sitios');
+            return;
+          }
+          state.restaurants = items.map(function (w, i) {
+            return {
+              id: 'wish-' + i + '-' + Date.now(),
+              name: w.name,
+              category: w.category || 'Wishlist',
+              price: w.price || '€€',
+              distance: 'A convenir',
+              image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=400&q=80',
+              description: w.note || 'De vuestra lista de pendientes'
+            };
+          });
+          sound.playWhoosh();
+          sound.vibrate([40]);
+          modalContainer.innerHTML = '';
+          state.player1Selections.clear();
+          state.player2Selections.clear();
+          state.player1Veto = null;
+          state.player2Veto = null;
+          state.player1Superlike = null;
+          state.player2Superlike = null;
+          state.roundAttempt = 1;
+          state.screen = 'player1';
+          render();
+          showToast('¡Votando con vuestra Wishlist!');
+        });
+      }
+    }
+
+    renderModalContent();
+  }
+
+  // ==========================================
+  // 14. MODAL DE ESTADÍSTICAS & DUO WRAPPED
+  // ==========================================
+  function openStatsModal() {
+    const history = getDuoStatsHistory();
+    const diary = getFoodDiary();
+    const totalSessions = history.length;
+
+    // Calcular Afinidad (porcentaje donde hubo match en primera ronda)
+    const matchesCount = history.filter(function (h) { return (h.matchesCount || 0) >= 1; }).length;
+    const affinityPct = totalSessions > 0 ? Math.round((matchesCount / totalSessions) * 100) : 100;
+
+    let verdict = '✨ ¡Telepatía Total! Vuestras mentes están conectadas.';
+    let verdictColor = 'text-emerald-400';
+    if (affinityPct < 50) {
+      verdict = '🌶️ Polos Opuestos. ¡La emoción del desempate!';
+      verdictColor = 'text-rose-400';
+    } else if (affinityPct < 70) {
+      verdict = '⚖️ Buen Equilibrio. Mucho debate constructivo.';
+      verdictColor = 'text-amber-400';
+    } else if (affinityPct < 90) {
+      verdict = '❤️ ¡Súper Compenetrados! Rara vez hay conflicto.';
+      verdictColor = 'text-indigo-400';
+    }
+
+    // Moneda: Quién paga más
+    let p1Pays = 0;
+    let p2Pays = 0;
+    let splitPays = 0;
+    history.forEach(function (h) {
+      if (!h.payerWinner) return;
+      const pw = h.payerWinner.toLowerCase();
+      if (pw.includes(state.player1Name.toLowerCase())) {
+        p1Pays++;
+      } else if (pw.includes(state.player2Name.toLowerCase())) {
+        p2Pays++;
+      } else {
+        splitPays++;
+      }
+    });
+
+    const totalFlips = p1Pays + p2Pays + splitPays;
+    const p1Pct = totalFlips > 0 ? Math.round((p1Pays / totalFlips) * 100) : 50;
+    const p2Pct = totalFlips > 0 ? Math.round((p2Pays / totalFlips) * 100) : 50;
+
+    // Podio de favoritos (sitios más repetidos en la historia)
+    const winnerFrequency = {};
+    history.forEach(function (h) {
+      if (h.winnerName) {
+        winnerFrequency[h.winnerName] = (winnerFrequency[h.winnerName] || 0) + 1;
+      }
+    });
+    diary.forEach(function (d) {
+      if (d.restaurantName) {
+        winnerFrequency[d.restaurantName] = (winnerFrequency[d.restaurantName] || 0) + 1;
+      }
+    });
+
+    const sortedWinners = Object.keys(winnerFrequency).map(function (k) {
+      return { name: k, count: winnerFrequency[k] };
+    }).sort(function (a, b) { return b.count - a.count; }).slice(0, 3);
+
+    // Desglose por modo
+    let foodModeCount = 0;
+    let moviesModeCount = 0;
+    let plansModeCount = 0;
+    history.forEach(function (h) {
+      if (h.mode === 'movies') moviesModeCount++;
+      else if (h.mode === 'plans') plansModeCount++;
+      else foodModeCount++;
+    });
+
+    modalContainer.innerHTML = `
+      <div id="stats-modal-backdrop" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4 animate-ios-slide">
+        <div class="bg-neutral-950 border-t sm:border border-white/[0.12] w-full max-w-md rounded-t-[32px] sm:rounded-[32px] max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+          <div class="w-10 h-1 bg-white/25 rounded-full mx-auto my-3 sm:hidden"></div>
+
+          <!-- Modal Header -->
+          <div class="px-5 py-3 flex items-center justify-between border-b border-white/[0.08]">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 to-indigo-500 border border-white/20 flex items-center justify-center text-white">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="20" x2="18" y2="10"></line>
+                  <line x1="12" y1="20" x2="12" y2="4"></line>
+                  <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-bold text-sm sm:text-base text-white flex items-center gap-1.5">
+                  <span>Duo Wrapped & Estadísticas</span>
+                </h3>
+                <div class="text-[10px] text-neutral-400">Radiografía de afinidad y decisiones en pareja</div>
+              </div>
+            </div>
+            <button id="btn-close-stats" class="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-neutral-300 hover:text-white flex items-center justify-center font-bold text-xs transition">✕</button>
+          </div>
+
+          <!-- Scrollable Body -->
+          <div class="p-4 sm:p-5 overflow-y-auto no-scrollbar space-y-4 flex-1">
+            <!-- Tarjeta 1: Afinidad de Pareja (Apple Fitness Ring Style) -->
+            <div class="ios-glass p-5 rounded-[26px] border border-white/[0.1] text-center space-y-2 relative overflow-hidden">
+              <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-gradient-to-br from-rose-500/20 to-indigo-500/20 rounded-full blur-2xl pointer-events-none"></div>
+
+              <div class="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Afinidad Histórica</div>
+              
+              <div class="flex items-center justify-center gap-3 py-1">
+                <div class="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-pink-400 to-indigo-400 tracking-tight">
+                  ${affinityPct}%
+                </div>
+              </div>
+
+              <p class="text-xs font-semibold ${verdictColor} max-w-xs mx-auto">
+                ${verdict}
+              </p>
+              
+              <div class="text-[10px] text-neutral-400">
+                Basado en ${totalSessions} votaciones completadas juntos
+              </div>
+            </div>
+
+            <!-- Tarjeta 2: Marcador de la Moneda ("¿Quién paga más?") -->
+            <div class="ios-glass p-4 rounded-[24px] border border-white/[0.08] space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                  <span>🪙</span>
+                  <span>Marcador de la Moneda</span>
+                </span>
+                <span class="text-[10px] text-neutral-400">${totalFlips} tiradas</span>
+              </div>
+
+              ${totalFlips === 0 ? `
+                <div class="text-xs text-neutral-500 text-center py-2">
+                  Aún no habéis tirado la moneda en el resultado.
+                </div>
+              ` : `
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between text-xs font-bold">
+                    <span class="text-rose-400">${state.player1Name}: ${p1Pays} veces</span>
+                    <span class="text-indigo-400">${state.player2Name}: ${p2Pays} veces</span>
+                  </div>
+
+                  <!-- Barra de progreso comparativa estilo Apple -->
+                  <div class="w-full h-3 bg-white/[0.08] rounded-full overflow-hidden flex">
+                    <div class="h-full bg-gradient-to-r from-rose-500 to-pink-500 transition-all duration-500" style="width: ${p1Pct}%"></div>
+                    <div class="h-full bg-gradient-to-r from-indigo-500 to-blue-500 transition-all duration-500" style="width: ${p2Pct}%"></div>
+                  </div>
+
+                  <div class="flex items-center justify-between text-[10px] text-neutral-400">
+                    <span>${p1Pct}%</span>
+                    <span>${splitPays > 0 ? splitPays + ' a medias (50/50)' : ''}</span>
+                    <span>${p2Pct}%</span>
+                  </div>
+
+                  <div class="text-[11px] font-semibold text-center text-neutral-300 pt-1 border-t border-white/[0.06]">
+                    ${p1Pays > p2Pays 
+                      ? '💸 ' + state.player1Name + ' lleva el récord de pagar' 
+                      : p2Pays > p1Pays 
+                      ? '💸 ' + state.player2Name + ' lleva el récord de pagar' 
+                      : '🤝 ¡Empate perfecto en gastos de pareja!'}
+                  </div>
+                </div>
+              `}
+            </div>
+
+            <!-- Tarjeta 3: Podio de Favoritos de Pareja -->
+            <div class="ios-glass p-4 rounded-[24px] border border-white/[0.08] space-y-2.5">
+              <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                <span>🏆</span>
+                <span>Top Sitios & Planes Favoritos</span>
+              </div>
+
+              ${sortedWinners.length === 0 ? `
+                <div class="text-xs text-neutral-500 text-center py-2">
+                  Aún no hay suficientes partidas registradas.
+                </div>
+              ` : `
+                <div class="space-y-2">
+                  ${sortedWinners.map(function (w, idx) {
+                    const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉';
+                    const glow = idx === 0 ? 'text-amber-300' : 'text-neutral-300';
+                    return `
+                      <div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                        <div class="flex items-center gap-2 min-w-0">
+                          <span class="text-base">${medal}</span>
+                          <span class="text-xs font-bold ${glow} truncate">${w.name}</span>
+                        </div>
+                        <span class="text-[10px] font-bold text-neutral-400 shrink-0">${w.count} vez${w.count === 1 ? '' : 'es'}</span>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              `}
+            </div>
+
+            <!-- Tarjeta 4: Desglose de Planes -->
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="ios-glass p-3 rounded-2xl border border-white/[0.08]">
+                <div class="text-lg mb-0.5">🍽️</div>
+                <div class="text-sm font-black text-white">${foodModeCount}</div>
+                <div class="text-[9px] text-neutral-400 font-bold uppercase">Comidas</div>
+              </div>
+
+              <div class="ios-glass p-3 rounded-2xl border border-white/[0.08]">
+                <div class="text-lg mb-0.5">🎬</div>
+                <div class="text-sm font-black text-white">${moviesModeCount}</div>
+                <div class="text-[9px] text-neutral-400 font-bold uppercase">Películas</div>
+              </div>
+
+              <div class="ios-glass p-3 rounded-2xl border border-white/[0.08]">
+                <div class="text-lg mb-0.5">✨</div>
+                <div class="text-sm font-black text-white">${plansModeCount}</div>
+                <div class="text-[9px] text-neutral-400 font-bold uppercase">Planes</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     `;
 
-    document.getElementById('btn-close-diary').addEventListener('click', function () {
+    document.getElementById('btn-close-stats').addEventListener('click', function () {
       modalContainer.innerHTML = '';
     });
   }

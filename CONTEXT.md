@@ -518,6 +518,33 @@ Ideas aprobadas para incorporar progresivamente en futuras iteraciones de Duo:
   - Las tarjetas de recomendados se seleccionan directamente con las mecánicas del juego (voto, veto, superlike) sin cambiar de pantalla.
   - Service Worker actualizado a `donde-comemos-v34`.
 
+### [v1.9.21] - 2026-10-26
+- **Firebase Suite Completa: Diario de Citas, Wishlist, Duo Wrapped & Sincronización Simultánea en Vivo**:
+  - **1. Diario de Citas & Recuerdos ("Duo Moments")**:
+    - Guardado en la nube en Firebase Realtime Database (`shared_diary/`) y respaldo en `localStorage`.
+    - Selector interactivo de valoración por estrellas de 1 a 5★.
+    - Notas y anécdotas de la experiencia compartida.
+    - Subida y captura de fotos con compresión automática nativa en cliente (HTML5 Canvas JPEG 640px, < 35KB) sin costes ni almacenamiento externo.
+    - Acceso directo para registrar recuerdos inmediatamente desde la pantalla de resultados (`btn-log-visit`).
+  - **2. Modo Votación en Vivo Simultáneo**:
+    - Indicador de estado en tiempo real en la cabecera de la pantalla de votación: cuenta cuántas opciones va seleccionando la otra persona en directo.
+    - En la pantalla de espera remota se visualiza en tiempo real el progreso de selección del compañero.
+    - Ruleta de desempate sincronizada en ambos móviles: si uno la hace girar, ambos móviles ven el resultado y reproducen la fanfarria de sonido a la vez.
+    - Lanzamiento de moneda sincronizado en tiempo real: al pulsar "Lanzar moneda" en resultados, gira y suena en ambos dispositivos simultáneamente vía Web Audio API.
+  - **3. Estadísticas de Pareja & "Duo Wrapped"**:
+    - Porcentaje de afinidad de pareja calculado dinámicamente según las coincidencias en primera ronda y sesiones totales, con veredictos lúdicos ("Telepatía Total", "Súper Compenetrados", "Polos Opuestos").
+    - Marcador de la moneda ("¿Quién paga más?") con barra visual comparativa estilo Apple Activity y cálculo de porcentaje de cada miembro de la pareja.
+    - Podio de favoritos con medallas 🥇, 🥈 y 🥉 de los sitios o planes más repetidos.
+    - Desglose estadístico por categorías: Comidas, Películas y Planes.
+  - **5. Wishlist Compartida (Bucket List / Pendientes)**:
+    - Baúl común sincronizado en la nube (`shared_wishlist`) para apuntar sitios o películas recomendadas.
+    - Botón de acción rápida: *"Votar entre los sitios de la Wishlist"*, permitiendo iniciar una ronda de votación directa usando únicamente los planes guardados.
+  - **UI / UX Home Screen**:
+    - Botones de acceso rápido triple en la pantalla principal: Wishlist, Diario y Wrapped.
+    - Menú Action Sheet enriquecido con todas las herramientas de pareja.
+  - **Service Worker v40**:
+    - Actualización de caché para propagación instantánea a dispositivos móviles.
+
 ### [v1.5.0] - 2026-10-14
 - **Modo Caos (Regla Sagrada)**:
   - Nueva opción directa en el menú rápido (*Action Sheet* de Home): sorteo express inmediato con advertencia lúdica para resolver bloqueos (*"Quien proteste o ponga mala cara por el sitio elegido tiene que pagar la bebida del otro"*).
