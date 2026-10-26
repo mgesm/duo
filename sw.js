@@ -1,4 +1,4 @@
-const CACHE_NAME = 'donde-comemos-v38';
+const CACHE_NAME = 'donde-comemos-v39';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

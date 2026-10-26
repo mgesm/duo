@@ -135,6 +135,14 @@ Ideas aprobadas para incorporar progresivamente en futuras iteraciones de Duo:
 - **Service Worker v8**:
   - Incremento de versión de caché para actualización inmediata.
 
+### [v1.9.20] - 2026-10-26
+- **Integración con Firebase Realtime Database (Sincronización en vivo sin reenviar enlaces)**:
+  - **Duo Live Sync**: Conectado el proyecto de Firebase `duop-4e925` con Realtime Database europea (`europe-west1`).
+  - **Salas en tiempo real (`#duo_room=...`)**: Cuando Jugador 1 comparte el enlace a Jugador 2, se crea una sala en la nube (`rooms/<roomId>`) con un identificador único de 6 caracteres.
+  - **Actualización automática e instantánea**: Jugador 1 queda escuchando en vivo los cambios de la sala en su pantalla de espera. En el momento en que Jugador 2 pulsa para ver el resultado o la ruleta de desempate, el resultado se sube a la sala y **el móvil 1 salta instantáneamente a la pantalla de resultados con confeti, sonido y datos ganadores** sin que Jugador 2 tenga que enviarle ningún enlace de vuelta.
+  - **Fallback resiliente**: Si por cualquier razón la red fallara, el enlace mantiene codificado el estado para funcionar de forma híbrida y sin interrupciones.
+  - **Incremento de versión en Service Worker a `donde-comemos-v39`**.
+
 ### [v1.9.19] - 2026-10-26
 - **Resolución integral de votación multidispositivo (dos móviles)**:
   - **Soporte unificado de items ganadores (`getAnyItemById`)**: Resuelto el error donde restaurantes recomendados por reseñas (`rec-...`), películas o planes provocaban un `TypeError` no capturado al acceder a `.id` en `renderMatchingScreen` o `renderResultScreen`. La búsqueda del ganador ahora abarca simultáneamente restaurantes base, recomendados, películas y planes con fallback seguro.
@@ -170,6 +178,14 @@ Ideas aprobadas para incorporar progresivamente en futuras iteraciones de Duo:
 - **Actualización Emblema Burger King**:
   - Reemplazado el logo por la versión oficial con silueta squircle beige/crema y panecillos (`burger_king.png`), aportada directamente por el usuario.
   - Incrementada la clave de almacenamiento local a `v7` y caché de Service Worker a `v6`.
+
+### [v1.9.20] - 2026-10-26
+- **Integración con Firebase Realtime Database (Sincronización en vivo sin reenviar enlaces)**:
+  - **Duo Live Sync**: Conectado el proyecto de Firebase `duop-4e925` con Realtime Database europea (`europe-west1`).
+  - **Salas en tiempo real (`#duo_room=...`)**: Cuando Jugador 1 comparte el enlace a Jugador 2, se crea una sala en la nube (`rooms/<roomId>`) con un identificador único de 6 caracteres.
+  - **Actualización automática e instantánea**: Jugador 1 queda escuchando en vivo los cambios de la sala en su pantalla de espera. En el momento en que Jugador 2 pulsa para ver el resultado o la ruleta de desempate, el resultado se sube a la sala y **el móvil 1 salta instantáneamente a la pantalla de resultados con confeti, sonido y datos ganadores** sin que Jugador 2 tenga que enviarle ningún enlace de vuelta.
+  - **Fallback resiliente**: Si por cualquier razón la red fallara, el enlace mantiene codificado el estado para funcionar de forma híbrida y sin interrupciones.
+  - **Incremento de versión en Service Worker a `donde-comemos-v39`**.
 
 ### [v1.9.19] - 2026-10-26
 - **Resolución integral de votación multidispositivo (dos móviles)**:

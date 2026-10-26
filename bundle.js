@@ -2504,7 +2504,9 @@
     recommendedMinRating: 4.5, // 4.5 por defecto, ajustable a 4.3, 4.0 o 0 (todas)
     recommendedPrice: 'all', // 'all' | '€' | '€€' | '€€€' | '€€€€'
     recommendedCityQuery: '',
-    recommendedLimit: 5
+    recommendedLimit: 5,
+    roomId: null,
+    fbRoomUnsub: null
   };
 
   const KNOWN_CITY_COORDS = {
@@ -3171,6 +3173,145 @@
     return JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(str)))));
   }
 
+  // ==========================================
+  // FIREBASE REALTIME SYNC (DUO LIVE ENGINE)
+  // ==========================================
+  const firebaseConfig = {
+    apiKey: "AIzaSyBWmxnmkDsgNtHG1DLAb9PQWd9fl6sTvc4",
+    authDomain: "duop-4e925.firebaseapp.com",
+    databaseURL: "https://duop-4e925-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "duop-4e925",
+    storageBucket: "duop-4e925.firebasestorage.app",
+    messagingSenderId: "339263859558",
+    appId: "1:339263859558:web:f54e98e7c0a495528df6a7"
+  };
+
+  let fbDb = null;
+  function initFirebase() {
+    if (fbDb) return fbDb;
+    try {
+      if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+        if (!firebase.apps || !firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        }
+        fbDb = firebase.database();
+      }
+    } catch (e) {
+      console.warn('Firebase init fallback:', e);
+    }
+    return fbDb;
+  }
+
+  function generateRoomId() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let res = '';
+    for (let i = 0; i < 6; i++) {
+      res += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return res;
+  }
+
+  async function createFirebaseRoom() {
+    const db = initFirebase();
+    const roomId = generateRoomId();
+    state.roomId = roomId;
+
+    const roomData = {
+      createdAt: Date.now(),
+      mode: state.activeMode,
+      p1Name: state.player1Name,
+      p2Name: state.player2Name,
+      p1Selections: Array.from(state.player1Selections),
+      p1Veto: state.player1Veto || null,
+      p1Superlike: state.player1Superlike || null,
+      roundAttempt: state.roundAttempt || 1,
+      avoidLastWinner: !!state.avoidLastWinner,
+      lastWinnerId: state.lastWinnerId || null,
+      status: 'waiting_p2',
+      result: null
+    };
+
+    if (db) {
+      try {
+        await db.ref('rooms/' + roomId).set(roomData);
+        listenToRoom(roomId, 'player1');
+      } catch (err) {
+        console.warn('Error creating Firebase room:', err);
+      }
+    }
+
+    const base = window.location.href.split('#')[0];
+    const fallbackEncoded = encodeRemoteState({
+      v: 1,
+      m: roomData.mode,
+      p1: roomData.p1Name,
+      p2: roomData.p2Name,
+      p1s: roomData.p1Selections,
+      p1v: roomData.p1Veto,
+      p1x: roomData.p1Superlike,
+      rnd: roomData.roundAttempt,
+      avd: roomData.avoidLastWinner,
+      lw: roomData.lastWinnerId,
+      rid: roomId
+    });
+    return base + '#duo_room=' + roomId + '&p2=' + fallbackEncoded;
+  }
+
+  function listenToRoom(roomId, role) {
+    const db = initFirebase();
+    if (!db || !roomId) return;
+
+    if (state.fbRoomUnsub) {
+      try { state.fbRoomUnsub(); } catch (e) {}
+      state.fbRoomUnsub = null;
+    }
+
+    const roomRef = db.ref('rooms/' + roomId);
+    const handler = function (snapshot) {
+      const data = snapshot.val();
+      if (!data) return;
+
+      // Si Jugador 1 está esperando y Jugador 2 ha completado la votación:
+      if (role === 'player1' && data.status === 'completed' && data.result) {
+        state.winningRestaurant = getAnyItemById(data.result.winnerId) || state.restaurants[0];
+        state.matchesCount = data.result.matchesCount || 1;
+        state.tieBreakerUser = data.result.tieBreakerUser || null;
+        state.winningBranch = findClosestBranch(state.winningRestaurant, state.userCoords);
+        state.isNameRevealed = false;
+        state.showClues = false;
+        state.clueIndex = 0;
+        state.screen = 'result';
+        sound.playFanfare();
+        sound.vibrate([100, 50, 150]);
+        render();
+        showToast('¡' + state.player2Name + ' ha votado! Resultado listo');
+      }
+    };
+
+    roomRef.on('value', handler);
+    state.fbRoomUnsub = function () {
+      roomRef.off('value', handler);
+    };
+  }
+
+  async function pushResultToFirebaseRoom(resultData) {
+    const db = initFirebase();
+    if (!db || !state.roomId) return;
+    try {
+      await db.ref('rooms/' + state.roomId).update({
+        status: 'completed',
+        completedAt: Date.now(),
+        result: {
+          winnerId: resultData.winnerId,
+          matchesCount: resultData.matchesCount,
+          tieBreakerUser: resultData.tieBreakerUser || null
+        }
+      });
+    } catch (err) {
+      console.warn('Error pushing result to Firebase:', err);
+    }
+  }
+
   function getRemoteP2ShareUrl() {
     const payload = {
       v: 1,
@@ -3237,7 +3378,59 @@
   function checkRemoteHash() {
     try {
       const hash = window.location.hash || '';
-      if (hash.startsWith('#duo_p2=')) {
+      if (hash.startsWith('#duo_room=')) {
+        // Formato sala en vivo con fallback: #duo_room=XYZ123&p2=...
+        const raw = hash.replace('#duo_room=', '');
+        const parts = raw.split('&p2=');
+        const roomId = parts[0];
+        const p2Payload = parts[1] ? decodeRemoteState(parts[1]) : null;
+
+        state.roomId = roomId;
+        state.isRemoteSession = true;
+        state.remoteRole = 'player2';
+
+        if (p2Payload && p2Payload.p1s) {
+          state.activeMode = p2Payload.m || 'food';
+          loadModeCatalogue();
+          state.player1Name = p2Payload.p1 || 'Jugador 1';
+          state.player2Name = p2Payload.p2 || 'Jugador 2';
+          state.player1Selections = new Set(p2Payload.p1s);
+          state.player1Veto = p2Payload.p1v || null;
+          state.player1Superlike = p2Payload.p1x || null;
+          state.roundAttempt = p2Payload.rnd || 1;
+          state.avoidLastWinner = !!p2Payload.avd;
+          state.lastWinnerId = p2Payload.lw || null;
+        }
+
+        const db = initFirebase();
+        if (db) {
+          db.ref('rooms/' + roomId).once('value').then(function (snapshot) {
+            const data = snapshot.val();
+            if (data && data.p1Selections) {
+              state.activeMode = data.mode || state.activeMode;
+              loadModeCatalogue();
+              state.player1Name = data.p1Name || state.player1Name;
+              state.player2Name = data.p2Name || state.player2Name;
+              state.player1Selections = new Set(data.p1Selections);
+              state.player1Veto = data.p1Veto || null;
+              state.player1Superlike = data.p1Superlike || null;
+              state.roundAttempt = data.roundAttempt || 1;
+              state.avoidLastWinner = !!data.avoidLastWinner;
+              state.lastWinnerId = data.lastWinnerId || null;
+              render();
+            }
+          });
+        }
+
+        state.screen = 'player2';
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+        setTimeout(function () {
+          showToast('Turno de ' + state.player2Name + ' listo para votar');
+        }, 350);
+
+      } else if (hash.startsWith('#duo_p2=')) {
         const encoded = hash.replace('#duo_p2=', '');
         const data = decodeRemoteState(encoded);
         if (data && data.p1s) {
@@ -4974,10 +5167,12 @@
 
     const btnShareP2 = document.getElementById('btn-share-p2-link');
     if (btnShareP2) {
-      btnShareP2.addEventListener('click', function () {
-        const url = getRemoteP2ShareUrl();
+      btnShareP2.addEventListener('click', async function () {
         state.isRemoteSession = true;
         state.remoteRole = 'player1';
+        btnShareP2.classList.add('opacity-75');
+        const url = await createFirebaseRoom();
+        btnShareP2.classList.remove('opacity-75');
         if (navigator.share) {
           navigator.share({
             title: 'Duo - Te toca votar a ti',
@@ -5026,15 +5221,15 @@
           </div>
 
           <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 text-xs font-semibold mb-3">
-            <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
-            <span>Votación en dos móviles</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Sincronización en vivo activada</span>
           </div>
 
           <h2 class="text-3xl font-extrabold text-white mb-2 tracking-tight">
             Esperando a ${state.player2Name}...
           </h2>
           <p class="text-xs sm:text-sm text-neutral-400 max-w-xs mx-auto leading-relaxed">
-            Le has enviado el enlace para votar en su móvil. En cuanto termine, te enviará el enlace de vuelta con el resultado.
+            En cuanto ${state.player2Name} vote en su móvil, tu pantalla se actualizará automáticamente con el resultado.
           </p>
         </div>
 
@@ -5042,27 +5237,19 @@
           <div class="ios-glass p-5 rounded-[24px] max-w-xs mx-auto text-left border border-white/10 space-y-3">
             <div class="flex items-center gap-2.5">
               <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
               </div>
               <div>
-                <div class="text-xs font-bold text-white">¿${state.player2Name} ya ha votado?</div>
-                <div class="text-[10px] text-neutral-400">Si te envió el enlace, pulsa aquí:</div>
+                <div class="text-xs font-bold text-white">Conexión en tiempo real</div>
+                <div class="text-[10px] text-neutral-400">${state.roomId ? 'Sala en vivo: #' + state.roomId : 'Esperando enlace...'}</div>
               </div>
             </div>
 
             <button 
-              id="btn-paste-result" 
-              class="w-full py-3 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition flex items-center justify-center gap-2 border-t border-white/20"
-            >
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-              <span>Pegar o abrir enlace de resultado</span>
-            </button>
-
-            <button 
               id="btn-resend-p2" 
-              class="w-full py-2 px-3 rounded-xl text-[11px] font-semibold text-neutral-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] active:scale-[0.98] transition flex items-center justify-center gap-1.5"
+              class="w-full py-3 px-3 rounded-xl text-xs font-bold text-indigo-200 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 active:scale-[0.98] transition flex items-center justify-center gap-2"
             >
-              <svg class="w-3.5 h-3.5 text-indigo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+              <svg class="w-4 h-4 text-indigo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
               <span>Reenviar enlace a ${state.player2Name}</span>
             </button>
           </div>
@@ -5087,8 +5274,8 @@
       </div>
     `;
 
-    document.getElementById('btn-resend-p2').addEventListener('click', function () {
-      const url = getRemoteP2ShareUrl();
+    document.getElementById('btn-resend-p2').addEventListener('click', async function () {
+      const url = state.roomId ? (window.location.href.split('#')[0] + '#duo_room=' + state.roomId) : getRemoteP2ShareUrl();
       if (navigator.share) {
         navigator.share({
           title: 'Duo - Te toca votar a ti',
@@ -5099,28 +5286,6 @@
         });
       } else {
         copyToClipboard(url);
-      }
-    });
-
-    document.getElementById('btn-paste-result').addEventListener('click', async function () {
-      sound.playPop();
-      let inputUrl = '';
-      if (navigator.clipboard && navigator.clipboard.readText) {
-        try {
-          inputUrl = await navigator.clipboard.readText();
-        } catch (e) {
-          inputUrl = '';
-        }
-      }
-      if (!inputUrl || !inputUrl.includes('#duo_result=')) {
-        inputUrl = prompt('Pega el enlace que te ha enviado ' + state.player2Name + ':') || '';
-      }
-      if (inputUrl && inputUrl.includes('#duo_result=')) {
-        const hashPart = inputUrl.substring(inputUrl.indexOf('#duo_result='));
-        window.location.hash = hashPart;
-        checkRemoteHash();
-      } else if (inputUrl) {
-        showToast('El enlace no parece un resultado válido de Duo');
       }
     });
 
@@ -5135,7 +5300,6 @@
       state.screen = 'player1';
       render();
     });
-  }
   }
 
   // ==========================================
@@ -5236,6 +5400,15 @@
         state.tieBreakerUser = null;
         state.activeChallenge = null;
         state.screen = 'result';
+
+        // Si es una sala en vivo de Firebase y somos Jugador 2, emitir el resultado automáticamente a Jugador 1
+        if (state.roomId) {
+          pushResultToFirebaseRoom({
+            winnerId: state.winningRestaurant.id,
+            matchesCount: state.matchesCount,
+            tieBreakerUser: state.tieBreakerUser
+          });
+        }
       } else {
         state.screen = 'no_match';
       }
@@ -6210,6 +6383,15 @@
         state.clueIndex = 0;
         state.tieBreakerUser = state.player2Name;
         state.screen = 'result';
+
+        if (state.roomId) {
+          pushResultToFirebaseRoom({
+            winnerId: state.winningRestaurant.id,
+            matchesCount: 1,
+            tieBreakerUser: state.player2Name
+          });
+        }
+
         render();
       });
 
