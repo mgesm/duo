@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Duo">
   <link rel="manifest" href="./manifest.json">
 
@@ -49,10 +49,6 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body class="bg-black text-slate-100 antialiased selection:bg-rose-500 selection:text-white min-h-screen relative overflow-x-hidden">
-
-  <!-- Ambient visionOS light orbs in background -->
-  <div class="fixed top-[-80px] left-[-80px] w-96 h-96 rounded-full bg-rose-500/12 blur-[120px] pointer-events-none -z-10 animate-orb"></div>
-  <div class="fixed bottom-[-80px] right-[-80px] w-96 h-96 rounded-full bg-indigo-500/12 blur-[140px] pointer-events-none -z-10 animate-orb" style="animation-delay: -6s;"></div>
 
   <!-- Shell principal optimizado para iPhone & Android nativo -->
   <div id="app" class="max-w-md mx-auto min-h-screen relative flex flex-col bg-black border-x border-white/[0.08] shadow-[0_0_50px_rgba(0,0,0,0.9)]">

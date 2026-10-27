@@ -518,6 +518,16 @@ Ideas aprobadas para incorporar progresivamente en futuras iteraciones de Duo:
   - Las tarjetas de recomendados se seleccionan directamente con las mecánicas del juego (voto, veto, superlike) sin cambiar de pantalla.
   - Service Worker actualizado a `donde-comemos-v34`.
 
+### [v1.9.26] - 2026-10-27
+- **Eliminación Definitiva del Difuminado en Barra de Estado de iOS (iOS Status Bar Blur)**:
+  - Se identificó la causa exacta visible en la captura de pantalla del usuario:
+    - `<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">` forzaba a iOS/WebKit a superponer un filtro de desenfoque nativo translúcido (frosted glass) sobre la parte superior de la pantalla detrás de la hora ("11:19") y la batería ("73%").
+    - Se cambió a `content="black"`, eliminando el efecto borroso superpuesto del sistema operativo.
+    - Se eliminaron por completo del DOM los dos orbes de fondo `blur-[120px]` y `blur-[140px]`.
+    - Se aisló el padding superior de la cabecera sticky de votación (`pt-[max(12px,var(--sat))]`) directamente dentro del bloque sólido `bg-neutral-950` en lugar del contenedor general, evitando que el contenido deslizable se cuele bajo el área superior.
+- **Service Worker v46**:
+  - Bump a `donde-comemos-v46` para forzar la actualización instantánea en el móvil del usuario.
+
 ### [v1.9.25] - 2026-10-27
 - **Eliminación Total del Difuminado en Cabeceras y Fondo de App**:
   - En `index.html`: el contenedor `#app` principal ahora tiene fondo sólido `bg-black` en lugar de `bg-black/85`, evitando que los orbes de luz de fondo del body se filtren como un halo borroso en la parte superior.

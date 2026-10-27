@@ -4190,8 +4190,8 @@
     const statsHistory = getDuoStatsHistory();
 
     app.innerHTML = `
-      <div class="mobile-shell px-6 justify-between animate-view-enter">
-        <div class="pt-8 text-center flex flex-col items-center">
+      <div class="mobile-shell px-6 pt-[max(20px,var(--sat))] justify-between animate-view-enter">
+        <div class="pt-4 text-center flex flex-col items-center">
           <div class="w-16 h-16 rounded-[22px] p-0.5 shadow-2xl shadow-indigo-500/20 mb-2 flex items-center justify-center">
             <img src="./duo_icon.svg" alt="Duo" class="w-full h-full object-contain filter drop-shadow-xl" />
           </div>
@@ -4851,7 +4851,7 @@
 
     app.innerHTML = `
       <div class="mobile-shell flex flex-col justify-between">
-        <div class="px-5 pt-3 pb-2.5 sticky top-0 z-20 bg-neutral-950 border-b border-white/[0.08]">
+        <div class="px-5 pt-[max(12px,var(--sat))] pb-2.5 sticky top-0 z-20 bg-neutral-950 border-b border-white/[0.08]">
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-2">
               <button 
@@ -6003,7 +6003,7 @@
 
   function renderHandoverScreen() {
     app.innerHTML = `
-      <div class="mobile-shell px-6 justify-between text-center animate-ios-slide">
+      <div class="mobile-shell px-6 pt-[max(16px,var(--sat))] justify-between text-center animate-ios-slide">
         <div class="pt-10">
           <div class="w-20 h-20 rounded-[24px] bg-indigo-500/15 border border-indigo-500/30 text-[#5E5CE6] flex items-center justify-center shadow-lg shadow-indigo-500/15 mb-6 mx-auto">
             <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -6133,7 +6133,7 @@
     const partnerCount = isP1 ? state.remoteP2Count : state.remoteP1Count;
 
     app.innerHTML = `
-      <div class="mobile-shell px-6 justify-between text-center animate-ios-slide">
+      <div class="mobile-shell px-6 pt-[max(16px,var(--sat))] justify-between text-center animate-ios-slide">
         <div class="pt-10">
           <div class="relative w-20 h-20 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-[#5E5CE6] flex items-center justify-center mx-auto mb-6 shadow-xl shadow-indigo-500/20">
             <span class="absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-25 animate-ping"></span>
@@ -6222,7 +6222,7 @@
   // ==========================================
   function renderMatchingScreen() {
     app.innerHTML = `
-      <div class="mobile-shell px-6 justify-center items-center text-center">
+      <div class="mobile-shell px-6 pt-[max(16px,var(--sat))] justify-center items-center text-center">
         <div class="w-28 h-28 rounded-full bg-gradient-to-tr from-[#FF2D55] via-[#5E5CE6] to-[#0A84FF] flex items-center justify-center mb-6 shadow-2xl p-1 animate-shimmer" id="roulette-container">
           <div class="w-full h-full bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center border border-white/25">
             <img id="roulette-logo" src="./mcdonalds.png" class="w-14 h-14 object-contain filter drop-shadow" />
@@ -6432,7 +6432,7 @@
     const isRemoteP2 = state.remoteRole === 'player2';
 
     app.innerHTML = `
-      <div class="mobile-shell px-6 justify-between text-center animate-view-enter">
+      <div class="mobile-shell px-6 pt-[max(16px,var(--sat))] justify-between text-center animate-view-enter">
         <!-- Banner para enviar resultado a Player 1 si es sesión a distancia -->
         ${isRemoteP2 ? `
           <div class="mt-3 p-3.5 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-left flex items-center justify-between gap-3 animate-ios-pop">
@@ -7188,7 +7188,7 @@
 
     if (isFirstAttempt) {
       app.innerHTML = `
-        <div class="mobile-shell px-6 justify-between text-center animate-ios-pop">
+        <div class="mobile-shell px-6 pt-[max(16px,var(--sat))] justify-between text-center animate-ios-pop">
           <div class="pt-8">
             <div class="w-18 h-18 rounded-[24px] bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center text-4xl mb-4 mx-auto shadow-lg shadow-amber-500/10 p-4">
               <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -7281,7 +7281,7 @@
       }
 
       app.innerHTML = `
-        <div class="mobile-shell px-5 justify-between text-center animate-ios-pop pb-6">
+        <div class="mobile-shell px-5 pt-[max(16px,var(--sat))] justify-between text-center animate-ios-pop pb-6">
           <div class="pt-6">
             <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.08] text-xs font-semibold text-indigo-300 border border-indigo-500/30 mb-2">
               <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
@@ -7400,7 +7400,7 @@
     const priceLabel = state.recommendedPrice === 'all' ? 'Todos' : state.recommendedPrice;
 
     app.innerHTML = `
-      <div class="mobile-shell px-4 justify-between animate-view-enter pb-8">
+      <div class="mobile-shell px-4 pt-[max(16px,var(--sat))] justify-between animate-view-enter pb-8">
         <div>
           <!-- Cabecera estilo Apple HIG con botón volver -->
           <div class="pt-6 pb-3 flex items-center justify-between border-b border-white/[0.08] mb-3">

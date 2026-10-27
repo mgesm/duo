@@ -58,7 +58,6 @@ html, body {
 .mobile-shell {
   min-height: 100vh;
   min-height: 100dvh;
-  padding-top: max(12px, var(--sat));
   padding-bottom: max(20px, var(--sab));
   display: flex;
   flex-direction: column;
