@@ -86,13 +86,36 @@
   <!-- App logic (compatible con doble clic file:// y web/PWA) -->
   <script src="./bundle.js"></script>
   
-  <!-- Registrar Service Worker si el navegador lo soporta -->
+  <!-- Registrar Service Worker y forzar actualización activa en PWAs instaladas -->
   <script>
     if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(err => {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+          // Si hay un service worker esperando o actualizado, activarlo y recargar
+          reg.onupdatefound = () => {
+            const installingWorker = reg.installing;
+            if (installingWorker) {
+              installingWorker.onstatechange = () => {
+                if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  window.location.reload();
+                }
+              };
+            }
+          };
+          // Chequear actualizaciones en cada apertura
+          try { reg.update(); } catch(e) {}
+        }).catch(err => {
           console.log('SW registration note:', err);
         });
+      });
+
+      // Recargar si el service worker toma el control
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
       });
     }
   </script>

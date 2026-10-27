@@ -518,6 +518,13 @@ Ideas aprobadas para incorporar progresivamente en futuras iteraciones de Duo:
   - Las tarjetas de recomendados se seleccionan directamente con las mecánicas del juego (voto, veto, superlike) sin cambiar de pantalla.
   - Service Worker actualizado a `donde-comemos-v34`.
 
+### [v1.9.28] - 2026-10-27
+- **Solución Definitiva de Caché en PWA (Estrategia Network-First & Auto-Reload)**:
+  - Causa raíz identificada: al abrir la aplicación desde la web (Safari/Chrome móvil), el navegador descargaba los últimos cambios en vivo (sin difuminado); sin embargo, la PWA instalada en la pantalla de inicio de iOS utiliza un Service Worker que estaba configurado como **Cache-First**, sirviendo permanentemente la versión antigua guardada en el almacenamiento local del iPhone sin pasar por la red.
+  - Se ha reescrito la estrategia del Service Worker a **Network-First** para los ficheros esenciales (`index.html`, `bundle.js`, `style.css`): la PWA consulta primero la red para obtener siempre los estilos y lógica más recientes y solo recurre a caché si el dispositivo está sin conexión (offline).
+  - En `index.html`: implementado auto-check de actualización con `reg.update()`, listener de `onupdatefound` y recarga automática inmediata (`window.location.reload()`) en cuanto el nuevo Service Worker toma el control (`controllerchange`).
+  - Bump a `donde-comemos-v48`.
+
 ### [v1.9.27] - 2026-10-27
 - **Cierre Automático de Salas por Inactividad (2 minutos)**:
   - Implementado timestamp de actividad `lastActivityAt` en Firebase tanto para `active_session` como para `rooms/<roomId>`.
