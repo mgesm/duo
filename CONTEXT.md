@@ -518,6 +518,19 @@ Ideas aprobadas para incorporar progresivamente en futuras iteraciones de Duo:
   - Las tarjetas de recomendados se seleccionan directamente con las mecánicas del juego (voto, veto, superlike) sin cambiar de pantalla.
   - Service Worker actualizado a `donde-comemos-v34`.
 
+### [v1.9.25] - 2026-10-27
+- **Eliminación Total del Difuminado en Cabeceras y Fondo de App**:
+  - En `index.html`: el contenedor `#app` principal ahora tiene fondo sólido `bg-black` en lugar de `bg-black/85`, evitando que los orbes de luz de fondo del body se filtren como un halo borroso en la parte superior.
+  - En `bundle.js`: todas las barras superiores y subbarras sticky (`renderPlayerScreen`) ahora usan fondo totalmente sólido opaco `bg-neutral-950` sin ningún filtro de desenfoque (`backdrop-blur` eliminado), garantizando 100% de nitidez cristalina en textos, contadores e iconos al hacer scroll.
+- **Rediseño de Notas Dinámicas estilo Liquid Glass**:
+  - Píldora de mensaje flotante (`.ios-dynamic-island` / Dynamic Island banner) adaptada a estética **Liquid Glass**:
+    - Fondo translúcido ahumado `rgba(18, 20, 29, 0.78)` con `backdrop-filter: blur(28px) saturate(200%)`.
+    - Borde especular `border: 1px solid rgba(255, 255, 255, 0.18)` y reflejo interior `inset 0 1px 1px 0 rgba(255, 255, 255, 0.25)`.
+    - Sombra de profundidad `0 16px 40px -8px rgba(0, 0, 0, 0.85)`.
+    - Icono con gradiente brillante y botón de cerrar integrado con microborde.
+- **Service Worker v45**:
+  - Bump a `donde-comemos-v45` para asegurar refresco inmediato en dispositivos móviles y PWAs instaladas.
+
 ### [v1.9.24] - 2026-10-27
 - **Ajustes de Visibilidad en Móvil (Dynamic Island & Cabeceras)**:
   - Corregido el solapamiento y difuminado en cabeceras superiores: se ajusta el contenedor de la Dynamic Island a `top-14` y `z-[100]` con fondo opaco `bg-neutral-950/98` y sombra sólida `shadow-[0_12px_40px_rgba(0,0,0,0.95)]`.

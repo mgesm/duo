@@ -3733,12 +3733,12 @@
     if (!container) {
       container = document.createElement('div');
       container.id = 'dynamic-island-banner';
-      container.className = 'fixed top-14 left-1/2 -translate-x-1/2 z-[100] w-[94%] max-w-sm transition-all duration-300 ease-out transform -translate-y-16 opacity-0 pointer-events-auto';
+      container.className = 'fixed top-12 left-1/2 -translate-x-1/2 z-[100] w-[92%] max-w-sm transition-all duration-300 ease-out transform -translate-y-16 opacity-0 pointer-events-auto';
       document.body.appendChild(container);
     }
     container.innerHTML = `
-      <div class="p-3.5 rounded-2xl bg-neutral-950/98 border border-white/25 shadow-[0_12px_40px_rgba(0,0,0,0.95)] flex items-center gap-3">
-        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white shrink-0 shadow">
+      <div class="ios-dynamic-island p-3.5 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500/90 to-rose-500/90 flex items-center justify-center text-white shrink-0 shadow-lg shadow-amber-500/20 border border-white/20">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
           </svg>
@@ -3748,9 +3748,9 @@
             <span>Nota de ${senderName || 'Pareja'}</span>
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
           </div>
-          <div class="text-xs font-semibold text-white truncate">${text}</div>
+          <div class="text-xs font-semibold text-white truncate drop-shadow-sm">${text}</div>
         </div>
-        <button id="btn-close-dynamic-island" class="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-neutral-400 hover:text-white flex items-center justify-center text-[10px] font-bold">✕</button>
+        <button id="btn-close-dynamic-island" class="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-neutral-300 hover:text-white flex items-center justify-center text-[10px] font-bold border border-white/10">✕</button>
       </div>
     `;
 
@@ -4851,7 +4851,7 @@
 
     app.innerHTML = `
       <div class="mobile-shell flex flex-col justify-between">
-        <div class="px-5 pt-3 pb-2.5 sticky top-0 z-20 bg-neutral-950/95 backdrop-blur-sm border-b border-white/[0.08]">
+        <div class="px-5 pt-3 pb-2.5 sticky top-0 z-20 bg-neutral-950 border-b border-white/[0.08]">
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-2">
               <button 
@@ -4939,7 +4939,7 @@
 
         ${isFood ? `
           <!-- Barra de pestañas de comida estilo visionOS (Mis Restaurantes / Recomendados) -->
-          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-neutral-950/95 backdrop-blur-sm sticky top-[108px] z-10">
+          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-neutral-950 sticky top-[108px] z-10">
             ${FOOD_TABS.map(function(c) {
               const isAct = (state.foodCategoryFilter || 'all') === c.id;
               return `
@@ -4959,7 +4959,7 @@
 
           ${(state.foodCategoryFilter !== 'recommended') ? `
             <!-- Barra de Radar de Distancia & Horarios en Mis Restaurantes -->
-            <div class="px-3 py-2 flex items-center justify-between border-b border-white/[0.08] bg-black/40 backdrop-blur-md text-[11px] gap-2 overflow-x-auto no-scrollbar">
+            <div class="px-3 py-2 flex items-center justify-between border-b border-white/[0.08] bg-neutral-950 text-[11px] gap-2 overflow-x-auto no-scrollbar">
               <div class="flex items-center gap-1 shrink-0">
                 <span class="text-[10px] uppercase font-bold text-neutral-500 tracking-wider flex items-center gap-0.5">
                   <svg class="w-3 h-3 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
@@ -4985,7 +4985,7 @@
 
           ${(state.foodCategoryFilter === 'recommended') ? `
             <!-- Panel de Filtros de Recomendados Google -->
-            <div class="px-4 pt-3 pb-2.5 border-b border-white/[0.08] bg-black/40 backdrop-blur-md space-y-2.5">
+            <div class="px-4 pt-3 pb-2.5 border-b border-white/[0.08] bg-neutral-950 space-y-2.5">
               <!-- Búsqueda de ciudad o zona y botón GPS -->
               <div class="flex items-center gap-2">
                 <div class="relative flex-1">
@@ -5083,7 +5083,7 @@
 
         ${isMovies ? `
           <!-- Barra de categorías de películas y series estilo visionOS -->
-          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-neutral-950/95 backdrop-blur-sm sticky top-[108px] z-10">
+          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-neutral-950 sticky top-[108px] z-10">
             ${MOVIE_CATEGORIES.map(function(c) {
               const isAct = (state.movieCategoryFilter || 'all') === c.id;
               return `
@@ -5102,7 +5102,7 @@
           </div>
 
           <!-- Barra secundaria de filtros de Películas: Plataforma & Duración -->
-          <div class="px-3 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-black/40 backdrop-blur-md text-[11px]">
+          <div class="px-3 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-neutral-950 text-[11px]">
             <!-- Selector Plataforma -->
             <div class="flex items-center gap-1 shrink-0">
               <span class="text-[10px] uppercase font-bold text-neutral-500 tracking-wider">Ver en:</span>
@@ -5128,7 +5128,7 @@
 
         ${isPlans ? `
           <!-- Barra de categorías de planes y citas estilo visionOS -->
-          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-neutral-950/95 backdrop-blur-sm sticky top-[108px] z-10">
+          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-neutral-950 sticky top-[108px] z-10">
             ${PLANS_CATEGORIES.map(function(c) {
               const isAct = (state.plansCategoryFilter || 'all') === c.id;
               return `
@@ -5147,7 +5147,7 @@
           </div>
 
           <!-- Barra secundaria de filtros de Planes: Duración / Ritmo -->
-          <div class="px-3 py-2 flex items-center justify-between border-b border-white/[0.08] bg-black/40 backdrop-blur-md text-[11px]">
+          <div class="px-3 py-2 flex items-center justify-between border-b border-white/[0.08] bg-neutral-950 text-[11px]">
             <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
               <span class="text-[10px] uppercase font-bold text-neutral-500 tracking-wider">Duración:</span>
               <button data-plan-dur="all" class="px-2.5 py-0.5 rounded-lg font-semibold transition ${state.plansDurationFilter === 'all' ? 'bg-white/20 text-white shadow-sm' : 'bg-white/[0.04] text-neutral-400 hover:text-white'}">Cualquiera</button>
