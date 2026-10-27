@@ -518,6 +518,19 @@ Ideas aprobadas para incorporar progresivamente en futuras iteraciones de Duo:
   - Las tarjetas de recomendados se seleccionan directamente con las mecánicas del juego (voto, veto, superlike) sin cambiar de pantalla.
   - Service Worker actualizado a `donde-comemos-v34`.
 
+### [v1.9.24] - 2026-10-27
+- **Ajustes de Visibilidad en Móvil (Dynamic Island & Cabeceras)**:
+  - Corregido el solapamiento y difuminado en cabeceras superiores: se ajusta el contenedor de la Dynamic Island a `top-14` y `z-[100]` con fondo opaco `bg-neutral-950/98` y sombra sólida `shadow-[0_12px_40px_rgba(0,0,0,0.95)]`.
+  - Rebajado el exceso de `backdrop-blur-2xl` en las cabeceras sticky por `bg-neutral-950/95 backdrop-blur-sm`, eliminando el efecto borroso sobre el texto y garantizando 100% de nitidez y contraste en pantallas móviles y notches.
+  - Al enviar una nota rápida desde el modal, el remitente recibe feedback visual local inmediato además de sincronizar con el otro dispositivo.
+- **Corrección de Resultados en Votación Simultánea (Jugador 2)**:
+  - En `renderMatchingScreen()`, antes de ejecutar el cruce de votos, se realiza una lectura fresca de la sala de Firebase (`rooms/<roomId>`).
+  - Si el otro jugador ya resolvió el ganador (`status === 'completed'`), el cliente adopta directamente el resultado sin recálculo ni divergencias.
+  - Se sincronizan íntegramente las selecciones, vetos y superlikes tanto de Jugador 1 como de Jugador 2 en ambos sentidos.
+- **Service Worker v44**:
+  - Bump a `donde-comemos-v44` para invalidar cachés antiguas e instalar la versión corregida al instante en navegadores y PWAs móviles.
+- **Cero Emojis**: Conservada estrictamente la directriz de iconos monocromáticos SVG Apple HIG.
+
 ### [v1.9.23] - 2026-10-27
 - **Votación Simultánea Automática Multidispositivo (Cero Enlaces Manuales)**:
   - Cuando uno de los dos pulsa **"Comenzar votación"** en su móvil, se abre automáticamente la sesión en directo en la nube (`active_session`).

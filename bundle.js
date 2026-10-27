@@ -3566,11 +3566,31 @@
       const data = snapshot.val();
       if (!data) return;
 
-      // Actualizar contadores de selecciones en vivo
-      state.remoteP1Count = (data.p1Selections || []).length;
-      state.remoteP2Count = (data.p2Selections || []).length;
+      // Actualizar selecciones en vivo y estados de confirmación
+      if (Array.isArray(data.p1Selections)) {
+        state.remoteP1Count = data.p1Selections.length;
+        if (role === 'player2') {
+          state.player1Selections = new Set(data.p1Selections);
+          state.player1Veto = data.p1Veto || null;
+          state.player1Superlike = data.p1Superlike || null;
+        }
+      }
+      if (Array.isArray(data.p2Selections)) {
+        state.remoteP2Count = data.p2Selections.length;
+        if (role === 'player1') {
+          state.player2Selections = new Set(data.p2Selections);
+          state.player2Veto = data.p2Veto || null;
+          state.player2Superlike = data.p2Superlike || null;
+        }
+      }
       state.remoteP1Done = !!data.p1Done;
       state.remoteP2Done = !!data.p2Done;
+
+      // Si ambos jugadores han confirmado y estamos esperando o en votación:
+      if (data.p1Done && data.p2Done && state.screen !== 'matching' && state.screen !== 'result' && state.screen !== 'no_match') {
+        state.screen = 'matching';
+        render();
+      }
 
       // Evento de ruleta sincronizada en ambos móviles
       if (data.syncWheelWinner && state.screen === 'no_match') {
@@ -3667,11 +3687,16 @@
     if (isP1) {
       updateObj.p1Selections = Array.from(state.player1Selections);
       updateObj.p1Count = state.player1Selections.size;
+      updateObj.p1Veto = state.player1Veto || null;
+      updateObj.p1Superlike = state.player1Superlike || null;
     } else {
       updateObj.p2Selections = Array.from(state.player2Selections);
       updateObj.p2Count = state.player2Selections.size;
+      updateObj.p2Veto = state.player2Veto || null;
+      updateObj.p2Superlike = state.player2Superlike || null;
     }
     db.ref('rooms/' + state.roomId).update(updateObj).catch(function () {});
+    db.ref('active_session').update(updateObj).catch(function () {});
   }
 
   function broadcastCoinFlip(outcome) {
@@ -3687,13 +3712,17 @@
     const db = initFirebase();
     if (!db || !state.roomId || !text) return;
     const isP1 = state.remoteRole !== 'player2';
+    const notePayload = {
+      text: text,
+      fromRole: isP1 ? 'player1' : 'player2',
+      fromName: isP1 ? state.player1Name : state.player2Name,
+      at: Date.now()
+    };
     db.ref('rooms/' + state.roomId).update({
-      quickNote: {
-        text: text,
-        fromRole: isP1 ? 'player1' : 'player2',
-        fromName: isP1 ? state.player1Name : state.player2Name,
-        at: Date.now()
-      }
+      quickNote: notePayload
+    }).catch(function () {});
+    db.ref('active_session').update({
+      quickNote: notePayload
     }).catch(function () {});
   }
 
@@ -3704,11 +3733,11 @@
     if (!container) {
       container = document.createElement('div');
       container.id = 'dynamic-island-banner';
-      container.className = 'fixed top-3 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-sm transition-all duration-300 ease-out transform -translate-y-12 opacity-0 pointer-events-auto';
+      container.className = 'fixed top-14 left-1/2 -translate-x-1/2 z-[100] w-[94%] max-w-sm transition-all duration-300 ease-out transform -translate-y-16 opacity-0 pointer-events-auto';
       document.body.appendChild(container);
     }
     container.innerHTML = `
-      <div class="p-3 rounded-2xl bg-black/90 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center gap-3">
+      <div class="p-3.5 rounded-2xl bg-neutral-950/98 border border-white/25 shadow-[0_12px_40px_rgba(0,0,0,0.95)] flex items-center gap-3">
         <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white shrink-0 shadow">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -3727,7 +3756,7 @@
 
     // Animar entrada
     requestAnimationFrame(function () {
-      container.classList.remove('-translate-y-12', 'opacity-0');
+      container.classList.remove('-translate-y-16', 'opacity-0');
       container.classList.add('translate-y-0', 'opacity-100');
     });
 
@@ -3735,14 +3764,14 @@
     if (closeBtn) {
       closeBtn.onclick = function () {
         container.classList.remove('translate-y-0', 'opacity-100');
-        container.classList.add('-translate-y-12', 'opacity-0');
+        container.classList.add('-translate-y-16', 'opacity-0');
       };
     }
 
     if (container._timeout) clearTimeout(container._timeout);
     container._timeout = setTimeout(function () {
       container.classList.remove('translate-y-0', 'opacity-100');
-      container.classList.add('-translate-y-12', 'opacity-0');
+      container.classList.add('-translate-y-16', 'opacity-0');
     }, 6000);
   }
 
@@ -3825,6 +3854,7 @@
         sound.playPop();
         sound.vibrate([30]);
         modalContainer.innerHTML = '';
+        showDynamicIslandNote(text, 'Tú');
         showToast('Nota enviada a ' + partnerName);
       };
     });
@@ -3839,6 +3869,7 @@
         sound.playPop();
         sound.vibrate([30]);
         modalContainer.innerHTML = '';
+        showDynamicIslandNote(text, 'Tú');
         showToast('Nota enviada a ' + partnerName);
       };
       inputCustom.onkeydown = function (e) {
@@ -4339,9 +4370,6 @@
             <span>${state.activeLiveSession ? 'Iniciar otra votación' : 'Comenzar votación'}</span>
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
           </button>
-            <span>Comenzar votación</span>
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-          </button>
 
           <!-- Botón de menú secundario discreto y elegante -->
           <button 
@@ -4823,7 +4851,7 @@
 
     app.innerHTML = `
       <div class="mobile-shell flex flex-col justify-between">
-        <div class="px-5 pt-3 pb-2.5 sticky top-0 z-20 bg-black/85 backdrop-blur-2xl border-b border-white/[0.08]">
+        <div class="px-5 pt-3 pb-2.5 sticky top-0 z-20 bg-neutral-950/95 backdrop-blur-sm border-b border-white/[0.08]">
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-2">
               <button 
@@ -4911,7 +4939,7 @@
 
         ${isFood ? `
           <!-- Barra de pestañas de comida estilo visionOS (Mis Restaurantes / Recomendados) -->
-          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-black/60 backdrop-blur-xl sticky top-[108px] z-10">
+          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-neutral-950/95 backdrop-blur-sm sticky top-[108px] z-10">
             ${FOOD_TABS.map(function(c) {
               const isAct = (state.foodCategoryFilter || 'all') === c.id;
               return `
@@ -5055,7 +5083,7 @@
 
         ${isMovies ? `
           <!-- Barra de categorías de películas y series estilo visionOS -->
-          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-black/60 backdrop-blur-xl sticky top-[108px] z-10">
+          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-neutral-950/95 backdrop-blur-sm sticky top-[108px] z-10">
             ${MOVIE_CATEGORIES.map(function(c) {
               const isAct = (state.movieCategoryFilter || 'all') === c.id;
               return `
@@ -5100,7 +5128,7 @@
 
         ${isPlans ? `
           <!-- Barra de categorías de planes y citas estilo visionOS -->
-          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-black/60 backdrop-blur-xl sticky top-[108px] z-10">
+          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-neutral-950/95 backdrop-blur-sm sticky top-[108px] z-10">
             ${PLANS_CATEGORIES.map(function(c) {
               const isAct = (state.plansCategoryFilter || 'all') === c.id;
               return `
@@ -6240,6 +6268,46 @@
 
     setTimeout(async function () {
       clearInterval(interval);
+
+      // Si es una sesión remota/simultánea de Firebase, aseguramos tener los datos más frescos de la sala
+      if (state.roomId) {
+        const db = initFirebase();
+        if (db) {
+          try {
+            const snap = await db.ref('rooms/' + state.roomId).once('value');
+            const roomData = snap.val();
+            if (roomData) {
+              // Si el otro cliente ya resolvió el ganador, adoptamos directamente el ganador
+              if (roomData.status === 'completed' && roomData.result) {
+                state.winningRestaurant = getAnyItemById(roomData.result.winnerId) || state.restaurants[0];
+                state.matchesCount = roomData.result.matchesCount || 1;
+                state.tieBreakerUser = roomData.result.tieBreakerUser || null;
+                if (!state.userCoords) state.userCoords = await getUserLocation();
+                state.winningBranch = findClosestBranch(state.winningRestaurant, state.userCoords);
+                state.isNameRevealed = false;
+                state.showClues = false;
+                state.clueIndex = 0;
+                state.screen = 'result';
+                render();
+                return;
+              }
+              // Si aún no está completado, aseguramos poblar las selecciones de ambos
+              if (Array.isArray(roomData.p1Selections)) {
+                state.player1Selections = new Set(roomData.p1Selections);
+                if (roomData.p1Veto) state.player1Veto = roomData.p1Veto;
+                if (roomData.p1Superlike) state.player1Superlike = roomData.p1Superlike;
+              }
+              if (Array.isArray(roomData.p2Selections)) {
+                state.player2Selections = new Set(roomData.p2Selections);
+                if (roomData.p2Veto) state.player2Veto = roomData.p2Veto;
+                if (roomData.p2Superlike) state.player2Superlike = roomData.p2Superlike;
+              }
+            }
+          } catch (e) {
+            console.warn('Error fetching fresh room data in matching:', e);
+          }
+        }
+      }
 
       // 1. Coincidencias brutas (ambos han seleccionado)
       const rawMatches = Array.from(state.player1Selections).filter(function (id) {
