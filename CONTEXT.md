@@ -518,6 +518,18 @@ Ideas aprobadas para incorporar progresivamente en futuras iteraciones de Duo:
   - Las tarjetas de recomendados se seleccionan directamente con las mecánicas del juego (voto, veto, superlike) sin cambiar de pantalla.
   - Service Worker actualizado a `donde-comemos-v34`.
 
+### [v1.9.23] - 2026-10-27
+- **Votación Simultánea Automática Multidispositivo (Cero Enlaces Manuales)**:
+  - Cuando uno de los dos pulsa **"Comenzar votación"** en su móvil, se abre automáticamente la sesión en directo en la nube (`active_session`).
+  - En el móvil de la otra persona, en cuanto abre la app o está en la pantalla de inicio, aparece automáticamente un banner translúcido con pulsación esmeralda:
+    > **"Votación en directo iniciada por [Nombre] • Unirse a la votación ahora"**.
+  - Al pulsar "Unirse", entra al instante en su propio turno y ambos votan **en paralelo** sin tener que esperar a que el otro termine ni compartir URLs por WhatsApp/AirDrop.
+  - Sincronización en directo: se ven las opciones elegidas del otro en vivo y las notas flotantes de Dynamic Island.
+  - Cruce y Resultado Simultáneo: en cuanto ambos confirman sus votos, las pantallas de los dos móviles avanzan al unísono a la ruleta y al mismo resultado misterioso con confeti.
+- **Service Worker v43**:
+  - Bump de versión a `donde-comemos-v43` para actualización instantánea en móviles.
+- **Cero emojis**: 100% iconos vectoriales monocromáticos SVG según la directriz Apple HIG.
+
 ### [v1.9.22] - 2026-10-26
 - **Billetes / Boarding Pass de Citas & Duo Pass (Feature 1)**:
   - Rediseño completo de los recuerdos en el Diario de Citas: cada momento guardado se presenta como una tarjeta de embarque / entrada coleccionable de alta gama estilo Apple Wallet.

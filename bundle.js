@@ -2688,7 +2688,8 @@
     useWishlistOnly: false,
     foodDistanceFilter: 'all', // 'all' | '2' | '5' | '15'
     foodOpenNowFilter: false,
-    lastQuickNoteSeenAt: 0
+    lastQuickNoteSeenAt: 0,
+    activeLiveSession: null // Sesión activa global detectada en Firebase para unirse automáticamente
   };
 
   const KNOWN_CITY_COORDS = {
@@ -3393,6 +3394,118 @@
     return res;
   }
 
+  // Gestión de Votación Simultánea Automática sin enlaces (Nodo active_session)
+  function syncActiveSessionFromFirebase() {
+    const db = initFirebase();
+    if (!db) return;
+    db.ref('active_session').on('value', function (snapshot) {
+      const data = snapshot.val();
+      if (!data) {
+        state.activeLiveSession = null;
+        if (state.screen === 'home') renderHomeScreen();
+        return;
+      }
+
+      const now = Date.now();
+      const isRecent = data.createdAt && (now - data.createdAt < 20 * 60 * 1000); // 20 minutos de caducidad
+      const isOpen = data.status === 'open' || data.status === 'voting';
+
+      if (isRecent && isOpen) {
+        state.activeLiveSession = data;
+        // Si el usuario está en la home y no es quien la inició, se refresca la home para mostrar el banner de unirse
+        if (state.screen === 'home') {
+          renderHomeScreen();
+        }
+      } else {
+        state.activeLiveSession = null;
+        if (state.screen === 'home') {
+          renderHomeScreen();
+        }
+      }
+    });
+  }
+
+  async function startSimultaneousVotingSession() {
+    const db = initFirebase();
+    const roomId = generateRoomId();
+    state.roomId = roomId;
+    state.isRemoteSession = true;
+    state.remoteRole = 'player1';
+
+    const sessionData = {
+      roomId: roomId,
+      createdAt: Date.now(),
+      mode: state.activeMode,
+      initiator: state.player1Name,
+      p1Name: state.player1Name,
+      p2Name: state.player2Name,
+      p1Selections: [],
+      p2Selections: [],
+      p1Done: false,
+      p2Done: false,
+      p1Veto: null,
+      p2Veto: null,
+      p1Superlike: null,
+      p2Superlike: null,
+      status: 'open',
+      roundAttempt: state.roundAttempt || 1,
+      avoidLastWinner: !!state.avoidLastWinner,
+      lastWinnerId: state.lastWinnerId || null,
+      result: null
+    };
+
+    if (db) {
+      try {
+        await db.ref('rooms/' + roomId).set(sessionData);
+        await db.ref('active_session').set(sessionData);
+        listenToRoom(roomId, 'player1');
+      } catch (err) {
+        console.warn('Error starting simultaneous session:', err);
+      }
+    }
+  }
+
+  async function joinSimultaneousVotingSession(sessionData) {
+    if (!sessionData || !sessionData.roomId) return;
+    state.roomId = sessionData.roomId;
+    state.isRemoteSession = true;
+    state.remoteRole = 'player2';
+
+    state.activeMode = sessionData.mode || state.activeMode;
+    loadModeCatalogue();
+    state.player1Name = sessionData.p1Name || state.player1Name;
+    state.player2Name = sessionData.p2Name || state.player2Name;
+    state.roundAttempt = sessionData.roundAttempt || 1;
+    state.avoidLastWinner = !!sessionData.avoidLastWinner;
+    state.lastWinnerId = sessionData.lastWinnerId || null;
+
+    state.player1Selections = new Set(sessionData.p1Selections || []);
+    state.player2Selections.clear();
+    state.player1Veto = sessionData.p1Veto || null;
+    state.player2Veto = null;
+    state.player1Superlike = sessionData.p1Superlike || null;
+    state.player2Superlike = null;
+
+    const db = initFirebase();
+    if (db) {
+      db.ref('rooms/' + state.roomId).update({ status: 'voting' }).catch(function () {});
+      db.ref('active_session').update({ status: 'voting' }).catch(function () {});
+      listenToRoom(state.roomId, 'player2');
+    }
+
+    sound.playPop();
+    sound.vibrate([40]);
+    state.screen = 'player2';
+    render();
+    showToast('¡Te has unido a la votación en directo!');
+  }
+
+  function clearActiveSession() {
+    const db = initFirebase();
+    if (!db) return;
+    db.ref('active_session').remove().catch(function () {});
+  }
+
   async function createFirebaseRoom() {
     const db = initFirebase();
     const roomId = generateRoomId();
@@ -3500,6 +3613,25 @@
         if (isFromOther) {
           state.lastQuickNoteSeenAt = data.quickNote.at;
           showDynamicIslandNote(data.quickNote.text, data.quickNote.fromName);
+        }
+      }
+
+      // Si cualquiera de los dos jugadores está esperando y el resultado ya está resuelto en la sala:
+      if (data.status === 'completed' && data.result) {
+        if (state.screen !== 'result') {
+          state.winningRestaurant = getAnyItemById(data.result.winnerId) || state.restaurants[0];
+          state.matchesCount = data.result.matchesCount || 1;
+          state.tieBreakerUser = data.result.tieBreakerUser || null;
+          state.winningBranch = findClosestBranch(state.winningRestaurant, state.userCoords);
+          state.isNameRevealed = false;
+          state.showClues = false;
+          state.clueIndex = 0;
+          state.screen = 'result';
+          sound.playFanfare();
+          sound.vibrate([100, 50, 150]);
+          recordSessionOutcome(state.winningRestaurant.name, state.activeMode, state.matchesCount, state.payerWinner);
+          render();
+          showToast('¡Votación completada! Resultado listo');
         }
       }
 
@@ -3734,7 +3866,7 @@
     const db = initFirebase();
     if (!db || !state.roomId) return;
     try {
-      await db.ref('rooms/' + state.roomId).update({
+      const payload = {
         status: 'completed',
         completedAt: Date.now(),
         result: {
@@ -3742,7 +3874,9 @@
           matchesCount: resultData.matchesCount,
           tieBreakerUser: resultData.tieBreakerUser || null
         }
-      });
+      };
+      await db.ref('rooms/' + state.roomId).update(payload);
+      await db.ref('active_session').update(payload);
     } catch (err) {
       console.warn('Error pushing result to Firebase:', err);
     }
@@ -3951,6 +4085,7 @@
     syncWishlistFromFirebase();
     syncDiaryFromFirebase();
     syncStatsFromFirebase();
+    syncActiveSessionFromFirebase();
     checkRemoteHash();
     window.addEventListener('hashchange', function () {
       checkRemoteHash();
@@ -4169,10 +4304,41 @@
 
         <!-- Zona de acción limpia: CTA Único Dominante + Acciones Secundarias agrupadas -->
         <div class="space-y-3 pb-4">
+          ${state.activeLiveSession && state.activeLiveSession.roomId ? `
+            <!-- Banner inteligente para unirse a votación simultánea en marcha -->
+            <div class="p-4 rounded-[26px] bg-gradient-to-r from-emerald-500/20 via-teal-500/15 to-indigo-500/20 border border-emerald-500/40 shadow-xl shadow-emerald-500/10 text-left space-y-3 animate-ios-slide">
+              <div class="flex items-center justify-between">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-500/40 text-[10px] font-bold text-emerald-300">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>VOTACIÓN EN DIRECTO</span>
+                </span>
+                <span class="text-[10px] text-neutral-400 font-mono">SALA #${state.activeLiveSession.roomId}</span>
+              </div>
+              <div>
+                <h4 class="text-sm font-black text-white leading-tight">
+                  ${state.activeLiveSession.initiator || state.player1Name} ha abierto una votación
+                </h4>
+                <p class="text-xs text-neutral-300 mt-0.5 leading-relaxed">
+                  Modo: <strong class="text-white">${state.activeLiveSession.mode === 'movies' ? 'Películas' : state.activeLiveSession.mode === 'plans' ? 'Planes' : 'Comer'}</strong>. Votad a la vez desde vuestros móviles sin compartir enlaces.
+                </p>
+              </div>
+              <button 
+                id="btn-join-live-session" 
+                class="w-full py-3 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/25 active:scale-98 transition flex items-center justify-center gap-2"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <span>Unirse a la votación ahora</span>
+              </button>
+            </div>
+          ` : ''}
+
           <button 
             id="btn-start" 
             class="w-full py-4 px-6 rounded-2xl font-bold text-base text-white bg-gradient-to-r from-[#FF2D55] via-[#FF375F] to-[#FF9F0A] shadow-xl shadow-rose-500/25 active:scale-[0.97] transition transform flex items-center justify-center gap-2 border-t border-white/20"
           >
+            <span>${state.activeLiveSession ? 'Iniciar otra votación' : 'Comenzar votación'}</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
             <span>Comenzar votación</span>
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
           </button>
@@ -4357,7 +4523,15 @@
       });
     }
 
-    document.getElementById('btn-start').addEventListener('click', function () {
+    // Botón para unirse a sesión en directo simultánea
+    const btnJoinLive = document.getElementById('btn-join-live-session');
+    if (btnJoinLive && state.activeLiveSession) {
+      btnJoinLive.addEventListener('click', function () {
+        joinSimultaneousVotingSession(state.activeLiveSession);
+      });
+    }
+
+    document.getElementById('btn-start').addEventListener('click', async function () {
       sound.init();
       sound.playWhoosh();
       sound.vibrate([40]);
@@ -4381,6 +4555,10 @@
       state.showHomeActionsSheet = false;
       state.activeResultTab = 'destiny';
       state.screen = 'player1';
+
+      // Abrir sesión simultánea en Firebase automáticamente
+      await startSimultaneousVotingSession();
+
       render();
     });
 
@@ -5649,13 +5827,41 @@
       sound.playWhoosh();
       sound.vibrate([35]);
       broadcastLiveVoteProgress();
+
       if (state.roomId) {
         const db = initFirebase();
         if (db) {
-          const upd = isP1 ? { p1Done: true } : { p2Done: true };
+          const upd = isP1 
+            ? { 
+                p1Done: true,
+                p1Selections: Array.from(state.player1Selections),
+                p1Veto: state.player1Veto || null,
+                p1Superlike: state.player1Superlike || null
+              } 
+            : { 
+                p2Done: true,
+                p2Selections: Array.from(state.player2Selections),
+                p2Veto: state.player2Veto || null,
+                p2Superlike: state.player2Superlike || null
+              };
           db.ref('rooms/' + state.roomId).update(upd).catch(function () {});
+          db.ref('active_session').update(upd).catch(function () {});
+        }
+
+        // Si el otro jugador aún no ha terminado, pasar a pantalla de espera remota
+        const otherDone = isP1 ? state.remoteP2Done : state.remoteP1Done;
+        if (!otherDone) {
+          state.screen = 'waiting_remote';
+          render();
+          return;
+        } else {
+          // Ambos han terminado: pasar inmediatamente a ruleta / matching
+          state.screen = 'matching';
+          render();
+          return;
         }
       }
+
       if (isP1) {
         state.screen = 'handover';
       } else {
@@ -5894,6 +6100,10 @@
   }
 
   function renderWaitingRemoteScreen() {
+    const isP1 = state.remoteRole !== 'player2';
+    const partnerName = isP1 ? state.player2Name : state.player1Name;
+    const partnerCount = isP1 ? state.remoteP2Count : state.remoteP1Count;
+
     app.innerHTML = `
       <div class="mobile-shell px-6 justify-between text-center animate-ios-slide">
         <div class="pt-10">
@@ -5904,91 +6114,77 @@
             </svg>
           </div>
 
-          <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 text-xs font-semibold mb-3">
+          <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-semibold mb-3">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Sincronización en vivo activada</span>
+            <span>Votación simultánea en vivo</span>
           </div>
 
           <h2 class="text-3xl font-extrabold text-white mb-2 tracking-tight">
-            Esperando a ${state.player2Name}...
+            Esperando a ${partnerName}...
           </h2>
           <p class="text-xs sm:text-sm text-neutral-400 max-w-xs mx-auto leading-relaxed">
-            En cuanto ${state.player2Name} vote en su móvil, tu pantalla se actualizará automáticamente con el resultado.
+            Ya has guardado tus selecciones. En cuanto ${partnerName} confirme las suyas en su móvil, la pantalla avanzará automáticamente al resultado.
           </p>
 
-          ${state.remoteP2Count > 0 ? `
-            <div class="mt-3 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold animate-pulse">
-              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span>${state.player2Name} lleva ${state.remoteP2Count} opciones seleccionadas</span>
+          ${partnerCount > 0 ? `
+            <div class="mt-4 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/20 border border-indigo-500/40 text-indigo-200 text-xs font-bold animate-pulse">
+              <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+              <span>${partnerName} lleva ${partnerCount} opciones elegidas</span>
             </div>
-          ` : ''}
+          ` : `
+            <div class="mt-4 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-neutral-300 text-xs font-medium">
+              <span>Votando en directo en su móvil...</span>
+            </div>
+          `}
         </div>
 
         <div class="my-auto py-4 space-y-3">
           <div class="ios-glass p-5 rounded-[24px] max-w-xs mx-auto text-left border border-white/10 space-y-3">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-white">Sala Simultánea</div>
+                  <div class="text-[10px] text-neutral-400">#${state.roomId || 'DUO'}</div>
+                </div>
               </div>
-              <div>
-                <div class="text-xs font-bold text-white">Conexión en tiempo real</div>
-                <div class="text-[10px] text-neutral-400">${state.roomId ? 'Sala en vivo: #' + state.roomId : 'Esperando enlace...'}</div>
-              </div>
-            </div>
 
-            <button 
-              id="btn-resend-p2" 
-              class="w-full py-3 px-3 rounded-xl text-xs font-bold text-indigo-200 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 active:scale-[0.98] transition flex items-center justify-center gap-2"
-            >
-              <svg class="w-4 h-4 text-indigo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-              <span>Reenviar enlace a ${state.player2Name}</span>
-            </button>
+              <button 
+                id="btn-waiting-quicknote" 
+                class="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-[10px] font-bold text-amber-300 flex items-center gap-1 active:scale-95 transition"
+              >
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span>Enviar nota</span>
+              </button>
+            </div>
           </div>
         </div>
 
         <div class="pb-4 space-y-2">
           <button 
-            id="btn-waiting-pass-local" 
-            class="w-full py-3 px-4 rounded-xl text-xs font-semibold text-neutral-300 hover:text-white bg-white/[0.06] border border-white/10 active:scale-[0.98] transition flex items-center justify-center gap-1.5"
-          >
-            <span>Votar en este mismo móvil en su lugar</span>
-          </button>
-
-          <button 
             id="btn-waiting-back" 
-            class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-neutral-400 hover:text-white bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.06] active:scale-[0.98] transition flex items-center justify-center gap-1.5"
+            class="w-full py-3 px-4 rounded-xl text-xs font-semibold text-neutral-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] active:scale-[0.98] transition flex items-center justify-center gap-1.5"
           >
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
-            <span>Modificar selecciones de ${state.player1Name}</span>
+            <span>Modificar mis votos</span>
           </button>
         </div>
       </div>
     `;
 
-    document.getElementById('btn-resend-p2').addEventListener('click', async function () {
-      const url = state.roomId ? (window.location.href.split('#')[0] + '#duo_room=' + state.roomId) : getRemoteP2ShareUrl();
-      if (navigator.share) {
-        navigator.share({
-          title: 'Duo - Te toca votar a ti',
-          text: state.player1Name + ' ya ha votado en secreto en Duo. ¡Entra aquí y vota tus opciones!',
-          url: url
-        }).catch(function () {
-          copyToClipboard(url);
-        });
-      } else {
-        copyToClipboard(url);
-      }
-    });
-
-    document.getElementById('btn-waiting-pass-local').addEventListener('click', function () {
-      sound.playWhoosh();
-      state.screen = 'player2';
-      render();
-    });
+    const btnWaitingNote = document.getElementById('btn-waiting-quicknote');
+    if (btnWaitingNote) {
+      btnWaitingNote.addEventListener('click', function () {
+        sound.playPop();
+        openQuickNoteModal();
+      });
+    }
 
     document.getElementById('btn-waiting-back').addEventListener('click', function () {
       sound.playPop();
-      state.screen = 'player1';
+      state.screen = isP1 ? 'player1' : 'player2';
       render();
     });
   }
@@ -6092,7 +6288,7 @@
         state.activeChallenge = null;
         state.screen = 'result';
 
-        // Si es una sala en vivo de Firebase y somos Jugador 2, emitir el resultado automáticamente a Jugador 1
+        // Si es una sala en vivo de Firebase, emitir el resultado automáticamente a ambos dispositivos
         if (state.roomId) {
           pushResultToFirebaseRoom({
             winnerId: state.winningRestaurant.id,
@@ -6742,6 +6938,14 @@
 
     document.getElementById('btn-restart').addEventListener('click', function () {
       sound.playWhoosh();
+      clearActiveSession();
+      state.roomId = null;
+      state.isRemoteSession = false;
+      state.remoteRole = null;
+      state.remoteP1Done = false;
+      state.remoteP2Done = false;
+      state.remoteP1Count = 0;
+      state.remoteP2Count = 0;
       state.roundAttempt = 1;
       state.activeResultTab = 'destiny';
       state.screen = 'home';
