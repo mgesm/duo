@@ -518,6 +518,14 @@ Ideas aprobadas para incorporar progresivamente en futuras iteraciones de Duo:
   - Las tarjetas de recomendados se seleccionan directamente con las mecánicas del juego (voto, veto, superlike) sin cambiar de pantalla.
   - Service Worker actualizado a `donde-comemos-v34`.
 
+### [v1.9.29] - 2026-10-27
+- **Eliminación Total y Blindaje contra Difuminado Superior en iOS PWA Standalone**:
+  - **Bloqueador físico de Safe Area**: añadido `<div class="ios-status-bar-fill"></div>` fijo en `top: 0` con altura `env(safe-area-inset-top, 0px)` y `background-color: #000000 !important; z-index: 99999` para sellar la barra de estado e impedir que WebKit en iOS intente proyectar un filtro de difuminado sobre elementos que hagan scroll.
+  - **Anulación de backdrop-filter en standalone**: añadido `@media (display-mode: standalone) { .sticky { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; } }`.
+  - **Separación de Cabecera**: en la pantalla de votación (`renderPlayerScreen`), la barra superior ahora tiene fondo `bg-black` y padding superior `pt-[calc(env(safe-area-inset-top,0px)+12px)]`, situando las píldoras de navegación por debajo del área del notch/isla dinámica sin solapamientos.
+  - **Dynamic Island Banner translúcido**: aumentada la opacidad a `0.94` y posicionamiento en `top-[calc(env(safe-area-inset-top,0px)+12px)]` para evitar que quede tapado por la barra de estado superior.
+  - **Cache Busting absoluto**: agregadas query strings de versión en `index.html` (`./style.css?v=50` y `./bundle.js?v=50`) y Service Worker actualizado a `donde-comemos-v50` para obligar a iOS a desechar de inmediato cualquier archivo de estilo o script en caché persistente.
+
 ### [v1.9.28] - 2026-10-27
 - **Solución Definitiva de Caché en PWA (Estrategia Network-First & Auto-Reload)**:
   - Causa raíz identificada: al abrir la aplicación desde la web (Safari/Chrome móvil), el navegador descargaba los últimos cambios en vivo (sin difuminado); sin embargo, la PWA instalada en la pantalla de inicio de iOS utiliza un Service Worker que estaba configurado como **Cache-First**, sirviendo permanentemente la versión antigua guardada en el almacenamiento local del iPhone sin pasar por la red.

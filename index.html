@@ -46,9 +46,12 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
   <!-- Custom styles Apple HIG & visionOS Liquid Glass -->
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css?v=50">
 </head>
 <body class="bg-black text-slate-100 antialiased selection:bg-rose-500 selection:text-white min-h-screen relative overflow-x-hidden">
+
+  <!-- Escudo sólido superior para barra de estado y notch de iOS en modo Standalone / PWA -->
+  <div class="ios-status-bar-fill"></div>
 
   <!-- Shell principal optimizado para iPhone & Android nativo -->
   <div id="app" class="max-w-md mx-auto min-h-screen relative flex flex-col bg-black border-x border-white/[0.08] shadow-[0_0_50px_rgba(0,0,0,0.9)]">
@@ -75,7 +78,7 @@
   <div id="modal-container"></div>
 
   <!-- Toast notification estilo Dynamic Island / iOS Capsule -->
-  <div id="toast" class="fixed top-8 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full text-xs font-semibold shadow-2xl border transition-all duration-300 opacity-0 pointer-events-none bg-neutral-900/90 text-white border-white/15 backdrop-blur-xl flex items-center gap-2">
+  <div id="toast" class="fixed top-[calc(env(safe-area-inset-top,0px)+16px)] left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full text-xs font-semibold shadow-2xl border transition-all duration-300 opacity-0 pointer-events-none bg-neutral-900/95 text-white border-white/20 flex items-center gap-2">
     Mensaje
   </div>
 
@@ -84,7 +87,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
   <!-- App logic (compatible con doble clic file:// y web/PWA) -->
-  <script src="./bundle.js"></script>
+  <script src="./bundle.js?v=50"></script>
   
   <!-- Registrar Service Worker y forzar actualización activa en PWAs instaladas -->
   <script>

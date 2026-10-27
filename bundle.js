@@ -3747,7 +3747,7 @@
     if (!container) {
       container = document.createElement('div');
       container.id = 'dynamic-island-banner';
-      container.className = 'fixed top-12 left-1/2 -translate-x-1/2 z-[100] w-[92%] max-w-sm transition-all duration-300 ease-out transform -translate-y-16 opacity-0 pointer-events-auto';
+      container.className = 'fixed top-[calc(env(safe-area-inset-top,0px)+12px)] left-1/2 -translate-x-1/2 z-[100] w-[92%] max-w-sm transition-all duration-300 ease-out transform -translate-y-16 opacity-0 pointer-events-auto';
       document.body.appendChild(container);
     }
     container.innerHTML = `
@@ -4865,7 +4865,7 @@
 
     app.innerHTML = `
       <div class="mobile-shell flex flex-col justify-between">
-        <div class="px-5 pt-[max(12px,var(--sat))] pb-2.5 sticky top-0 z-20 bg-neutral-950 border-b border-white/[0.08]">
+        <div class="px-5 pt-[calc(env(safe-area-inset-top,0px)+12px)] pb-2.5 sticky top-0 z-20 bg-black border-b border-white/[0.08]">
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-2">
               <button 
