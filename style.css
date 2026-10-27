@@ -370,4 +370,150 @@ button,
   overflow: hidden;
 }
 
+/* ==========================================================================
+   SISTEMA DE PASES ÚNICOS TEMÁTICOS (DUO PASS ENGINE & REALIA)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Cormorant+Garamond:ital,wght@0,600;1,600&family=JetBrains+Mono:wght@400;600;800&family=Playfair+Display:ital,wght@0,700;1,600&family=Space+Grotesk:wght@600;700;800&family=Syne:wght@700;800&display=swap');
+
+.font-cinzel { font-family: 'Cinzel', serif; }
+.font-playfair { font-family: 'Playfair Display', serif; }
+.font-cormorant { font-family: 'Cormorant Garamond', serif; }
+.font-syne { font-family: 'Syne', sans-serif; }
+.font-grotesk { font-family: 'Space Grotesk', sans-serif; }
+.font-code { font-family: 'JetBrains Mono', monospace; }
+
+/* Mecánica 3D Flip para Pases Coleccionables */
+.perspective-scene {
+  perspective: 1200px;
+}
+.flipper-container {
+  transform-style: preserve-3d;
+  transition: transform 0.75s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.flipper-container.flipped {
+  transform: rotateY(180deg);
+}
+.card-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.card-back {
+  transform: rotateY(180deg);
+}
+
+/* Papel Térmico de Restaurante y Corte de Sierra TPV */
+.thermal-receipt-paper {
+  background-color: #FAF8F2;
+  background-image: 
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 1px, transparent 1px, transparent 3px),
+    radial-gradient(ellipse at 50% 10%, rgba(255,255,255,0.95) 0%, rgba(246,243,234,0.7) 100%);
+  box-shadow: 
+    0 25px 50px -12px rgba(0,0,0,0.75),
+    0 0 0 1px rgba(0,0,0,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    inset 0 -1px 0 rgba(0,0,0,0.06);
+  color: #17181A;
+}
+
+/* Sello de Caucho Rojo Gastado de Restaurante */
+.stamp-paid-red {
+  display: inline-block;
+  border: 3.5px solid #dc2626;
+  color: #dc2626;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  border-radius: 6px;
+  transform: rotate(-6deg);
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2), inset 0 0 0 2px rgba(220, 38, 38, 0.2);
+  text-shadow: 0 0 1px rgba(220, 38, 38, 0.5);
+  background-color: rgba(254, 226, 226, 0.4);
+  mask-image: radial-gradient(circle, rgba(0,0,0,0.95) 50%, rgba(0,0,0,0.5) 100%);
+}
+
+/* Efectos Metalizados y Holográficos */
+.gold-foil-text {
+  background: linear-gradient(135deg, #d4af37 0%, #fff7c2 25%, #aa771c 50%, #fef3a7 75%, #8a5a00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7));
+}
+.hologram-shimmer {
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(255, 0, 128, 0.35) 20%,
+    rgba(0, 255, 242, 0.4) 40%,
+    rgba(255, 230, 0, 0.45) 60%,
+    rgba(157, 0, 255, 0.35) 80%,
+    transparent 100%
+  );
+  mix-blend-mode: color-dodge;
+  pointer-events: none;
+}
+.foil-glare {
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(255,215,0,0.15) 100%);
+}
+
+/* Troquelado de Entrada de Cine */
+.ticket-scallop-edges {
+  mask: radial-gradient(circle 12px at 0% 70%, transparent 99%, black 100%) top left,
+        radial-gradient(circle 12px at 100% 70%, transparent 99%, black 100%) top right;
+  mask-composite: intersect;
+  -webkit-mask: radial-gradient(circle 12px at 0% 70%, transparent 99%, black 100%) top left,
+                radial-gradient(circle 12px at 100% 70%, transparent 99%, black 100%) top right;
+  -webkit-mask-composite: source-in;
+}
+
+/* Textura Fibra de Papel */
+.bg-paper-fiber {
+  background-image: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 0),
+                    radial-gradient(rgba(0,0,0,0.02) 1px, transparent 0);
+  background-size: 8px 8px, 12px 12px;
+}
+
+/* Sello de Misión Secreta */
+.stamp-classified {
+  border: 3px solid #dc2626;
+  color: #dc2626;
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  transform: rotate(-6deg);
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.25), inset 0 0 0 2px rgba(220, 38, 38, 0.25);
+  background-color: rgba(220, 38, 38, 0.08);
+}
+
+.stamp-circle-seal {
+  border: 2px dashed currentColor;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transform: rotate(-4deg);
+}
+
+/* Animación de Estampado de Caucho */
+@keyframes stampThump {
+  0% { transform: scale(1.6) rotate(-15deg); opacity: 0; }
+  65% { transform: scale(0.95) rotate(-5deg); opacity: 0.9; }
+  100% { transform: scale(1) rotate(-6deg); opacity: 1; }
+}
+.animate-stamp-thump {
+  animation: stampThump 0.35s cubic-bezier(0.25, 1.4, 0.5, 1) forwards;
+}
+
+/* Estado de Talón Rasgado */
+.ticket-stub.is-torn {
+  opacity: 0.4;
+  filter: grayscale(80%);
+  transform: translateY(6px) rotate(1.5deg);
+  border-style: dashed !important;
+}
+
+
 

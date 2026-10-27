@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duo Travel & Passes — Pasaporte de Pareja y Tarjetas de Embarque</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter, Space Grotesk, Special Elite (Typewriter), Courier Prime, Playfair Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Space+Grotesk:wght@500;700;800&family=Special+Elite&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['"Courier Prime"', 'monospace'],
+            stamp: ['"Special Elite"', '"Courier Prime"', 'monospace'],
+            heading: ['"Space Grotesk"', 'sans-serif'],
+            serif: ['"Playfair Display"', 'serif'],
+          },
+          colors: {
+            duo: {
+              rose: '#FF2D55',
+              indigo: '#5E5CE6',
+              cyan: '#32ADE6',
+              gold: '#FFD60A',
+              emerald: '#30D158',
+              orange: '#FF9F0A',
+              purple: '#BF5AF2',
+              popeyes: '#FF7A18',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Efectos de Tinta y Filtros de Sello Realista */
+    .stamp-ink {
+      filter: url(#ink-bleed);
+      mix-blend-mode: multiply;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    .passport-page {
+      background-color: #F8F4EC;
+      background-image: 
+        radial-gradient(circle at 50% 50%, rgba(220, 210, 190, 0.4) 0%, rgba(248, 244, 236, 0.8) 100%),
+        repeating-linear-gradient(45deg, rgba(200, 185, 155, 0.05) 0px, rgba(200, 185, 155, 0.05) 2px, transparent 2px, transparent 8px);
+      box-shadow: 
+        inset 0 0 40px rgba(160, 140, 110, 0.25),
+        0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(0,0,0,0.1);
+    }
+
+    /* Spine Fold Effect en el Pasaporte */
+    .spine-shadow {
+      background: linear-gradient(to right, 
+        rgba(0,0,0,0.18) 0%, 
+        rgba(0,0,0,0.06) 15%, 
+        rgba(255,255,255,0.2) 50%, 
+        rgba(0,0,0,0.06) 85%, 
+        rgba(0,0,0,0.18) 100%
+      );
+    }
+
+    /* Guilloché Waves Vectoriales en Fondo de Seguridad */
+    .guilloche-bg {
+      background-image: repeating-radial-gradient(circle at 50% 50%, transparent 0, transparent 8px, rgba(175, 150, 115, 0.08) 9px, transparent 10px);
+    }
+
+    /* Perforación de Tarjeta de Embarque */
+    .perforated-v {
+      background-image: radial-gradient(circle at 50% 50%, transparent 6px, #171717 6.5px);
+      background-size: 16px 20px;
+      background-position: center;
+      background-repeat: repeat-y;
+    }
+
+    .perforated-h {
+      background-image: radial-gradient(circle at 50% 50%, transparent 6px, #171717 6.5px);
+      background-size: 20px 16px;
+      background-position: center;
+      background-repeat: repeat-x;
+    }
+
+    /* 3D Transform Utilities */
+    .perspective-1200 { perspective: 1200px; }
+    .transform-style-3d { transform-style: preserve-3d; }
+    .backface-hidden { backface-visibility: hidden; }
+    .rotate-y-180 { transform: rotateY(180deg); }
+
+    /* Animación de Sellado Físico (Impacto) */
+    @keyframes stamp-thud {
+      0% { transform: scale(2.4) rotate(var(--target-rot, -3deg)); opacity: 0; filter: blur(4px); }
+      55% { transform: scale(0.94) rotate(var(--target-rot, -3deg)); opacity: 1; filter: blur(0px); }
+      75% { transform: scale(1.03) rotate(var(--target-rot, -3deg)); }
+      100% { transform: scale(1) rotate(var(--target-rot, -3deg)); opacity: 1; }
+    }
+    .animate-stamp {
+      animation: stamp-thud 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    /* Page Turn Animation */
+    @keyframes pageTurnLeft {
+      0% { opacity: 0.4; transform: rotateY(-8deg) scale(0.98); }
+      100% { opacity: 1; transform: rotateY(0deg) scale(1); }
+    }
+    .page-turn-anim {
+      animation: pageTurnLeft 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="bg-[#0A0B0E] text-neutral-100 min-h-full font-sans antialiased selection:bg-duo-rose selection:text-white pb-20">
+
+  <!-- ========================================================================= -->
+  <!-- FILTROS SVG REUTILIZABLES PARA TINTA DESGASTADA Y DEGRADE ORGÁNICO       -->
+  <!-- ========================================================================= -->
+  <svg class="sr-only" aria-hidden="true">
+    <defs>
+      <!-- Sangrado de tinta / Desgaste de sello de caucho en papel -->
+      <filter id="ink-bleed" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.12" numOctaves="4" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.2" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+        <feColorMatrix in="displaced" type="matrix" values="
+          1 0 0 0 0
+          0 1 0 0 0
+          0 0 1 0 0
+          0 0 0 19 -8" result="hardInk" />
+        <feGaussianBlur in="hardInk" stdDeviation="0.4" result="blurred" />
+        <feMerge>
+          <feMergeNode in="blurred" />
+          <feMergeNode in="hardInk" />
+        </feMerge>
+      </filter>
+
+      <!-- Faded ink stamp with rough edge -->
+      <filter id="ink-rough" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="turbulence" baseFrequency="0.25" numOctaves="3" result="roughNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="roughNoise" scale="3.2" xChannelSelector="G" yChannelSelector="B" />
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- ========================================================================= -->
+  <!-- TOP APP NAVIGATION BAR                                                    -->
+  <!-- ========================================================================= -->
+  <header class="sticky top-0 z-50 backdrop-blur-xl bg-black/75 border-b border-white/10 px-4 sm:px-8 py-3.5 transition-all">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      
+      <!-- Brand Logo & Identity -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-duo-rose via-orange-500 to-duo-indigo p-0.5 shadow-lg shadow-duo-rose/25 flex items-center justify-center">
+          <div class="w-full h-full bg-black rounded-[14px] flex items-center justify-center">
+            <span class="font-extrabold text-sm bg-gradient-to-r from-duo-rose to-orange-400 bg-clip-text text-transparent">D</span>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="font-heading font-extrabold text-base tracking-tight text-white">Duo Travel & Passes</h1>
+            <span class="px-2 py-0.5 text-[10px] font-semibold bg-white/10 text-neutral-300 rounded-full border border-white/10 uppercase tracking-widest">v53 Live</span>
+          </div>
+          <p class="text-xs text-neutral-400">Pasaporte de Citas por Hojas & Tarjetas de Embarque con Sitios Reales</p>
+        </div>
+      </div>
+
+      <!-- Mode Switcher (Página Pasaporte vs Tarjetas de Embarque vs Galería de Sellos) -->
+      <div class="bg-neutral-900/90 p-1.5 rounded-2xl border border-white/10 flex items-center shadow-inner">
+        <button id="btnModePassport" onclick="switchMode('passport')" class="mode-btn px-4 py-2 rounded-xl text-xs font-semibold tracking-wide flex items-center space-x-2 transition-all duration-300 bg-white/15 text-white shadow-sm border border-white/10">
+          <svg class="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          <span>Pasaporte de Pareja</span>
+        </button>
+
+        <button id="btnModeBoarding" onclick="switchMode('boarding')" class="mode-btn px-4 py-2 rounded-xl text-xs font-semibold tracking-wide flex items-center space-x-2 transition-all duration-300 text-neutral-400 hover:text-white">
+          <svg class="w-4 h-4 text-duo-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+          </svg>
+          <span>Tarjeta de Embarque</span>
+        </button>
+
+        <button id="btnModeStamps" onclick="switchMode('stamps')" class="mode-btn px-4 py-2 rounded-xl text-xs font-semibold tracking-wide flex items-center space-x-2 transition-all duration-300 text-neutral-400 hover:text-white">
+          <svg class="w-4 h-4 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          <span>Catálogo de Sellos</span>
+        </button>
+      </div>
+
+      <!-- Quick Audio & Haptic Toggle + Customizer -->
+      <div class="flex items-center space-x-3">
+        <button id="soundToggle" onclick="toggleAudio()" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-300 text-xs flex items-center space-x-1.5 transition">
+          <span id="soundIcon">🔊</span>
+          <span id="soundText" class="hidden sm:inline">Sonido ON</span>
+        </button>
+        <div class="h-4 w-px bg-white/20"></div>
+        <button onclick="togglePersonalizer()" class="px-3 py-1.5 rounded-xl bg-duo-rose/20 hover:bg-duo-rose/30 text-rose-300 border border-duo-rose/30 text-xs flex items-center space-x-1.5 transition">
+          <span>⚙️</span>
+          <span>Ajustar Pareja</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- DRAWER DESPLEGABLE DE PERSONALIZACIÓN DE PAREJA Y FECHA -->
+  <section id="personalizerDrawer" class="max-w-7xl mx-auto px-4 sm:px-8 mt-3 hidden transition-all duration-300">
+    <div class="p-4 bg-neutral-900/90 backdrop-blur-md rounded-2xl border border-white/15 grid grid-cols-1 sm:grid-cols-3 gap-4 shadow-xl">
+      <div>
+        <label class="text-[11px] font-mono text-neutral-400 uppercase block mb-1">Nombres de la Pareja</label>
+        <input id="inputCoupleNames" type="text" value="Valentina & Miguel" oninput="updatePersonalization()" class="w-full bg-black/60 border border-white/20 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-duo-rose transition font-medium">
+      </div>
+      <div>
+        <label class="text-[11px] font-mono text-neutral-400 uppercase block mb-1">Fecha de la Cita</label>
+        <input id="inputPlanDate" type="text" value="27 OCT 2026" oninput="updatePersonalization()" class="w-full bg-black/60 border border-white/20 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-duo-indigo transition font-medium">
+      </div>
+      <div>
+        <label class="text-[11px] font-mono text-neutral-400 uppercase block mb-1">Ciudad / Región</label>
+        <select id="selectCity" onchange="updatePersonalization()" class="w-full bg-black/60 border border-white/20 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-duo-cyan transition font-medium">
+          <option value="Cartagena">Cartagena (Murcia)</option>
+          <option value="Murcia">Murcia Capital</option>
+          <option value="Madrid">Madrid</option>
+          <option value="Barcelona">Barcelona</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- BARRA SELECTORA DE SITIOS & PLANES (CON CATEGORÍAS FOODIE & EXPERIENCIAS)  -->
+  <!-- ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-8 mt-4">
+    <div class="p-3.5 bg-neutral-900/60 backdrop-blur-md rounded-2xl border border-white/10 flex flex-col md:flex-row items-center justify-between gap-3">
+      
+      <!-- Plans List Pill Selector agrupado -->
+      <div class="flex items-center space-x-2 overflow-x-auto py-1 max-w-full scrollbar-none w-full md:w-auto">
+        <span class="text-xs font-semibold text-neutral-400 uppercase tracking-wider pl-1 pr-1 hidden lg:inline">Selección:</span>
+        
+        <!-- Categoría Restaurantes & Cenas -->
+        <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-orange-500/20 text-orange-300 border border-orange-500/30 uppercase">🍗 Cenas:</span>
+        <button onclick="selectPlan(0)" class="plan-pill px-3.5 py-1.5 rounded-xl text-xs font-medium transition flex items-center space-x-1.5 bg-orange-500/20 text-orange-400 border border-orange-500/40 font-semibold" data-idx="0">
+          <img src="./popeyes.png" class="w-4 h-4 rounded-full object-contain bg-white/10" alt="Popeyes" onerror="this.src=''; this.innerText='🍗';">
+          <span>Popeyes Louisiana</span>
+        </button>
+
+        <button onclick="selectPlan(1)" class="plan-pill px-3.5 py-1.5 rounded-xl text-xs font-medium transition flex items-center space-x-1.5 text-neutral-400 hover:text-white hover:bg-white/5 border border-transparent" data-idx="1">
+          <img src="./unica.png" class="w-4 h-4 rounded-full object-contain bg-white/10" alt="Única" onerror="this.src=''; this.innerText='🍔';">
+          <span>Única Smash Burgers</span>
+        </button>
+
+        <button onclick="selectPlan(2)" class="plan-pill px-3.5 py-1.5 rounded-xl text-xs font-medium transition flex items-center space-x-1.5 text-neutral-400 hover:text-white hover:bg-white/5 border border-transparent" data-idx="2">
+          <img src="./kfc.png" class="w-4 h-4 rounded-full object-contain bg-white/10" alt="KFC" onerror="this.src=''; this.innerText='🍗';">
+          <span>KFC Mandarache</span>
+        </button>
+
+        <div class="h-4 w-px bg-white/20 mx-1"></div>
+
+        <!-- Categoría Planes & Ocio -->
+        <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase">🎟️ Planes:</span>
+        <button onclick="selectPlan(3)" class="plan-pill px-3.5 py-1.5 rounded-xl text-xs font-medium transition flex items-center space-x-1.5 text-neutral-400 hover:text-white hover:bg-white/5 border border-transparent" data-idx="3">
+          <span>🎬</span>
+          <span>Neocine Mandarache</span>
+        </button>
+
+        <button onclick="selectPlan(4)" class="plan-pill px-3.5 py-1.5 rounded-xl text-xs font-medium transition flex items-center space-x-1.5 text-neutral-400 hover:text-white hover:bg-white/5 border border-transparent" data-idx="4">
+          <span>🧖‍♀️</span>
+          <span>Talaso Spa Marino</span>
+        </button>
+
+        <button onclick="selectPlan(5)" class="plan-pill px-3.5 py-1.5 rounded-xl text-xs font-medium transition flex items-center space-x-1.5 text-neutral-400 hover:text-white hover:bg-white/5 border border-transparent" data-idx="5">
+          <span>🗝️</span>
+          <span>Escape Mystery Lab</span>
+        </button>
+
+        <button onclick="selectPlan(6)" class="plan-pill px-3.5 py-1.5 rounded-xl text-xs font-medium transition flex items-center space-x-1.5 text-neutral-400 hover:text-white hover:bg-white/5 border border-transparent" data-idx="6">
+          <span>🍦</span>
+          <span>Cala Cortina Sunset</span>
+        </button>
+
+        <button onclick="selectPlan(7)" class="plan-pill px-3.5 py-1.5 rounded-xl text-xs font-medium transition flex items-center space-x-1.5 text-neutral-400 hover:text-white hover:bg-white/5 border border-transparent" data-idx="7">
+          <span>🍷</span>
+          <span>Cata Bodega Viña Mayor</span>
+        </button>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex items-center space-x-2 shrink-0">
+        <button onclick="stampCurrentPlanInActiveSlot()" class="px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-600 hover:from-orange-400 hover:to-rose-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-orange-500/25 flex items-center space-x-2 active:scale-95 transition">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+          <span>¡Estampar en Pasaporte!</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- VISTA 1: PASAPORTE DE PAREJA CON HOJAS RELLENABLES (PASSPORT BOOKLET)    -->
+  <!-- ========================================================================= -->
+  <main id="viewPassport" class="max-w-6xl mx-auto px-4 sm:px-8 mt-6 transition-opacity duration-300">
+    
+    <!-- Header info banner & Page Navigator -->
+    <div class="mb-4 flex flex-col md:flex-row md:items-center justify-between text-neutral-400 text-xs gap-3">
+      <div class="flex items-center space-x-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="font-semibold text-neutral-200">PASAPORTE DE AMOR & CITAS // REPÚBLICA DE DUO</span>
+        <span class="px-2 py-0.5 rounded bg-white/10 text-white font-mono text-[10px]">SERIE 2026-ESP</span>
+      </div>
+
+      <!-- Spread Navigation Bar (Navegación entre hojas del pasaporte) -->
+      <div class="flex items-center space-x-2 bg-neutral-900/90 p-1 rounded-xl border border-white/10 text-xs">
+        <button onclick="prevPassportSpread()" class="px-2.5 py-1 rounded-lg hover:bg-white/10 text-neutral-300 hover:text-white transition flex items-center space-x-1">
+          <span>◀</span>
+          <span class="hidden sm:inline">Hoja Anterior</span>
+        </button>
+
+        <span id="spreadIndicatorText" class="px-3 py-1 font-mono font-bold text-amber-300 bg-white/5 rounded-lg border border-white/5">
+          HOJAS 14 - 15 (EN CURSO)
+        </span>
+
+        <button onclick="nextPassportSpread()" class="px-2.5 py-1 rounded-lg hover:bg-white/10 text-neutral-300 hover:text-white transition flex items-center space-x-1">
+          <span class="hidden sm:inline">Siguiente Hoja</span>
+          <span>▶</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Barra de progreso del Pasaporte: cuántos visados se han rellenado -->
+    <div class="mb-4 bg-neutral-900/70 p-3 rounded-2xl border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      <div class="flex items-center space-x-3 w-full sm:w-auto">
+        <span class="text-amber-400 text-base">📖</span>
+        <div>
+          <span class="font-semibold text-white block">Progreso de la Libreta de Citas</span>
+          <span id="passportProgressLabel" class="text-neutral-400 text-[11px]">8 de 16 Visados sellados • 50% de las hojas rellenadas</span>
+        </div>
+      </div>
+      <div class="w-full sm:w-64 bg-black/60 rounded-full h-2.5 border border-white/10 overflow-hidden">
+        <div id="passportProgressBar" class="bg-gradient-to-r from-orange-500 via-rose-500 to-amber-400 h-full rounded-full transition-all duration-500" style="width: 50%;"></div>
+      </div>
+    </div>
+
+    <!-- EL LIBRILLO DE PASAPORTE (OPEN BOOKLET SPREAD) -->
+    <div id="passportBookContainer" class="relative rounded-3xl overflow-hidden passport-page border border-[#d6c4a5]/50 text-[#2b2520] shadow-2xl transition-all page-turn-anim">
+      
+      <!-- Fondo Guilloché y Marcas de Agua de Seguridad -->
+      <div class="absolute inset-0 guilloche-bg pointer-events-none opacity-40"></div>
+
+      <!-- Roseta Central de Seguridad (Security Watermark) -->
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 pointer-events-none opacity-10">
+        <svg viewBox="0 0 200 200" class="w-full h-full text-amber-900 fill-current">
+          <path d="M100 15 C 50 15, 15 50, 15 100 C 15 150, 50 185, 100 185 C 150 185, 185 150, 185 100 C 185 50, 150 15, 100 15 Z" fill="none" stroke="currentColor" stroke-width="1.5" />
+          <path d="M100 30 L115 70 L158 75 L125 105 L135 150 L100 128 L65 150 L75 105 L42 75 L85 70 Z" fill="none" stroke="currentColor" stroke-width="1" />
+          <text x="100" y="110" font-family="'Playfair Display', serif" font-size="14" font-weight="bold" text-anchor="middle" fill="currentColor">DUO OFFICIAL SEAL</text>
+        </svg>
+      </div>
+
+      <!-- Pliegue Central de la Libreta (Spine Fold Shadow) -->
+      <div class="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-16 spine-shadow pointer-events-none hidden md:block z-20"></div>
+
+      <!-- Dobre Página Abierta (Grid de 2 Columnas) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 min-h-[640px] relative z-10">
+        
+        <!-- ==================== PÁGINA IZQUIERDA DE LA HOJA ==================== -->
+        <div class="p-6 sm:p-8 border-b md:border-b-0 md:border-r border-[#d4c3a3]/60 relative flex flex-col justify-between">
+          
+          <!-- Encabezado de Página Izquierda -->
+          <div>
+            <div class="flex items-center justify-between border-b border-[#c8b796] pb-3 mb-3">
+              <div>
+                <span id="pageLeftSubtitle" class="text-[10px] tracking-[0.25em] font-mono uppercase font-bold text-[#7a684d]">PASAPORTE OFICIAL • VISA PAGE</span>
+                <h2 id="pageLeftTitle" class="font-serif font-bold text-lg text-[#3c2f24] tracking-tight">RUTAS GASTRONÓMICAS & CENAS</h2>
+              </div>
+              <div class="text-right">
+                <span class="text-[9px] font-mono text-[#8a7657] block">PÁGINA / PAGE</span>
+                <span id="pageLeftNum" class="font-mono font-bold text-lg text-[#3c2f24]">14</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[11px] font-mono text-[#6c593e] mb-4 px-1">
+              <span>TITULARES: <strong id="passportHolders" class="text-[#3c2f24]">Valentina & Miguel</strong></span>
+              <span>EMISIÓN: <strong id="passportCity" class="text-[#3c2f24]">Cartagena / Murcia</strong></span>
+            </div>
+          </div>
+
+          <!-- GRID DE SELLOS EN PÁGINA IZQUIERDA (6 CASILLAS CONSULARES // 3 FILAS x 2 COLUMNAS) -->
+          <div class="grid grid-cols-2 gap-2.5 my-auto py-2">
+            
+            <!-- Casilla 0 -->
+            <div id="slot-0" onclick="handleSlotClick(0)" class="relative min-h-[145px] sm:min-h-[155px] rounded-xl border border-dashed border-[#b8a786]/60 bg-[#f4ece0]/40 p-1 flex flex-col items-center justify-center transition-all cursor-pointer hover:border-amber-700/60 group">
+              <span class="absolute top-1.5 left-2 text-[8px] font-mono text-[#8c775a] font-bold">VISA 01</span>
+              <div id="slot-0-content" class="w-full h-full flex items-center justify-center"></div>
+              <span class="slot-empty-label text-[9px] font-mono uppercase text-[#b8a786]/60 text-center tracking-wider group-hover:text-amber-800 transition">+ LIBRE</span>
+            </div>
+
+            <!-- Casilla 1 -->
+            <div id="slot-1" onclick="handleSlotClick(1)" class="relative min-h-[145px] sm:min-h-[155px] rounded-xl border border-dashed border-[#b8a786]/60 bg-[#f4ece0]/40 p-1 flex flex-col items-center justify-center transition-all cursor-pointer hover:border-amber-700/60 group">
+              <span class="absolute top-1.5 left-2 text-[8px] font-mono text-[#8c775a] font-bold">VISA 02</span>
+              <div id="slot-1-content" class="w-full h-full flex items-center justify-center"></div>
+              <span class="slot-empty-label text-[9px] font-mono uppercase text-[#b8a786]/60 text-center tracking-wider group-hover:text-amber-800 transition">+ LIBRE</span>
+            </div>
+
+            <!-- Casilla 2 -->
+            <div id="slot-2" onclick="handleSlotClick(2)" class="relative min-h-[145px] sm:min-h-[155px] rounded-xl border border-dashed border-[#b8a786]/60 bg-[#f4ece0]/40 p-1 flex flex-col items-center justify-center transition-all cursor-pointer hover:border-amber-700/60 group">
+              <span class="absolute top-1.5 left-2 text-[8px] font-mono text-[#8c775a] font-bold">VISA 03</span>
+              <div id="slot-2-content" class="w-full h-full flex items-center justify-center"></div>
+              <span class="slot-empty-label text-[9px] font-mono uppercase text-[#b8a786]/60 text-center tracking-wider group-hover:text-amber-800 transition">+ LIBRE</span>
+            </div>
+
+            <!-- Casilla 3 -->
+            <div id="slot-3" onclick="handleSlotClick(3)" class="relative min-h-[145px] sm:min-h-[155px] rounded-xl border border-dashed border-[#b8a786]/60 bg-[#f4ece0]/40 p-1 flex flex-col items-center justify-center transition-all cursor-pointer hover:border-amber-700/60 group">
+              <span class="absolute top-1.5 left-2 text-[8px] font-mono text-[#8c775a] font-bold">VISA 04</span>
+              <div id="slot-3-content" class="w-full h-full flex items-center justify-center"></div>
+              <span class="slot-empty-label text-[9px] font-mono uppercase text-[#b8a786]/60 text-center tracking-wider group-hover:text-amber-800 transition">+ LIBRE</span>
+            </div>
+
+            <!-- Casilla 4 -->
+            <div id="slot-4" onclick="handleSlotClick(4)" class="relative min-h-[145px] sm:min-h-[155px] rounded-xl border border-dashed border-[#b8a786]/60 bg-[#f4ece0]/40 p-1 flex flex-col items-center justify-center transition-all cursor-pointer hover:border-amber-700/60 group">
+              <span class="absolute top-1.5 left-2 text-[8px] font-mono text-[#8c775a] font-bold">VISA 05</span>
+              <div id="slot-4-content" class="w-full h-full flex items-center justify-center"></div>
+              <span class="slot-empty-label text-[9px] font-mono uppercase text-[#b8a786]/60 text-center tracking-wider group-hover:text-amber-800 transition">+ LIBRE</span>
+            </div>
+
+            <!-- Casilla 5 -->
+            <div id="slot-5" onclick="handleSlotClick(5)" class="relative min-h-[145px] sm:min-h-[155px] rounded-xl border border-dashed border-[#b8a786]/60 bg-[#f4ece0]/40 p-1 flex flex-col items-center justify-center transition-all cursor-pointer hover:border-amber-700/60 group">
+              <span class="absolute top-1.5 left-2 text-[8px] font-mono text-[#8c775a] font-bold">VISA 06</span>
+              <div id="slot-5-content" class="w-full h-full flex items-center justify-center"></div>
+              <span class="slot-empty-label text-[9px] font-mono uppercase text-[#b8a786]/60 text-center tracking-wider group-hover:text-amber-800 transition">+ LIBRE</span>
+            </div>
+
+          </div>
+
+          <!-- Pie de página izquierda: Código OCR / MRZ (Machine Readable Zone) de Pasaporte -->
+          <div class="pt-3 border-t border-[#c8b796]/60 font-mono text-[9px] sm:text-[10px] tracking-[0.2em] text-[#554634] select-all leading-tight bg-[#ede5d3]/50 p-2.5 rounded-lg border">
+            <div id="mrzLine1">P&lt;DUOES&lt;&lt;AMOR&lt;VALENTINA&lt;&lt;MIGUEL&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</div>
+            <div id="mrzLine2">DUO202610278ESP9908124M3012318&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;08</div>
+          </div>
+
+        </div>
+
+        <!-- ==================== PÁGINA DERECHA DE LA HOJA ==================== -->
+        <div class="p-6 sm:p-8 relative flex flex-col justify-between bg-[#fbf8f1]/50">
+          
+          <!-- Encabezado Página Derecha -->
+          <div>
+            <div class="flex items-center justify-between border-b border-[#c8b796] pb-3 mb-3">
+              <div>
+                <span id="pageRightSubtitle" class="text-[10px] tracking-[0.25em] font-mono uppercase font-bold text-[#7a684d]">MEMORIAS EN PAREJA • HISTÓRICO</span>
+                <h2 id="pageRightTitle" class="font-serif font-bold text-lg text-[#3c2f24] tracking-tight">EXPERIENCIAS & CITAS</h2>
+              </div>
+              <div class="text-right">
+                <span class="text-[9px] font-mono text-[#8a7657] block">PÁGINA / PAGE</span>
+                <span id="pageRightNum" class="font-mono font-bold text-lg text-[#3c2f24]">15</span>
+              </div>
+            </div>
+
+            <p class="text-xs text-[#725e44] leading-relaxed mb-4">
+              Cada plan compartido valida un visado permanente con fecha única y local en nuestro pasaporte.
+            </p>
+          </div>
+
+          <!-- GRID DE SELLOS EN PÁGINA DERECHA (6 CASILLAS CONSULARES // 3 FILAS x 2 COLUMNAS) -->
+          <div class="grid grid-cols-2 gap-2.5 my-auto py-2">
+            
+            <!-- Casilla 6 -->
+            <div id="slot-6" onclick="handleSlotClick(6)" class="relative min-h-[145px] sm:min-h-[155px] rounded-xl border border-dashed border-[#b8a786]/60 bg-[#f4ece0]/40 p-1 flex flex-col items-center justify-center transition-all cursor-pointer hover:border-amber-700/60 group">
+              <span class="absolute top-1.5 left-2 text-[8px] font-mono text-[#8c775a] font-bold">VISA 07</span>
+              <div id="slot-6-content" class="w-full h-full flex items-center justify-center"></div>
+              <span class="slot-empty-label text-[9px] font-mono uppercase text-[#b8a786]/60 text-center tracking-wider group-hover:text-amber-800 transition">+ LIBRE</span>
+            </div>
+
+            <!-- Casilla 7 -->
+            <div id="slot-7" onclick="handleSlotClick(7)" class="relative min-h-[145px] sm:min-h-[155px] rounded-xl border border-dashed border-[#b8a786]/60 bg-[#f4ece0]/40 p-1 flex flex-col items-center justify-center transition-all cursor-pointer hover:border-amber-700/60 group">
+              <span class="absolute top-1.5 left-2 text-[8px] font-mono text-[#8c775a] font-bold">VISA 08</span>
+              <div id="slot-7-content" class="w-full h-full flex items-center justify-center"></div>
+              <span class="slot-empty-label text-[9px] font-mono uppercase text-[#b8a786]/60 text-center tracking-wider group-hover:text-amber-800 transition">+ LIBRE</span>
+            </div>
+
+            <!-- Casilla 8 -->
+            <div id="slot-8" onclick="handleSlotClick(8)" class="relative min-h-[145px] sm:min-h-[155px] rounded-xl border border-dashed border-[#b8a786]/60 bg-[#f4ece0]/40 p-1 flex flex-col items-center justify-center transition-all cursor-pointer hover:border-amber-700/60 group">
+              <span class="absolute top-1.5 left-2 text-[8px] font-mono text-[#8c775a] font-bold">VISA 09</span>
+              <div id="slot-8-content" class="w-full h-full flex items-center justify-center"></div>
+              <span class="slot-empty-label text-[9px] font-mono uppercase text-[#b8a786]/60 text-center tracking-wider group-hover:text-amber-800 transition">+ LIBRE</span>
+            </div>
+
+            <!-- Casilla 9 -->
+            <div id="slot-9" onclick="handleSlotClick(9)" class="relative min-h-[145px] sm:min-h-[155px] rounded-xl border border-dashed border-[#b8a786]/60 bg-[#f4ece0]/40 p-1 flex flex-col items-center justify-center transition-all cursor-pointer hover:border-amber-700/60 group">
+              <span class="absolute top-1.5 left-2 text-[8px] font-mono text-[#8c775a] font-bold">VISA 10</span>
+              <div id="slot-9-content" class="w-full h-full flex items-center justify-center"></div>
+              <span class="slot-empty-label text-[9px] font-mono uppercase text-[#b8a786]/60 text-center tracking-wider group-hover:text-amber-800 transition">+ LIBRE</span>
+            </div>
+
+            <!-- Casilla 10 -->
+            <div id="slot-10" onclick="handleSlotClick(10)" class="relative min-h-[145px] sm:min-h-[155px] rounded-xl border border-dashed border-[#b8a786]/60 bg-[#f4ece0]/40 p-1 flex flex-col items-center justify-center transition-all cursor-pointer hover:border-amber-700/60 group">
+              <span class="absolute top-1.5 left-2 text-[8px] font-mono text-[#8c775a] font-bold">VISA 11</span>
+              <div id="slot-10-content" class="w-full h-full flex items-center justify-center"></div>
+              <span class="slot-empty-label text-[9px] font-mono uppercase text-[#b8a786]/60 text-center tracking-wider group-hover:text-amber-800 transition">+ LIBRE</span>
+            </div>
+
+            <!-- Casilla 11 -->
+            <div id="slot-11" onclick="handleSlotClick(11)" class="relative min-h-[145px] sm:min-h-[155px] rounded-xl border border-dashed border-[#b8a786]/60 bg-[#f4ece0]/40 p-1 flex flex-col items-center justify-center transition-all cursor-pointer hover:border-amber-700/60 group">
+              <span class="absolute top-1.5 left-2 text-[8px] font-mono text-[#8c775a] font-bold">VISA 12</span>
+              <div id="slot-11-content" class="w-full h-full flex items-center justify-center"></div>
+              <span class="slot-empty-label text-[9px] font-mono uppercase text-[#b8a786]/60 text-center tracking-wider group-hover:text-amber-800 transition">+ LIBRE</span>
+            </div>
+
+          </div>
+
+          <!-- Pie de página derecha: Leyenda legal consular -->
+          <div class="pt-3 border-t border-[#c8b796]/60 flex items-center justify-between text-[10px] font-mono text-[#6d5b43]">
+            <span>CONTROL ADUANERO DE CITAS</span>
+            <span class="font-bold">VÁLIDO DE POR VIDA</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Inspector Modal / Popover de Sello Consular -->
+    <div id="stampDetailsModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-neutral-900 border border-white/20 rounded-3xl max-w-md w-full p-6 text-white shadow-2xl relative animate-stamp">
+        <button onclick="closeStampModal()" class="absolute top-4 right-4 text-neutral-400 hover:text-white text-lg">✕</button>
+        <div class="flex items-center space-x-3 mb-4">
+          <div id="modalLogoBadge" class="w-12 h-12 rounded-2xl bg-white/10 p-2 flex items-center justify-center">
+            <span id="modalEmoji" class="text-2xl">🍗</span>
+          </div>
+          <div>
+            <span class="text-[10px] font-mono uppercase text-neutral-400">VISADO VERIFICADO // CERTIFICADO DUO</span>
+            <h3 id="modalPlanName" class="font-heading font-bold text-lg text-white">Popeyes Louisiana Kitchen</h3>
+          </div>
+        </div>
+
+        <div class="space-y-3 bg-black/40 p-4 rounded-2xl border border-white/10 font-mono text-xs">
+          <div class="flex justify-between border-b border-white/5 pb-2">
+            <span class="text-neutral-400">FECHA REGISTRADA:</span>
+            <span id="modalDate" class="text-amber-300 font-bold">27 OCT 2026</span>
+          </div>
+          <div class="flex justify-between border-b border-white/5 pb-2">
+            <span class="text-neutral-400">LOCAL / SUCURSAL:</span>
+            <span id="modalVenue" class="text-white text-right">CC Espacio Mediterráneo</span>
+          </div>
+          <div class="flex justify-between border-b border-white/5 pb-2">
+            <span class="text-neutral-400">MENÚ / PEDIDO:</span>
+            <span id="modalMenu" class="text-duo-cyan text-right">The Chicken Sandwich + Patatas</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-neutral-400">VALIDACIÓN:</span>
+            <span class="text-emerald-400 font-bold">100% MATCH DE AMOR</span>
+          </div>
+        </div>
+
+        <div class="mt-5 flex space-x-3">
+          <a id="modalNavBtn" href="#" target="_blank" class="flex-1 py-2.5 bg-gradient-to-r from-duo-cyan to-duo-indigo text-white font-semibold text-xs rounded-xl flex items-center justify-center space-x-1.5 shadow-md">
+            <span>🧭</span>
+            <span>Ver Dirección en Maps</span>
+          </a>
+          <button onclick="closeStampModal()" class="px-4 py-2.5 bg-white/10 hover:bg-white/15 text-white font-semibold text-xs rounded-xl border border-white/10">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- VISTA 2: TARJETA DE EMBARQUE INTERACTIVA 3D (BOARDING PASS)              -->
+  <!-- ========================================================================= -->
+  <main id="viewBoarding" class="max-w-4xl mx-auto px-4 sm:px-8 mt-6 hidden transition-opacity duration-300">
+    
+    <!-- Header banner de estado -->
+    <div class="mb-4 flex flex-col sm:flex-row sm:items-center justify-between text-neutral-400 text-xs gap-2">
+      <div class="flex items-center space-x-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-duo-cyan animate-pulse"></span>
+        <span class="font-medium text-neutral-200">BILLETE DE VIAJE & CITA // DUO LUXURY AIRWAYS</span>
+      </div>
+      <div class="flex items-center space-x-3 font-mono text-[11px]">
+        <span>ESTADO: <strong class="text-emerald-400">CONFIRMADO</strong></span>
+        <span>TERMINAL: <strong class="text-white">VIP PAREJA</strong></span>
+      </div>
+    </div>
+
+    <!-- CONTENEDOR 3D FLIP DEL BILLETE DE EMBARQUE -->
+    <div class="relative max-w-3xl mx-auto perspective-1200 py-2">
+      
+      <div id="boardingTicketFlipper" class="relative w-full transition-transform duration-700 transform-style-3d">
+        
+        <!-- ==================== CARA ANVERSO (TICKET FRONTAL) ==================== -->
+        <div id="boardingTicketFront" class="relative w-full rounded-[32px] overflow-hidden bg-neutral-900 border border-white/15 shadow-2xl backface-hidden">
+          
+          <!-- Gradiente de fondo del plan activo -->
+          <div id="ticketGradientBg" class="absolute inset-0 bg-gradient-to-br from-neutral-900 via-neutral-900 to-orange-950/40 pointer-events-none"></div>
+
+          <!-- Marca de agua de alas de aerolínea -->
+          <div class="absolute right-0 top-0 translate-x-12 -translate-y-8 w-72 h-72 opacity-5 pointer-events-none">
+            <svg viewBox="0 0 200 200" fill="currentColor" class="text-white">
+              <path d="M10 100 Q 80 40 190 20 Q 140 90 100 120 Q 50 110 10 100 Z" />
+              <path d="M20 120 Q 80 80 170 70 Q 120 130 90 150 Q 50 130 20 120 Z" />
+            </svg>
+          </div>
+
+          <!-- ESTRUCTURA HORIZONTAL DEL BILLETE (CUERPO PRINCIPAL + SEPARADOR + TALÓN) -->
+          <div class="relative z-10 flex flex-col md:flex-row">
+            
+            <!-- SECCIÓN 1: CUERPO PRINCIPAL DEL PASE (72% DEL ANCHO) -->
+            <div class="flex-1 p-6 sm:p-8 flex flex-col justify-between">
+              
+              <!-- Cabecera con Logo Real de la Marca y Categoría -->
+              <div>
+                <div class="flex items-center justify-between mb-6">
+                  
+                  <div class="flex items-center space-x-3.5">
+                    <div id="airlineLogoBadge" class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-orange-500 to-rose-600 p-0.5 flex items-center justify-center shadow-lg">
+                      <div class="w-full h-full bg-black rounded-[14px] flex items-center justify-center p-1.5 overflow-hidden">
+                        <img id="airlineBrandImg" src="./popeyes.png" class="w-full h-full object-contain" alt="Brand Logo">
+                        <span id="airlineLogoIcon" class="text-xl hidden">🍗</span>
+                      </div>
+                    </div>
+                    <div>
+                      <span class="text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-semibold block">DUO LUXURY DINING // LOCAL OFICIAL</span>
+                      <h3 id="ticketPlanCategory" class="font-heading font-extrabold text-xl text-white tracking-tight">POPEYES LOUISIANA</h3>
+                    </div>
+                  </div>
+
+                  <div class="flex flex-col items-end">
+                    <span class="px-2.5 py-1 rounded-full bg-white/10 text-white font-mono text-[11px] font-bold border border-white/15 flex items-center space-x-1.5 shadow-sm">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                      <span id="ticketFlightCode">DUO-POP-07</span>
+                    </span>
+                    <span class="text-[10px] font-mono text-neutral-400 mt-1 uppercase">CLASE: FIRST CLASS (PAREJA)</span>
+                  </div>
+
+                </div>
+
+                <!-- RUTA DE VIAJE (ORIGEN -> DESTINO CON RESTAURANTE ESPECÍFICO) -->
+                <div class="bg-black/50 rounded-2xl p-4 border border-white/10 backdrop-blur-md mb-6">
+                  <div class="flex items-center justify-between">
+                    
+                    <!-- Origen -->
+                    <div class="text-left">
+                      <span class="text-[10px] font-mono text-neutral-400 uppercase block mb-0.5">ORIGEN</span>
+                      <span class="font-heading font-extrabold text-2xl sm:text-3xl text-white tracking-tight">RTN</span>
+                      <span class="text-xs text-neutral-400 block font-medium">Rutina Diaria</span>
+                    </div>
+
+                    <!-- Indicador de Vuelo / Duración -->
+                    <div class="flex-1 px-4 flex flex-col items-center">
+                      <span id="ticketDuration" class="text-[11px] font-mono text-orange-400 font-bold mb-1">DURACIÓN: 1H 30M</span>
+                      <div class="w-full flex items-center space-x-1">
+                        <div class="h-2 w-2 rounded-full bg-orange-500"></div>
+                        <div class="h-px flex-1 bg-gradient-to-r from-orange-500 via-white to-duo-indigo relative">
+                          <svg class="w-3.5 h-3.5 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-90" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                          </svg>
+                        </div>
+                        <div class="h-2 w-2 rounded-full bg-duo-indigo"></div>
+                      </div>
+                      <span class="text-[9px] font-mono text-neutral-400 mt-1">CITA DIRECTA SIN ESCALAS</span>
+                    </div>
+
+                    <!-- Destino Específico -->
+                    <div class="text-right">
+                      <span class="text-[10px] font-mono text-neutral-400 uppercase block mb-0.5">DESTINO</span>
+                      <span id="ticketDestIata" class="font-heading font-extrabold text-2xl sm:text-3xl bg-gradient-to-r from-white to-orange-200 bg-clip-text text-transparent tracking-tight">POP</span>
+                      <span id="ticketDestName" class="text-xs text-neutral-300 block font-medium">CC Espacio Mediterráneo</span>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- GRILLA DE DETALLES DE EMBARQUE (ASIENTOS, PUERTA, FECHA, MENÚ) -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 py-2 border-y border-white/10">
+                  <div>
+                    <span class="text-[10px] font-mono uppercase text-neutral-400 block mb-0.5">PASAJEROS</span>
+                    <strong id="ticketCoupleNames" class="text-sm font-semibold text-white block">Valentina & Miguel</strong>
+                    <span class="text-[10px] text-neutral-400">Duo VIP Pass</span>
+                  </div>
+
+                  <div>
+                    <span class="text-[10px] font-mono uppercase text-neutral-400 block mb-0.5">ASIENTOS</span>
+                    <strong class="text-sm font-semibold text-amber-300 block">1A & 1B</strong>
+                    <span class="text-[10px] text-neutral-400">Zona Crujiente</span>
+                  </div>
+
+                  <div>
+                    <span class="text-[10px] font-mono uppercase text-neutral-400 block mb-0.5">HORA / CITA</span>
+                    <strong id="ticketBoardingTime" class="text-sm font-semibold text-white block">21:15 H</strong>
+                    <span id="ticketDateDisplay" class="text-[10px] text-neutral-400">Hoy • 27 OCT</span>
+                  </div>
+
+                  <div>
+                    <span class="text-[10px] font-mono uppercase text-neutral-400 block mb-0.5">PUERTA / GATE</span>
+                    <strong id="ticketGate" class="text-sm font-semibold text-duo-cyan block">GATE 07</strong>
+                    <span class="text-[10px] text-neutral-400">Mesa Reservada</span>
+                  </div>
+                </div>
+
+                <!-- DESTACADO DEL SITIO Y MENÚ RECOMENDADO -->
+                <div class="mt-4 p-3 bg-white/5 rounded-xl border border-white/10 flex items-center justify-between text-xs font-mono">
+                  <div>
+                    <span class="text-neutral-400 block text-[10px]">MENÚ RECOMENDADO DUO:</span>
+                    <span id="ticketMenuSpecialty" class="text-amber-300 font-bold">The Chicken Sandwich + Patatas Cajún + 4 Tenders</span>
+                  </div>
+                  <span class="text-emerald-400 text-xs font-semibold px-2 py-0.5 bg-emerald-500/10 rounded border border-emerald-500/20">MESA LISTA</span>
+                </div>
+
+              </div>
+
+              <!-- Footer del cuerpo principal: Microtexto de seguridad y botón Apple Wallet -->
+              <div class="mt-6 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-neutral-400">
+                <div class="flex items-center space-x-2">
+                  <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span class="text-xs text-neutral-300 font-mono">CONFIRMADO AL 100% (COINCIDENCIA EN DUO)</span>
+                </div>
+
+                <!-- Botón simulado Añadir a Apple Wallet -->
+                <button onclick="simulateAddToWallet()" class="px-4 py-2 bg-black hover:bg-neutral-800 text-white rounded-xl border border-white/20 text-xs font-semibold flex items-center space-x-2 transition shadow-lg active:scale-95 w-fit">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 4H5a3 3 0 00-3 3v10a3 3 0 003 3h14a3 3 0 003-3V7a3 3 0 00-3-3zm1 13a1 1 0 01-1 1H5a1 1 0 01-1-1V8.5h16V17zm0-10.5H4V7a1 1 0 011-1h14a1 1 0 011 1v-.5z"/>
+                  </svg>
+                  <span>Añadir a Apple Wallet</span>
+                </button>
+              </div>
+
+            </div>
+
+            <!-- SEPARADOR PERFORADO CON MUESCAS DE TROQUELADO (NOTCHES) -->
+            <div class="hidden md:flex flex-col items-center justify-between w-px perforated-v relative z-20">
+              <div class="w-7 h-7 rounded-full bg-[#07080B] border border-white/20 -mt-3.5 -ml-3.5 shadow-inner"></div>
+              <div class="w-7 h-7 rounded-full bg-[#07080B] border border-white/20 -mb-3.5 -ml-3.5 shadow-inner"></div>
+            </div>
+
+            <div class="md:hidden flex items-center justify-between h-px perforated-h relative z-20">
+              <div class="w-7 h-7 rounded-full bg-[#07080B] border border-white/20 -ml-3.5 -mt-3.5 shadow-inner"></div>
+              <div class="w-7 h-7 rounded-full bg-[#07080B] border border-white/20 -mr-3.5 -mt-3.5 shadow-inner"></div>
+            </div>
+
+            <!-- SECCIÓN 2: TALÓN DE EMBARQUE DESPRENDIBLE (BOARDING STUB - 28%) -->
+            <div class="w-full md:w-64 p-6 sm:p-7 bg-black/50 flex flex-col justify-between items-center text-center backdrop-blur-md">
+              
+              <div class="w-full">
+                <div class="flex items-center justify-between mb-3 text-neutral-400 font-mono text-[10px]">
+                  <span>TALÓN DE CITA</span>
+                  <span id="stubFlightCode">DUO-POP-07</span>
+                </div>
+
+                <div class="text-left mb-4">
+                  <span class="text-[9px] font-mono text-neutral-400 uppercase block">PASAJEROS</span>
+                  <span id="stubCoupleNames" class="text-xs font-bold text-white block">Valentina & Miguel</span>
+                  <div class="flex items-center justify-between mt-1 text-[11px] font-mono">
+                    <span class="text-neutral-400">ASIENTOS:</span>
+                    <span class="text-amber-300 font-bold">1A / 1B</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CÓDIGO DE BARRAS REALISTA / QR CODE EN SVG -->
+              <div class="w-full my-auto flex flex-col items-center">
+                
+                <!-- SVG Barcode (PDF417 / Airline Code 128) -->
+                <div class="w-full bg-white p-2.5 rounded-xl shadow-md flex flex-col items-center">
+                  <svg viewBox="0 0 160 55" class="w-full h-12 text-black fill-current">
+                    <rect x="0" y="0" width="3" height="55" />
+                    <rect x="5" y="0" width="1" height="55" />
+                    <rect x="8" y="0" width="4" height="55" />
+                    <rect x="14" y="0" width="2" height="55" />
+                    <rect x="18" y="0" width="1" height="55" />
+                    <rect x="22" y="0" width="5" height="55" />
+                    <rect x="30" y="0" width="2" height="55" />
+                    <rect x="34" y="0" width="3" height="55" />
+                    <rect x="39" y="0" width="1" height="55" />
+                    <rect x="43" y="0" width="4" height="55" />
+                    <rect x="49" y="0" width="2" height="55" />
+                    <rect x="54" y="0" width="1" height="55" />
+                    <rect x="58" y="0" width="6" height="55" />
+                    <rect x="67" y="0" width="2" height="55" />
+                    <rect x="71" y="0" width="3" height="55" />
+                    <rect x="76" y="0" width="1" height="55" />
+                    <rect x="80" y="0" width="4" height="55" />
+                    <rect x="86" y="0" width="2" height="55" />
+                    <rect x="91" y="0" width="5" height="55" />
+                    <rect x="98" y="0" width="1" height="55" />
+                    <rect x="102" y="0" width="3" height="55" />
+                    <rect x="107" y="0" width="4" height="55" />
+                    <rect x="113" y="0" width="2" height="55" />
+                    <rect x="117" y="0" width="1" height="55" />
+                    <rect x="121" y="0" width="5" height="55" />
+                    <rect x="128" y="0" width="3" height="55" />
+                    <rect x="133" y="0" width="2" height="55" />
+                    <rect x="137" y="0" width="4" height="55" />
+                    <rect x="143" y="0" width="1" height="55" />
+                    <rect x="146" y="0" width="3" height="55" />
+                    <rect x="151" y="0" width="2" height="55" />
+                    <rect x="155" y="0" width="4" height="55" />
+                  </svg>
+                  <span class="text-[8px] font-mono text-neutral-800 tracking-[0.25em] mt-1 font-bold">BOARDING PASS • DUO PASS</span>
+                </div>
+
+                <span class="text-[9px] font-mono text-neutral-400 mt-2">CANJE EXCLUSIVO EN PAREJA</span>
+              </div>
+
+              <!-- Botón interactivo de rasgar talón -->
+              <button onclick="tearStubAnimation()" class="mt-4 w-full py-1.5 px-3 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] font-mono text-neutral-300 border border-white/10 flex items-center justify-center space-x-1.5 transition active:scale-95">
+                <span>✂️</span>
+                <span id="tearBtnText">Rasgar para canjear</span>
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ==================== CARA REVERSO (BITÁCORA Y NAVEGACIÓN CIEGA) ==================== -->
+        <div id="boardingTicketBack" class="absolute inset-0 w-full h-full rounded-[32px] overflow-hidden bg-neutral-900 border border-white/15 shadow-2xl backface-hidden rotate-y-180 p-6 sm:p-8 flex flex-col justify-between backdrop-blur-xl">
+          
+          <!-- Encabezado del Reverso -->
+          <div class="border-b border-white/10 pb-4 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-mono tracking-widest text-orange-400 uppercase font-semibold">DUO LUXURY AIRWAYS // BITÁCORA OFICIAL</span>
+              <h3 class="font-heading font-bold text-lg text-white">RECOMENDACIONES & COORDENADAS</h3>
+            </div>
+            <button onclick="toggleCardFlip()" class="px-3 py-1 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-neutral-200 border border-white/10 transition">
+              ↩️ Volver al anverso
+            </button>
+          </div>
+
+          <!-- Contenido Central de la Bitácora -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-auto py-2">
+            
+            <!-- Columna 1: Ubicación Ciega y Coordenadas -->
+            <div class="bg-black/50 p-4 rounded-2xl border border-white/10 flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-mono text-neutral-400 uppercase block mb-1">📍 Localización Exacta</span>
+                <strong id="backDestCoords" class="text-xs font-mono text-white block mb-1">37.6180° N, 0.9570° W (Cartagena)</strong>
+                <p id="backVenueAddress" class="text-[11px] text-neutral-400 mb-3">CC Espacio Mediterráneo, Calle Londres s/n, Cartagena.</p>
+              </div>
+              <a id="btnBlindNav" href="https://maps.apple.com/?daddr=37.6180,-0.9570&dirflg=d" target="_blank" class="w-full py-2 bg-gradient-to-r from-orange-500 to-rose-600 text-white font-semibold text-xs rounded-xl flex items-center justify-center space-x-1.5 shadow-md hover:opacity-90 transition">
+                <span>🧭</span>
+                <span>Cómo Llegar (Maps)</span>
+              </a>
+            </div>
+
+            <!-- Columna 2: Dress Code y Reglas de la Cita -->
+            <div class="bg-black/50 p-4 rounded-2xl border border-white/10 flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-mono text-neutral-400 uppercase block mb-1">👗 Dress Code & Sugerencias</span>
+                <strong id="backDressCode" class="text-xs text-amber-300 block mb-2">Casual / Ven con hambre</strong>
+                <div class="space-y-1.5 text-[11px] text-neutral-300">
+                  <div class="flex items-center space-x-1.5">
+                    <span class="text-duo-emerald">✓</span>
+                    <span>Prohibido hablar de trabajo</span>
+                  </div>
+                  <div class="flex items-center space-x-1.5">
+                    <span class="text-duo-emerald">✓</span>
+                    <span>Compartir las patatas cajún</span>
+                  </div>
+                  <div class="flex items-center space-x-1.5">
+                    <span class="text-duo-emerald">✓</span>
+                    <span>Foto juntos al llegar</span>
+                  </div>
+                </div>
+              </div>
+              <div class="text-[10px] font-mono text-neutral-500 pt-2 border-t border-white/5">
+                ARTÍCULO 1: DISFRUTAR AL MÁXIMO
+              </div>
+            </div>
+
+            <!-- Columna 3: Aztec Barcode de Seguridad y Certificado -->
+            <div class="bg-black/50 p-4 rounded-2xl border border-white/10 flex flex-col items-center justify-center text-center">
+              <span class="text-[10px] font-mono text-neutral-400 uppercase block mb-2">🔒 Token Criptográfico Duo</span>
+              
+              <!-- SVG Aztec / QR Code Simulado -->
+              <div class="w-24 h-24 bg-white p-2 rounded-xl flex items-center justify-center shadow-md">
+                <svg viewBox="0 0 100 100" class="w-full h-full text-black fill-current">
+                  <rect x="0" y="0" width="100" height="100" fill="none" stroke="currentColor" stroke-width="4" />
+                  <rect x="15" y="15" width="70" height="70" fill="none" stroke="currentColor" stroke-width="4" />
+                  <rect x="30" y="30" width="40" height="40" fill="currentColor" />
+                  <rect x="42" y="42" width="16" height="16" fill="white" />
+                  <circle cx="50" cy="50" r="4" fill="currentColor" />
+                </svg>
+              </div>
+
+              <span class="text-[9px] font-mono text-neutral-400 mt-2">HASH: #DUO-2026-VIP</span>
+            </div>
+
+          </div>
+
+          <!-- Pie del Reverso con botón de volver -->
+          <div class="border-t border-white/10 pt-3 flex items-center justify-between text-neutral-400 text-xs">
+            <span>PASAPORTE ELECTRÓNICO REGISTRADO</span>
+            <span class="font-mono text-amber-300">VÁLIDO PARA 2 COMENSALES</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Botón Voltear Tarjeta -->
+    <div class="mt-4 flex justify-center">
+      <button onclick="toggleCardFlip()" class="px-5 py-2.5 rounded-2xl bg-neutral-900 border border-white/15 text-white text-xs font-semibold hover:bg-neutral-800 transition flex items-center space-x-2 shadow-lg">
+        <span>🔄</span>
+        <span id="flipBtnText">Ver Bitácora & Ubicación (Reverso)</span>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- VISTA 3: CATÁLOGO Y GALERÍA DE SELLOS DE ADUANA (STAMP GALLERY)          -->
+  <!-- ========================================================================= -->
+  <main id="viewStamps" class="max-w-6xl mx-auto px-4 sm:px-8 mt-6 hidden transition-opacity duration-300">
+    
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between text-neutral-400 text-xs gap-2">
+      <div>
+        <h2 class="text-lg font-bold text-white font-heading">Catálogo de Sellos Consulares por Local</h2>
+        <p class="text-xs text-neutral-400">Cada sitio y cita tiene un sello único que incluye la fecha e ilustra el local físico</p>
+      </div>
+      <span class="px-3 py-1 rounded-full bg-white/10 text-neutral-200 font-mono text-[11px] border border-white/10">8 MODELOS VECTORIALES SVG</span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      
+      <!-- Sello 1: Popeyes Louisiana Kitchen -->
+      <div class="p-6 rounded-3xl bg-neutral-900/80 border border-white/10 flex flex-col items-center justify-between hover:border-orange-500/50 transition-all group">
+        <span class="text-xs font-mono text-orange-400 font-semibold uppercase mb-3">01 // Popeyes Louisiana</span>
+        <div class="w-44 h-44 stamp-ink flex items-center justify-center p-1 group-hover:scale-105 transition-transform" id="gallery-stamp-popeyes">
+          <!-- Rendered by JS -->
+        </div>
+        <div class="mt-4 text-center">
+          <strong class="text-white block text-sm">Popeyes Louisiana</strong>
+          <span class="text-xs text-neutral-400">CC Espacio Mediterráneo</span>
+        </div>
+      </div>
+
+      <!-- Sello 2: Única Smash Burgers -->
+      <div class="p-6 rounded-3xl bg-neutral-900/80 border border-white/10 flex flex-col items-center justify-between hover:border-amber-500/50 transition-all group">
+        <span class="text-xs font-mono text-amber-400 font-semibold uppercase mb-3">02 // Única Burgers</span>
+        <div class="w-44 h-44 stamp-ink flex items-center justify-center p-1 group-hover:scale-105 transition-transform" id="gallery-stamp-unica">
+          <!-- Rendered by JS -->
+        </div>
+        <div class="mt-4 text-center">
+          <strong class="text-white block text-sm">Única Smash Burgers</strong>
+          <span class="text-xs text-neutral-400">Casco Antiguo Cartagena</span>
+        </div>
+      </div>
+
+      <!-- Sello 3: KFC Mandarache -->
+      <div class="p-6 rounded-3xl bg-neutral-900/80 border border-white/10 flex flex-col items-center justify-between hover:border-rose-500/50 transition-all group">
+        <span class="text-xs font-mono text-rose-400 font-semibold uppercase mb-3">03 // KFC Mandarache</span>
+        <div class="w-44 h-44 stamp-ink flex items-center justify-center p-1 group-hover:scale-105 transition-transform" id="gallery-stamp-kfc">
+          <!-- Rendered by JS -->
+        </div>
+        <div class="mt-4 text-center">
+          <strong class="text-white block text-sm">KFC Original Recipe</strong>
+          <span class="text-xs text-neutral-400">CC Mandarache Cartagena</span>
+        </div>
+      </div>
+
+      <!-- Sello 4: Neocine Mandarache -->
+      <div class="p-6 rounded-3xl bg-neutral-900/80 border border-white/10 flex flex-col items-center justify-between hover:border-duo-rose/50 transition-all group">
+        <span class="text-xs font-mono text-duo-rose font-semibold uppercase mb-3">04 // Neocine Mandarache</span>
+        <div class="w-44 h-44 stamp-ink flex items-center justify-center p-1 group-hover:scale-105 transition-transform" id="gallery-stamp-cine">
+          <!-- Rendered by JS -->
+        </div>
+        <div class="mt-4 text-center">
+          <strong class="text-white block text-sm">Cine Mandarache</strong>
+          <span class="text-xs text-neutral-400">Sala 4 • Palomitas grandes</span>
+        </div>
+      </div>
+
+      <!-- Sello 5: Talaso Spa Marino -->
+      <div class="p-6 rounded-3xl bg-neutral-900/80 border border-white/10 flex flex-col items-center justify-between hover:border-duo-cyan/50 transition-all group">
+        <span class="text-xs font-mono text-duo-cyan font-semibold uppercase mb-3">05 // Talaso Spa</span>
+        <div class="w-44 h-44 stamp-ink flex items-center justify-center p-1 group-hover:scale-105 transition-transform" id="gallery-stamp-spa">
+          <!-- Rendered by JS -->
+        </div>
+        <div class="mt-4 text-center">
+          <strong class="text-white block text-sm">Circuito Termal</strong>
+          <span class="text-xs text-neutral-400">Los Alcázares / Mar Menor</span>
+        </div>
+      </div>
+
+      <!-- Sello 6: Escape Room Mystery Lab -->
+      <div class="p-6 rounded-3xl bg-neutral-900/80 border border-white/10 flex flex-col items-center justify-between hover:border-amber-400/50 transition-all group">
+        <span class="text-xs font-mono text-amber-400 font-semibold uppercase mb-3">06 // Mystery Lab</span>
+        <div class="w-44 h-44 stamp-ink flex items-center justify-center p-1 group-hover:scale-105 transition-transform" id="gallery-stamp-escape">
+          <!-- Rendered by JS -->
+        </div>
+        <div class="mt-4 text-center">
+          <strong class="text-white block text-sm">Escape Room 404</strong>
+          <span class="text-xs text-neutral-400">Calle Real Cartagena</span>
+        </div>
+      </div>
+
+      <!-- Sello 7: Cala Cortina Sunset -->
+      <div class="p-6 rounded-3xl bg-neutral-900/80 border border-white/10 flex flex-col items-center justify-between hover:border-orange-400/50 transition-all group">
+        <span class="text-xs font-mono text-orange-400 font-semibold uppercase mb-3">07 // Cala Cortina</span>
+        <div class="w-44 h-44 stamp-ink flex items-center justify-center p-1 group-hover:scale-105 transition-transform" id="gallery-stamp-sunset">
+          <!-- Rendered by JS -->
+        </div>
+        <div class="mt-4 text-center">
+          <strong class="text-white block text-sm">Atardecer & Paseo</strong>
+          <span class="text-xs text-neutral-400">Puerto & Helado</span>
+        </div>
+      </div>
+
+      <!-- Sello 8: Bodega Viña Mayor -->
+      <div class="p-6 rounded-3xl bg-neutral-900/80 border border-white/10 flex flex-col items-center justify-between hover:border-purple-400/50 transition-all group">
+        <span class="text-xs font-mono text-purple-400 font-semibold uppercase mb-3">08 // Bodegas D.O. Bullas</span>
+        <div class="w-44 h-44 stamp-ink flex items-center justify-center p-1 group-hover:scale-105 transition-transform" id="gallery-stamp-wine">
+          <!-- Rendered by JS -->
+        </div>
+        <div class="mt-4 text-center">
+          <strong class="text-white block text-sm">Cata de Vinos & Tapas</strong>
+          <span class="text-xs text-neutral-400">Bodega Viña Mayor</span>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL / NOTIFICACIÓN TOAST TÁCTIL                                        -->
+  <!-- ========================================================================= -->
+  <div id="toastNotification" class="fixed bottom-6 right-6 z-50 bg-neutral-900 border border-white/20 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center space-x-3 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+    <div id="toastIcon" class="w-8 h-8 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold">✓</div>
+    <div>
+      <h4 id="toastTitle" class="font-bold text-xs">Acción completada</h4>
+      <p id="toastMessage" class="text-[11px] text-neutral-400">Sello estampado en el pasaporte.</p>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SCRIPT LÓGICO Y WEB AUDIO SINTETIZADO                                     -->
+  <!-- ========================================================================= -->
+  <script>
+    // Catálogo completo de planes y sus identidades visuales y locales reales
+    const PLANS = [
+      {
+        id: 'popeyes',
+        name: 'Popeyes Louisiana Kitchen',
+        emoji: '🍗',
+        logoUrl: './popeyes.png',
+        category: 'CENA CRUJIENTE CAJÚN',
+        flightCode: 'DUO-POP-07',
+        gate: 'GATE 07',
+        time: '21:15 H',
+        duration: '1H 30M',
+        destIata: 'POP',
+        destName: 'CC Espacio Mediterráneo',
+        address: 'CC Espacio Mediterráneo, Calle Londres s/n, Cartagena',
+        coords: '37.6180° N, 0.9570° W',
+        navUrl: 'https://maps.apple.com/?daddr=37.6180,-0.9570&dirflg=d',
+        dressCode: 'Casual / ¡Ganas de Crujiente!',
+        specialty: 'The Chicken Sandwich + Patatas Cajún + 4 Tenders',
+        accentColor: '#FF7A18',
+        gradientClass: 'from-orange-950/60',
+        inkColor: '#c2410c',
+        rotation: '-2.5deg',
+        getStampSvg: function(date, couple, city) {
+          return `
+            <svg viewBox="0 0 220 220" class="w-24 h-24 sm:w-28 sm:h-28 stamp-ink text-[#c2410c] fill-current drop-shadow-sm">
+              <polygon points="110,12 188,48 188,172 110,208 32,172 32,48" fill="none" stroke="currentColor" stroke-width="3.5" />
+              <polygon points="110,22 178,54 178,166 110,198 42,166 42,54" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="6 3" />
+              <path id="pathPopAct" d="M 40 50 Q 110 20 180 50" fill="none" />
+              <text font-size="10" font-family="'Special Elite', monospace" font-weight="bold" fill="currentColor">
+                <textPath href="#pathPopAct" startOffset="50%" text-anchor="middle">DUO FOOD CONTROL • 2026</textPath>
+              </text>
+              <circle cx="110" cy="85" r="22" fill="none" stroke="currentColor" stroke-width="2" />
+              <path d="M 103 88 C 103 76, 117 76, 117 88 C 117 96, 103 96, 103 88 Z" fill="currentColor" />
+              <circle cx="113" cy="80" r="2" fill="#F8F4EC" />
+              <polygon points="117,82 124,84 117,86" fill="currentColor" />
+              <text x="110" y="118" font-size="11" font-family="'Special Elite', monospace" font-weight="bold" text-anchor="middle" fill="currentColor">POPEYES LOUISIANA</text>
+              <rect x="42" y="126" width="136" height="26" rx="3" fill="none" stroke="currentColor" stroke-width="2" />
+              <text x="110" y="144" font-size="14" font-family="'Courier Prime', monospace" font-weight="bold" text-anchor="middle" fill="currentColor">${date}</text>
+              <text x="110" y="165" font-size="8.5" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">CC ESPACIO MEDITERRÁNEO</text>
+              <text x="110" y="177" font-size="7.5" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">12H MARINATED • ADMIT TWO</text>
+            </svg>
+          `;
+        }
+      },
+      {
+        id: 'unica',
+        name: 'Única Smash Burgers',
+        emoji: '🍔',
+        logoUrl: './unica.png',
+        category: 'SMASH BURGERS & CRAFT',
+        flightCode: 'DUO-UNI-03',
+        gate: 'GATE 03',
+        time: '21:30 H',
+        duration: '1H 45M',
+        destIata: 'UNI',
+        destName: 'Casco Antiguo Cartagena',
+        address: 'Plaza del Rey / Casco Antiguo, Cartagena',
+        coords: '37.6005° N, 0.9835° W',
+        navUrl: 'https://maps.apple.com/?daddr=37.6005,-0.9835&dirflg=d',
+        dressCode: 'Casual & apetito smash',
+        specialty: 'Doble Smash Trufada + Sweet Bacon Fries',
+        accentColor: '#F59E0B',
+        gradientClass: 'from-amber-950/60',
+        inkColor: '#854d0e',
+        rotation: '3.1deg',
+        getStampSvg: function(date, couple, city) {
+          return `
+            <svg viewBox="0 0 220 220" class="w-24 h-24 sm:w-28 sm:h-28 stamp-ink text-[#854d0e] fill-current drop-shadow-sm">
+              <rect x="20" y="20" width="180" height="180" rx="20" fill="none" stroke="currentColor" stroke-width="3.5" />
+              <rect x="28" y="28" width="164" height="164" rx="14" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="8 4" />
+              <text x="110" y="52" font-size="11" font-family="'Special Elite', monospace" text-anchor="middle" font-weight="bold" fill="currentColor">ARTISAN SMASH BURGER</text>
+              <text x="110" y="66" font-size="8.5" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">ÚNICA • CASCO ANTIGUO</text>
+              <path d="M 85 86 C 85 75, 135 75, 135 86 Z" fill="currentColor" />
+              <rect x="80" y="90" width="60" height="4" rx="2" fill="currentColor" />
+              <rect x="84" y="97" width="52" height="6" rx="2" fill="currentColor" />
+              <rect x="44" y="115" width="132" height="28" rx="3" fill="none" stroke="currentColor" stroke-width="2" />
+              <text x="110" y="134" font-size="15" font-family="'Courier Prime', monospace" font-weight="bold" text-anchor="middle" fill="currentColor">${date}</text>
+              <text x="110" y="158" font-size="9" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">CARTAGENA ADMITTED</text>
+              <text x="110" y="172" font-size="8" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">VALID FOR 2 FOODIES</text>
+            </svg>
+          `;
+        }
+      },
+      {
+        id: 'kfc',
+        name: 'KFC Mandarache',
+        emoji: '🍗',
+        logoUrl: './kfc.png',
+        category: 'CRISPY CHICKEN FEAST',
+        flightCode: 'DUO-KFC-11',
+        gate: 'GATE 02',
+        time: '20:45 H',
+        duration: '1H 20M',
+        destIata: 'KFC',
+        destName: 'CC Mandarache',
+        address: 'CC Mandarache, Ronda Ciudad de la Unión, Cartagena',
+        coords: '37.6175° N, 0.9855° W',
+        navUrl: 'https://maps.apple.com/?daddr=37.6175,-0.9855&dirflg=d',
+        dressCode: 'Super Cómodo',
+        specialty: 'Bucket 8 Piezas Receta Original + Strips',
+        accentColor: '#E11D48',
+        gradientClass: 'from-rose-950/60',
+        inkColor: '#9f1239',
+        rotation: '-1.8deg',
+        getStampSvg: function(date, couple, city) {
+          return `
+            <svg viewBox="0 0 220 220" class="w-24 h-24 sm:w-28 sm:h-28 stamp-ink text-[#9f1239] fill-current drop-shadow-sm">
+              <circle cx="110" cy="110" r="95" fill="none" stroke="currentColor" stroke-width="3.5" />
+              <circle cx="110" cy="110" r="86" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="5 3" />
+              <path id="pathKfcAct" d="M 30 110 A 80 80 0 0 1 190 110" fill="none" />
+              <text font-size="11" font-family="'Special Elite', monospace" font-weight="bold" fill="currentColor">
+                <textPath href="#pathKfcAct" startOffset="50%" text-anchor="middle">ORIGINAL RECIPE IMMIGRATION</textPath>
+              </text>
+              <polygon points="110,65 114,75 125,75 116,82 119,92 110,86 101,92 104,82 95,75 106,75" fill="currentColor" />
+              <text x="110" y="112" font-size="12" font-family="'Special Elite', monospace" font-weight="bold" text-anchor="middle" fill="currentColor">KFC MANDARACHE</text>
+              <rect x="45" y="124" width="130" height="26" rx="3" fill="none" stroke="currentColor" stroke-width="2" />
+              <text x="110" y="142" font-size="14" font-family="'Courier Prime', monospace" font-weight="bold" text-anchor="middle" fill="currentColor">${date}</text>
+              <text x="110" y="165" font-size="9" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">CARTAGENA • ADMIT TWO</text>
+            </svg>
+          `;
+        }
+      },
+      {
+        id: 'cine',
+        name: 'Neocine Mandarache',
+        emoji: '🎬',
+        category: 'ESTRENO EN PANTALLA GIGANTE',
+        flightCode: 'DUO-CIN-01',
+        gate: 'GATE 04',
+        time: '21:45 H',
+        duration: '2H 15M',
+        destIata: 'CIN',
+        destName: 'Neocine Mandarache — Sala 4',
+        address: 'CC Mandarache, Ronda Ciudad de la Unión, Cartagena',
+        coords: '37.6180° N, 0.9850° W',
+        navUrl: 'https://maps.apple.com/?daddr=37.6180,-0.9850&dirflg=d',
+        dressCode: 'Casual Cómodo / Sudadera',
+        specialty: 'Palomitas Grandes Dulce/Salado + Bebida',
+        accentColor: '#FF2D55',
+        gradientClass: 'from-rose-900/40',
+        inkColor: '#9e1236',
+        rotation: '-2.5deg',
+        getStampSvg: function(date, couple, city) {
+          return `
+            <svg viewBox="0 0 220 220" class="w-24 h-24 sm:w-28 sm:h-28 stamp-ink text-[#9e1236] fill-current drop-shadow-sm">
+              <circle cx="110" cy="110" r="102" fill="none" stroke="currentColor" stroke-width="3.5" stroke-dasharray="10 4" />
+              <circle cx="110" cy="110" r="92" fill="none" stroke="currentColor" stroke-width="1.8" />
+              <path id="pathCineAct" d="M 28 110 A 82 82 0 0 1 192 110" fill="none" />
+              <text font-size="11" font-family="'Special Elite', monospace" font-weight="bold" fill="currentColor">
+                <textPath href="#pathCineAct" startOffset="50%" text-anchor="middle">DUO CINEMA IMMIGRATION • 2026</textPath>
+              </text>
+              <rect x="74" y="80" width="72" height="46" rx="4" fill="none" stroke="currentColor" stroke-width="2.2" />
+              <line x1="74" y1="94" x2="146" y2="94" stroke="currentColor" stroke-width="2.2" />
+              <text x="110" y="114" font-size="10.5" font-family="'Courier Prime', monospace" font-weight="bold" text-anchor="middle" fill="currentColor">NEOCINE</text>
+              <rect x="46" y="136" width="128" height="28" rx="3" fill="none" stroke="currentColor" stroke-width="2.2" />
+              <text x="110" y="155" font-size="14.5" font-family="'Courier Prime', monospace" font-weight="bold" text-anchor="middle" fill="currentColor">${date}</text>
+              <text x="110" y="180" font-size="9" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">MANDARACHE • SALA 4</text>
+              <text x="110" y="194" font-size="8" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">VÁLIDO PARA 2 ESPECTADORES</text>
+            </svg>
+          `;
+        }
+      },
+      {
+        id: 'spa',
+        name: 'Talaso Spa Marino',
+        emoji: '🧖‍♀️',
+        category: 'CIRCUITO TERMAL SPA',
+        flightCode: 'DUO-SPA-777',
+        gate: 'GATE 07',
+        time: '18:30 H',
+        duration: '2H 30M',
+        destIata: 'SPA',
+        destName: 'Talaso Spa Marino — Los Alcázares',
+        address: 'Paseo de la Encarnación, Los Alcázares, Mar Menor',
+        coords: '37.6401° N, 0.7212° W',
+        navUrl: 'https://maps.apple.com/?daddr=37.6401,-0.7212&dirflg=d',
+        dressCode: 'Bañador, Chanclas & Albornoz',
+        specialty: 'Circuito marino de salmuera + Baño de vapor',
+        accentColor: '#32ADE6',
+        gradientClass: 'from-cyan-950/40',
+        inkColor: '#0c4a6e',
+        rotation: '3.2deg',
+        getStampSvg: function(date, couple, city) {
+          return `
+            <svg viewBox="0 0 220 220" class="w-24 h-24 sm:w-28 sm:h-28 stamp-ink text-[#0c4a6e] fill-current drop-shadow-sm">
+              <polygon points="110,12 200,62 200,158 110,208 20,158 20,62" fill="none" stroke="currentColor" stroke-width="3.5" />
+              <polygon points="110,24 188,68 188,152 110,196 32,152 32,68" fill="none" stroke="currentColor" stroke-width="1.5" />
+              <text x="110" y="55" font-size="11.5" font-family="'Special Elite', monospace" text-anchor="middle" font-weight="bold" fill="currentColor">TALASO SPA MARINO</text>
+              <text x="110" y="74" font-size="9" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">WELLNESS & HYDRO PASS</text>
+              <path d="M 65 92 Q 88 84 110 92 T 155 92" fill="none" stroke="currentColor" stroke-width="2.5" />
+              <path d="M 65 102 Q 88 94 110 102 T 155 102" fill="none" stroke="currentColor" stroke-width="2.5" />
+              <text x="110" y="132" font-size="16" font-family="'Courier Prime', monospace" font-weight="bold" text-anchor="middle" fill="currentColor">${date}</text>
+              <line x1="50" y1="142" x2="170" y2="142" stroke="currentColor" stroke-width="1.8" />
+              <text x="110" y="162" font-size="10" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">LOS ALCÁZARES / MAR MENOR</text>
+              <text x="110" y="180" font-size="8.5" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">RELAX & DESCONEXIÓN TOTAL</text>
+            </svg>
+          `;
+        }
+      },
+      {
+        id: 'escape',
+        name: 'Mystery Lab Escape Room',
+        emoji: '🗝️',
+        category: 'ESCAPE ROOM SECRETO',
+        flightCode: 'DUO-ESC-404',
+        gate: 'GATE 01',
+        time: '20:00 H',
+        duration: '1H 15M',
+        destIata: 'ESC',
+        destName: 'Mystery Lab — Calle Real',
+        address: 'Calle Real nº 24, Cartagena',
+        coords: '37.6022° N, 0.9880° W',
+        navUrl: 'https://maps.apple.com/?daddr=37.6022,-0.9880&dirflg=d',
+        dressCode: 'Ropa Cómoda & Zapatillas',
+        specialty: 'Sala Enigma 404: 60 minutos contrarreloj',
+        accentColor: '#FFD60A',
+        gradientClass: 'from-amber-950/40',
+        inkColor: '#78350f',
+        rotation: '-1.8deg',
+        getStampSvg: function(date, couple, city) {
+          return `
+            <svg viewBox="0 0 220 220" class="w-24 h-24 sm:w-28 sm:h-28 stamp-ink text-[#78350f] fill-current drop-shadow-sm">
+              <polygon points="110,10 210,110 110,210 10,110" fill="none" stroke="currentColor" stroke-width="4" />
+              <polygon points="110,24 196,110 110,196 24,110" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="6 3" />
+              <text x="110" y="65" font-size="11" font-family="'Special Elite', monospace" text-anchor="middle" font-weight="bold" fill="currentColor">MYSTERY LAB CARTAGENA</text>
+              <text x="110" y="82" font-size="9" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">TOP SECRET PROTOCOL</text>
+              <circle cx="98" cy="102" r="9" fill="none" stroke="currentColor" stroke-width="2.2" />
+              <line x1="107" y1="102" x2="132" y2="102" stroke="currentColor" stroke-width="2.2" />
+              <text x="110" y="136" font-size="15" font-family="'Courier Prime', monospace" font-weight="bold" text-anchor="middle" fill="currentColor">${date}</text>
+              <text x="110" y="156" font-size="9.5" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">LÍMITE: 60 MINUTOS</text>
+              <text x="110" y="172" font-size="8.5" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">CALLE REAL CLEARED</text>
+            </svg>
+          `;
+        }
+      },
+      {
+        id: 'sunset',
+        name: 'Cala Cortina Sunset',
+        emoji: '🍦',
+        category: 'ATARDECER & HELADO',
+        flightCode: 'DUO-SUN-24',
+        gate: 'GATE 03',
+        time: '19:15 H',
+        duration: '1H 45M',
+        destIata: 'SUN',
+        destName: 'Heladería Puerto / Cala Cortina',
+        address: 'Ctra. Cala Cortina s/n, Cartagena',
+        coords: '37.5921° N, 0.9801° W',
+        navUrl: 'https://maps.apple.com/?daddr=37.5921,-0.9801&dirflg=d',
+        dressCode: 'Gafas de Sol & Chaqueta Ligera',
+        specialty: 'Helado artesanal 2 bolas + Paseo al atardecer',
+        accentColor: '#FF9F0A',
+        gradientClass: 'from-orange-950/40',
+        inkColor: '#9a3412',
+        rotation: '2.1deg',
+        getStampSvg: function(date, couple, city) {
+          return `
+            <svg viewBox="0 0 220 180" class="w-24 h-20 sm:w-28 sm:h-24 stamp-ink text-[#9a3412] fill-current drop-shadow-sm">
+              <ellipse cx="110" cy="90" rx="104" ry="80" fill="none" stroke="currentColor" stroke-width="3.5" />
+              <ellipse cx="110" cy="90" rx="95" ry="71" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 3" />
+              <path id="pathSunsetAct" d="M 24 90 A 86 62 0 0 1 196 90" fill="none" />
+              <text font-size="11" font-family="'Special Elite', monospace" font-weight="bold" fill="currentColor">
+                <textPath href="#pathSunsetAct" startOffset="50%" text-anchor="middle">CALA CORTINA IMMIGRATION</textPath>
+              </text>
+              <path d="M 75 92 A 35 35 0 0 1 145 92" fill="none" stroke="currentColor" stroke-width="2.2" />
+              <line x1="50" y1="92" x2="170" y2="92" stroke="currentColor" stroke-width="2.2" />
+              <rect x="46" y="104" width="128" height="26" rx="3" fill="none" stroke="currentColor" stroke-width="2" />
+              <text x="110" y="122" font-size="14.5" font-family="'Courier Prime', monospace" font-weight="bold" text-anchor="middle" fill="currentColor">${date}</text>
+              <text x="110" y="146" font-size="9" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">CALA CORTINA / PUERTO</text>
+              <text x="110" y="158" font-size="8" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">VÁLIDO PARA 2 ENAMORADOS</text>
+            </svg>
+          `;
+        }
+      },
+      {
+        id: 'wine',
+        name: 'Bodega Viña Mayor',
+        emoji: '🍷',
+        category: 'CATA DE VINOS & BODEGA',
+        flightCode: 'DUO-WIN-88',
+        gate: 'GATE 05',
+        time: '20:30 H',
+        duration: '3H 00M',
+        destIata: 'WIN',
+        destName: 'Bodega Viña Mayor — D.O. Bullas',
+        address: 'Ctra. de Bullas s/n, Región de Murcia',
+        coords: '38.0010° N, 1.1300° W',
+        navUrl: 'https://maps.apple.com/?daddr=38.0010,-1.1300&dirflg=d',
+        dressCode: 'Smart Casual Elegante',
+        specialty: 'Cata de 4 vinos locales + Tabla de quesos y jamón',
+        accentColor: '#BF5AF2',
+        gradientClass: 'from-purple-950/40',
+        inkColor: '#581c87',
+        rotation: '-3.1deg',
+        getStampSvg: function(date, couple, city) {
+          return `
+            <svg viewBox="0 0 220 170" class="w-24 h-20 sm:w-28 sm:h-24 stamp-ink text-[#581c87] fill-current drop-shadow-sm">
+              <rect x="12" y="12" width="196" height="146" rx="10" fill="none" stroke="currentColor" stroke-width="3.5" />
+              <rect x="18" y="18" width="184" height="134" rx="6" fill="none" stroke="currentColor" stroke-width="1.2" />
+              <text x="110" y="44" font-size="11" font-family="'Special Elite', monospace" text-anchor="middle" font-weight="bold" fill="currentColor">BODEGAS VIÑA MAYOR</text>
+              <text x="110" y="60" font-size="8.5" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">D.O. BULLAS / JUMILLA</text>
+              <path d="M 103 70 Q 110 82 110 90 L 110 98 M 102 98 L 118 98 M 103 70 L 117 70" fill="none" stroke="currentColor" stroke-width="2" />
+              <line x1="35" y1="104" x2="185" y2="104" stroke="currentColor" stroke-width="1.8" />
+              <text x="110" y="122" font-size="15" font-family="'Courier Prime', monospace" font-weight="bold" text-anchor="middle" fill="currentColor">${date}</text>
+              <line x1="35" y1="128" x2="185" y2="128" stroke="currentColor" stroke-width="1.8" />
+              <text x="110" y="144" font-size="9" font-family="'Courier Prime', monospace" text-anchor="middle" fill="currentColor">CONTROL CONSULAR GASTRONÓMICO</text>
+            </svg>
+          `;
+        }
+      }
+    ];
+
+    // =========================================================================
+    // SISTEMA DE HOJAS DEL PASAPORTE (SPREADS) Y HISTÓRICO DE CITAS SELLADAS
+    // 6 SELLOS EN PASAPORTE POR HOJA (6 HOJA IZQUIERDA + 6 HOJA DERECHA = 12 POR PLIEGO)
+    // =========================================================================
+    const PASSPORT_SPREADS = [
+      {
+        id: 'spread-foodie',
+        leftPageNum: 8,
+        rightPageNum: 9,
+        leftTitle: 'RUTAS FOODIE & CENAS',
+        rightTitle: 'SABORES EN PAREJA',
+        subtitle: 'HOJAS 08 - 09 // RUTAS GASTRONÓMICAS',
+        stamps: [
+          // Página 8 (6 sellos por hoja)
+          { planId: 'popeyes', date: '27 OCT 2026', visaNum: '0841-POP', rot: '-2.2deg' },
+          { planId: 'unica', date: '24 OCT 2026', visaNum: '0842-UNI', rot: '3.1deg' },
+          { planId: 'kfc', date: '19 OCT 2026', visaNum: '0843-KFC', rot: '-1.8deg' },
+          { planId: 'wine', date: '12 OCT 2026', visaNum: '0844-WIN', rot: '2.5deg' },
+          { planId: 'sunset', date: '06 OCT 2026', visaNum: '0845-SUN', rot: '-3.0deg' },
+          { planId: 'unica', date: '29 SEP 2026', visaNum: '0846-UNI', rot: '1.5deg' },
+          // Página 9 (6 sellos por hoja)
+          { planId: 'popeyes', date: '22 SEP 2026', visaNum: '0847-POP', rot: '2.8deg' },
+          { planId: 'kfc', date: '15 SEP 2026', visaNum: '0848-KFC', rot: '-2.1deg' },
+          { planId: 'wine', date: '08 SEP 2026', visaNum: '0849-WIN', rot: '3.4deg' },
+          { planId: 'sunset', date: '01 SEP 2026', visaNum: '0850-SUN', rot: '-1.2deg' },
+          { planId: 'popeyes', date: '24 AGO 2026', visaNum: '0851-POP', rot: '-2.7deg' },
+          null // Casilla libre
+        ]
+      },
+      {
+        id: 'spread-culture',
+        leftPageNum: 10,
+        rightPageNum: 11,
+        leftTitle: 'CINE, ESCAPES & MISTERIO',
+        rightTitle: 'AVENTURAS & DESAFÍOS',
+        subtitle: 'HOJAS 10 - 11 // CINE & CULTURA',
+        stamps: [
+          // Página 10 (6 sellos por hoja)
+          { planId: 'cine', date: '20 OCT 2026', visaNum: '0852-CIN', rot: '2.5deg' },
+          { planId: 'escape', date: '15 OCT 2026', visaNum: '0853-ESC', rot: '-3.1deg' },
+          { planId: 'spa', date: '08 OCT 2026', visaNum: '0854-SPA', rot: '1.8deg' },
+          { planId: 'cine', date: '02 OCT 2026', visaNum: '0855-CIN', rot: '-2.2deg' },
+          { planId: 'escape', date: '25 SEP 2026', visaNum: '0856-ESC', rot: '3.0deg' },
+          { planId: 'sunset', date: '18 SEP 2026', visaNum: '0857-SUN', rot: '-1.5deg' },
+          // Página 11 (6 sellos por hoja)
+          { planId: 'spa', date: '11 SEP 2026', visaNum: '0858-SPA', rot: '2.1deg' },
+          { planId: 'cine', date: '04 SEP 2026', visaNum: '0859-CIN', rot: '-2.8deg' },
+          { planId: 'wine', date: '28 AGO 2026', visaNum: '0860-WIN', rot: '1.9deg' },
+          { planId: 'escape', date: '21 AGO 2026', visaNum: '0861-ESC', rot: '-3.3deg' },
+          { planId: 'sunset', date: '14 AGO 2026', visaNum: '0862-SUN', rot: '2.4deg' },
+          null
+        ]
+      },
+      {
+        id: 'spread-active',
+        leftPageNum: 14,
+        rightPageNum: 15,
+        leftTitle: 'CITAS ACTIVAS & RECIENTES',
+        rightTitle: 'PRÓXIMOS VISADOS',
+        subtitle: 'HOJAS 14 - 15 (EN CURSO)',
+        stamps: [
+          // Página 14 (6 sellos por hoja: 4 estampados, 2 libres para estampar en vivo)
+          { planId: 'popeyes', date: '27 OCT 2026', visaNum: '0863-POP', rot: '-2.5deg' },
+          { planId: 'unica', date: '24 OCT 2026', visaNum: '0864-UNI', rot: '2.8deg' },
+          { planId: 'cine', date: '20 OCT 2026', visaNum: '0865-CIN', rot: '-1.8deg' },
+          { planId: 'spa', date: '16 OCT 2026', visaNum: '0866-SPA', rot: '3.2deg' },
+          null, // Libre para estampar en vivo
+          null, // Libre para estampar en vivo
+          // Página 15 (6 sellos por hoja: libres para estampar)
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ];
+
+    let currentSpreadIdx = 2; // Empezamos en la hoja activa (Hojas 14-15)
+    let currentPlanIndex = 0; // Popeyes seleccionado por defecto
+    let audioEnabled = true;
+    let audioCtx = null;
+    let isTorn = false;
+    let isFlipped = false;
+
+    // Web Audio Synthesizer para efectos hápticos/sonoros realistas
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playStampSound() {
+      if (!audioEnabled) return;
+      initAudio();
+      try {
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(115, now);
+        osc.frequency.exponentialRampToValueAtTime(30, now + 0.14);
+        
+        gain.gain.setValueAtTime(0.75, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.16);
+
+        // Crujido de caucho y tinta sobre papel (white noise burst filtrado)
+        const bufferSize = audioCtx.sampleRate * 0.06;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(950, now);
+
+        const noiseGain = audioCtx.createGain();
+        noiseGain.gain.setValueAtTime(0.35, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
+
+        noise.connect(filter);
+        filter.connect(noiseGain);
+        noiseGain.connect(audioCtx.destination);
+        noise.start(now);
+      } catch (e) {
+        console.warn("Audio Context error:", e);
+      }
+    }
+
+    function playPageTurnSound() {
+      if (!audioEnabled) return;
+      initAudio();
+      try {
+        const now = audioCtx.currentTime;
+        const bufferSize = audioCtx.sampleRate * 0.18;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.sin(i / 20);
+        }
+
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1800, now);
+        filter.frequency.linearRampToValueAtTime(450, now + 0.18);
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        noise.start(now);
+      } catch (e) {
+        console.warn("Audio Context error:", e);
+      }
+    }
+
+    function playTearSound() {
+      if (!audioEnabled) return;
+      initAudio();
+      try {
+        const now = audioCtx.currentTime;
+        const bufferSize = audioCtx.sampleRate * 0.15;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.sin(i / 15);
+        }
+
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(2400, now);
+        filter.frequency.linearRampToValueAtTime(800, now + 0.15);
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        noise.start(now);
+      } catch (e) {
+        console.warn("Audio Context error:", e);
+      }
+    }
+
+    function playFlipSound() {
+      if (!audioEnabled) return;
+      initAudio();
+      try {
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(240, now);
+        osc.frequency.exponentialRampToValueAtTime(480, now + 0.12);
+        osc.frequency.exponentialRampToValueAtTime(160, now + 0.25);
+
+        gain.gain.setValueAtTime(0.01, now);
+        gain.gain.linearRampToValueAtTime(0.2, now + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.26);
+      } catch (e) {
+        console.warn("Audio Context error:", e);
+      }
+    }
+
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      document.getElementById('soundIcon').innerText = audioEnabled ? '🔊' : '🔇';
+      document.getElementById('soundText').innerText = audioEnabled ? 'Sonido ON' : 'Sonido OFF';
+      showToast(audioEnabled ? 'Sonido Activado' : 'Sonido Desactivado', 'Efectos hápticos sintetizados listos');
+    }
+
+    function togglePersonalizer() {
+      const drawer = document.getElementById('personalizerDrawer');
+      drawer.classList.toggle('hidden');
+    }
+
+    // Cambiar de modo (Passport vs Boarding vs Stamps Gallery)
+    function switchMode(mode) {
+      const vPassport = document.getElementById('viewPassport');
+      const vBoarding = document.getElementById('viewBoarding');
+      const vStamps = document.getElementById('viewStamps');
+
+      const bPassport = document.getElementById('btnModePassport');
+      const bBoarding = document.getElementById('btnModeBoarding');
+      const bStamps = document.getElementById('btnModeStamps');
+
+      [bPassport, bBoarding, bStamps].forEach(b => {
+        b.className = "mode-btn px-4 py-2 rounded-xl text-xs font-semibold tracking-wide flex items-center space-x-2 transition-all duration-300 text-neutral-400 hover:text-white";
+      });
+
+      vPassport.classList.add('hidden');
+      vBoarding.classList.add('hidden');
+      vStamps.classList.add('hidden');
+
+      if (mode === 'passport') {
+        vPassport.classList.remove('hidden');
+        bPassport.className = "mode-btn px-4 py-2 rounded-xl text-xs font-semibold tracking-wide flex items-center space-x-2 transition-all duration-300 bg-white/15 text-white shadow-sm border border-white/10";
+      } else if (mode === 'boarding') {
+        vBoarding.classList.remove('hidden');
+        bBoarding.className = "mode-btn px-4 py-2 rounded-xl text-xs font-semibold tracking-wide flex items-center space-x-2 transition-all duration-300 bg-white/15 text-white shadow-sm border border-white/10";
+      } else if (mode === 'stamps') {
+        vStamps.classList.remove('hidden');
+        bStamps.className = "mode-btn px-4 py-2 rounded-xl text-xs font-semibold tracking-wide flex items-center space-x-2 transition-all duration-300 bg-white/15 text-white shadow-sm border border-white/10";
+        renderStampsGallery();
+      }
+
+      showToast('Vista actualizada', `Cambiado a ${mode === 'passport' ? 'Página de Pasaporte' : mode === 'boarding' ? 'Tarjeta de Embarque' : 'Galería de Sellos'}`);
+    }
+
+    // Seleccionar plan activo y actualizar UI en tiempo real
+    function selectPlan(idx) {
+      currentPlanIndex = idx;
+      const plan = PLANS[idx];
+
+      // Actualizar píldoras selectoras
+      document.querySelectorAll('.plan-pill').forEach((btn, i) => {
+        if (i === idx) {
+          btn.className = "plan-pill px-3.5 py-1.5 rounded-xl text-xs font-medium transition flex items-center space-x-1.5 bg-orange-500/20 text-orange-400 border border-orange-500/40 font-semibold";
+        } else {
+          btn.className = "plan-pill px-3.5 py-1.5 rounded-xl text-xs font-medium transition flex items-center space-x-1.5 text-neutral-400 hover:text-white hover:bg-white/5 border border-transparent";
+        }
+      });
+
+      renderBoardingPass(plan);
+      showToast('Local seleccionado', `${plan.name} — ${plan.destName}`);
+    }
+
+    // Renderizar Hoja Actual del Pasaporte con sus sellos acumulados
+    function renderCurrentSpread() {
+      const spread = PASSPORT_SPREADS[currentSpreadIdx];
+      const couple = document.getElementById('inputCoupleNames').value || "Valentina & Miguel";
+      const city = document.getElementById('selectCity').value || "Cartagena";
+
+      document.getElementById('spreadIndicatorText').innerText = spread.subtitle;
+      document.getElementById('pageLeftNum').innerText = spread.leftPageNum;
+      document.getElementById('pageRightNum').innerText = spread.rightPageNum;
+      document.getElementById('pageLeftTitle').innerText = spread.leftTitle;
+      document.getElementById('pageRightTitle').innerText = spread.rightTitle;
+      document.getElementById('passportHolders').innerText = couple;
+      document.getElementById('passportCity').innerText = `${city} (España)`;
+
+      // Renderizar las 12 casillas (6 por hoja) de esta doble página
+      spread.stamps.forEach((stampData, slotIdx) => {
+        const slotEl = document.getElementById(`slot-${slotIdx}`);
+        const contentEl = document.getElementById(`slot-${slotIdx}-content`);
+        const emptyLabel = slotEl.querySelector('.slot-empty-label');
+
+        if (stampData) {
+          const plan = PLANS.find(p => p.id === stampData.planId) || PLANS[0];
+          emptyLabel.classList.add('hidden');
+          contentEl.innerHTML = `
+            <div class="relative z-10 transform cursor-pointer hover:scale-105 transition-transform" style="transform: rotate(${stampData.rot || '0deg'});">
+              ${plan.getStampSvg(stampData.date, couple, city)}
+            </div>
+          `;
+          slotEl.classList.remove('border-dashed');
+          slotEl.classList.add('border-solid', 'border-[#b8a786]/70', 'bg-[#f8f3ea]');
+        } else {
+          emptyLabel.classList.remove('hidden');
+          contentEl.innerHTML = '';
+          slotEl.classList.remove('border-solid', 'border-[#b8a786]/70', 'bg-[#f8f3ea]');
+          slotEl.classList.add('border-dashed');
+        }
+      });
+
+      updateProgressBar();
+    }
+
+    // Estampar en la siguiente casilla vacía (o en el slot activo)
+    function stampCurrentPlanInActiveSlot() {
+      playStampSound();
+      if (navigator.vibrate) {
+        navigator.vibrate([40, 30, 80]);
+      }
+
+      const spread = PASSPORT_SPREADS[currentSpreadIdx];
+      const plan = PLANS[currentPlanIndex];
+      const date = document.getElementById('inputPlanDate').value || "27 OCT 2026";
+
+      // Buscar primera casilla libre en esta hoja
+      let emptyIdx = spread.stamps.findIndex(s => s === null);
+      if (emptyIdx === -1) {
+        // Hoja completa, avanzar a la siguiente si existe
+        if (currentSpreadIdx < PASSPORT_SPREADS.length - 1) {
+          nextPassportSpread();
+          showToast('Hoja completa', 'Pasando a la siguiente hoja del pasaporte...');
+          return;
+        } else {
+          // Reemplazar la última casilla para demostración
+          emptyIdx = spread.stamps.length - 1;
+        }
+      }
+
+      // Generar rotación aleatoria natural (-3.5deg a +3.5deg)
+      const randomRot = ((Math.random() * 7) - 3.5).toFixed(1) + 'deg';
+      const visaNum = `08${Math.floor(Math.random() * 80 + 20)}-${plan.id.toUpperCase().substring(0, 3)}`;
+
+      spread.stamps[emptyIdx] = {
+        planId: plan.id,
+        date: date,
+        visaNum: visaNum,
+        rot: randomRot
+      };
+
+      // Efecto visual y renderizado
+      renderCurrentSpread();
+
+      const slotContent = document.getElementById(`slot-${emptyIdx}-content`);
+      slotContent.classList.add('animate-stamp');
+
+      showToast('¡Visado Estampado!', `Se ha sellado "${plan.name}" con fecha ${date} en la hoja ${spread.leftPageNum}-${spread.rightPageNum}.`);
+    }
+
+    // Clic directo sobre una casilla para ver detalles o estampar
+    function handleSlotClick(slotIdx) {
+      const spread = PASSPORT_SPREADS[currentSpreadIdx];
+      const stampData = spread.stamps[slotIdx];
+
+      if (stampData) {
+        // Abrir inspector del sello
+        const plan = PLANS.find(p => p.id === stampData.planId) || PLANS[0];
+        openStampModal(plan, stampData.date);
+      } else {
+        // Casilla vacía: estampar el plan actualmente seleccionado
+        stampCurrentPlanInActiveSlot();
+      }
+    }
+
+    function openStampModal(plan, date) {
+      playStampSound();
+      document.getElementById('modalPlanName').innerText = plan.name;
+      document.getElementById('modalVenue').innerText = plan.destName;
+      document.getElementById('modalDate').innerText = date;
+      document.getElementById('modalMenu').innerText = plan.specialty;
+      document.getElementById('modalNavBtn').href = plan.navUrl;
+      document.getElementById('modalEmoji').innerText = plan.emoji;
+
+      document.getElementById('stampDetailsModal').classList.remove('hidden');
+    }
+
+    function closeStampModal() {
+      document.getElementById('stampDetailsModal').classList.add('hidden');
+    }
+
+    // Navegación entre hojas
+    function prevPassportSpread() {
+      if (currentSpreadIdx > 0) {
+        playPageTurnSound();
+        currentSpreadIdx--;
+        animatePageTurn();
+      } else {
+        showToast('Inicio del pasaporte', 'Estás en las primeras páginas de la libreta.');
+      }
+    }
+
+    function nextPassportSpread() {
+      if (currentSpreadIdx < PASSPORT_SPREADS.length - 1) {
+        playPageTurnSound();
+        currentSpreadIdx++;
+        animatePageTurn();
+      } else {
+        showToast('Fin de la libreta', 'Has llegado a las hojas más recientes de citas.');
+      }
+    }
+
+    function animatePageTurn() {
+      const container = document.getElementById('passportBookContainer');
+      container.classList.remove('page-turn-anim');
+      void container.offsetWidth; // Force reflow
+      container.classList.add('page-turn-anim');
+      renderCurrentSpread();
+    }
+
+    function updateProgressBar() {
+      let totalStamps = 0;
+      let totalSlots = 0;
+
+      PASSPORT_SPREADS.forEach(s => {
+        s.stamps.forEach(stamp => {
+          totalSlots++;
+          if (stamp !== null) totalStamps++;
+        });
+      });
+
+      const percentage = Math.round((totalStamps / totalSlots) * 100);
+      document.getElementById('passportProgressBar').style.width = `${percentage}%`;
+      document.getElementById('passportProgressLabel').innerText = `${totalStamps} de ${totalSlots} Visados sellados • ${percentage}% de las hojas completadas`;
+    }
+
+    // Renderizar Tarjeta de Embarque Frontal y Dorsal
+    function renderBoardingPass(plan) {
+      const couple = document.getElementById('inputCoupleNames').value || "Valentina & Miguel";
+      const date = document.getElementById('inputPlanDate').value || "27 OCT 2026";
+      const city = document.getElementById('selectCity').value || "Cartagena";
+
+      // Logo o imagen de marca real
+      const brandImg = document.getElementById('airlineBrandImg');
+      const brandIcon = document.getElementById('airlineLogoIcon');
+      if (plan.logoUrl) {
+        brandImg.src = plan.logoUrl;
+        brandImg.classList.remove('hidden');
+        brandIcon.classList.add('hidden');
+      } else {
+        brandImg.classList.add('hidden');
+        brandIcon.classList.remove('hidden');
+        brandIcon.innerText = plan.emoji;
+      }
+
+      // Front
+      document.getElementById('ticketPlanCategory').innerText = plan.category;
+      document.getElementById('ticketFlightCode').innerText = plan.flightCode;
+      document.getElementById('stubFlightCode').innerText = plan.flightCode;
+      document.getElementById('ticketDestIata').innerText = plan.destIata;
+      document.getElementById('ticketDestName').innerText = plan.destName;
+      document.getElementById('ticketDuration').innerText = `DURACIÓN: ${plan.duration}`;
+      document.getElementById('ticketBoardingTime').innerText = plan.time;
+      document.getElementById('ticketGate').innerText = plan.gate;
+      document.getElementById('ticketCoupleNames').innerText = couple;
+      document.getElementById('stubCoupleNames').innerText = couple;
+      document.getElementById('ticketDateDisplay').innerText = `Hoy • ${date}`;
+      document.getElementById('ticketMenuSpecialty').innerText = plan.specialty;
+
+      // Back
+      document.getElementById('backDestCoords').innerText = `${plan.coords} (${city})`;
+      document.getElementById('backVenueAddress').innerText = plan.address;
+      document.getElementById('backDressCode').innerText = plan.dressCode;
+      document.getElementById('btnBlindNav').href = plan.navUrl;
+
+      // Color de acento
+      const gradBg = document.getElementById('ticketGradientBg');
+      gradBg.className = `absolute inset-0 bg-gradient-to-br from-neutral-900 via-neutral-900 ${plan.gradientClass} pointer-events-none`;
+    }
+
+    function updatePersonalization() {
+      const couple = document.getElementById('inputCoupleNames').value || "Valentina & Miguel";
+      const city = document.getElementById('selectCity').value || "Cartagena";
+
+      // MRZ Update
+      const safeNames = couple.toUpperCase().replace(/[^A-Z]/g, '<');
+      document.getElementById('mrzLine1').innerText = `P<DUOES<<AMOR<${safeNames.substring(0, 25)}<<<<<<<<<<<`;
+
+      renderCurrentSpread();
+      renderBoardingPass(PLANS[currentPlanIndex]);
+    }
+
+    // 3D Flip de la tarjeta de embarque
+    function toggleCardFlip() {
+      playFlipSound();
+      isFlipped = !isFlipped;
+      const flipper = document.getElementById('boardingTicketFlipper');
+      const btnText = document.getElementById('flipBtnText');
+
+      if (isFlipped) {
+        flipper.classList.add('rotate-y-180');
+        btnText.innerText = 'Ver Billete Principal (Anverso)';
+        showToast('Bitácora y Coordenadas', 'Reverso desplegado: dirección física y enlace de navegación Maps.');
+      } else {
+        flipper.classList.remove('rotate-y-180');
+        btnText.innerText = 'Ver Bitácora & Ubicación (Reverso)';
+        showToast('Anverso del Billete', 'Volviendo al pase de embarque principal.');
+      }
+    }
+
+    // Rasgar billete de embarque
+    function tearStubAnimation() {
+      playTearSound();
+      isTorn = !isTorn;
+      const btn = document.getElementById('tearBtnText');
+      const ticket = document.getElementById('boardingTicketFront');
+
+      if (isTorn) {
+        btn.innerText = 'Restaurar billete';
+        ticket.classList.add('ring-2', 'ring-emerald-500/50');
+        showToast('¡Pase Canjeado!', 'Asientos 1A & 1B validados. ¡Disfrutad del plan juntos!');
+      } else {
+        btn.innerText = 'Rasgar para canjear';
+        ticket.classList.remove('ring-2', 'ring-emerald-500/50');
+        showToast('Billete restaurado', 'Listo para ser utilizado.');
+      }
+    }
+
+    function simulateAddToWallet() {
+      playStampSound();
+      showToast('Añadido a Apple Wallet', 'Se ha generado el pase DuoPass.pkpass con notificación de reserva.');
+    }
+
+    function showToast(title, message) {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastTitle').innerText = title;
+      document.getElementById('toastMessage').innerText = message;
+
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 3000);
+    }
+
+    // Renderizar Galería de Sellos
+    function renderStampsGallery() {
+      const date = document.getElementById('inputPlanDate').value || "27 OCT 2026";
+      const couple = document.getElementById('inputCoupleNames').value || "Valentina & Miguel";
+      const city = document.getElementById('selectCity').value || "Cartagena";
+
+      PLANS.forEach(p => {
+        const el = document.getElementById(`gallery-stamp-${p.id}`);
+        if (el) {
+          el.innerHTML = p.getStampSvg(date, couple, city);
+        }
+      });
+    }
+
+    // Inicializar al cargar
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCurrentSpread();
+      selectPlan(0); // Popeyes seleccionado de entrada
+      renderStampsGallery();
+    });
+  </script>
+
+</body>
+</html>
