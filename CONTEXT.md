@@ -518,6 +518,21 @@ Ideas aprobadas para incorporar progresivamente en futuras iteraciones de Duo:
   - Las tarjetas de recomendados se seleccionan directamente con las mecánicas del juego (voto, veto, superlike) sin cambiar de pantalla.
   - Service Worker actualizado a `donde-comemos-v34`.
 
+### [v1.9.30] - 2026-10-27
+- **Fase 1 y Mejoras Prioritarias de Auditoría Multidisciplinar (v2.0)**:
+  - **Sorteo Determinista en Votación Simultánea**: El dispositivo anfitrión resuelve el resultado y Player 2 adopta de forma inmediata y prioritaria el nodo firmado en Firebase, eliminando por completo la posibilidad de ganadores discordantes entre ambos móviles.
+  - **Ruleta de Desempate Justa y Respeto Absoluto de Vetos**: La ruleta final une siempre las selecciones de ambos jugadores (`p1Selections ∪ p2Selections`) en lugar de tomar solo las de P2, y descarta terminantemente cualquier opción vetada por cualquiera de los dos.
+  - **Filtro 'No Repetir Último Ganador' Conectado**: Al calcular coincidencias, si hay múltiples opciones válidas y el switch está activo, se excluye automáticamente el último ganador de la ronda anterior.
+  - **Ampliación de Áreas Táctiles (44x44px)**: Añadidos pseudoelementos `::after` a los botones de Veto, Superlike e Info (`min-width: 44px; min-height: 44px;`) evitando selecciones accidentales sobre la tarjeta (*fat finger*).
+  - **Votación Quirúrgica en Vivo (Sin Re-renders Destructivos)**: Al aplicar o retirar un Veto o Superlike, la interfaz actualiza directamente los nodos de la tarjeta en el DOM sin recargar la pantalla completa, eliminando parpadeos y preservando el scroll.
+  - **Optimización de GPU (120Hz ProMotion)**: Reemplazado el `backdrop-filter` en cascada en las 20+ tarjetas de catálogo por un material de cristal oscuro puro (`#151722` con degradado), liberando la GPU en iPhone.
+  - **Soporte de Navegación por Gestos / Atrás**: Integración con `history.pushState` y escucha de `popstate` para navegar atrás ordenadamente sin salirse de la aplicación.
+  - **Corrección de Filtros en Modo Planes**: Planes de 2 horas integrados en el filtro de tarde y opciones secundarias vinculadas.
+  - **Ruleta de Suspense Dinámica**: La ruleta ahora cicla carteles de cine en modo Películas o iconos de planes en modo Planes en lugar de hamburguesas.
+  - **Seguridad Anti-XSS**: Función universal `escapeHtml` en notas secretas, diario de citas y wishlist.
+  - **Cromática Apple HIG**: Degradados limpios de P1 (Rose a Coral) y P2 (Indigo a Cyan) sin tonos semáforo.
+  - **Bump a `donde-comemos-v51`** en Service Worker e `index.html`.
+
 ### [v1.9.29] - 2026-10-27
 - **Eliminación Total y Blindaje contra Difuminado Superior en iOS PWA Standalone**:
   - **Bloqueador físico de Safe Area**: añadido `<div class="ios-status-bar-fill"></div>` fijo en `top: 0` con altura `env(safe-area-inset-top, 0px)` y `background-color: #000000 !important; z-index: 99999` para sellar la barra de estado e impedir que WebKit en iOS intente proyectar un filtro de difuminado sobre elementos que hagan scroll.

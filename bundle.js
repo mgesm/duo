@@ -7,6 +7,16 @@
 (function () {
   'use strict';
 
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   // ==========================================
   // 1. CATÁLOGO DE RESTAURANTES (LOGOS OFICIALES VECTORIALES SVG)
   // ==========================================
@@ -3759,10 +3769,10 @@
         </div>
         <div class="flex-1 min-w-0 text-left">
           <div class="text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1">
-            <span>Nota de ${senderName || 'Pareja'}</span>
+            <span>Nota de ${escapeHtml(senderName) || 'Pareja'}</span>
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
           </div>
-          <div class="text-xs font-semibold text-white truncate drop-shadow-sm">${text}</div>
+          <div class="text-xs font-semibold text-white truncate drop-shadow-sm">${escapeHtml(text)}</div>
         </div>
         <button id="btn-close-dynamic-island" class="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-neutral-300 hover:text-white flex items-center justify-center text-[10px] font-bold border border-white/10">✕</button>
       </div>
@@ -4135,6 +4145,15 @@
     window.addEventListener('hashchange', function () {
       checkRemoteHash();
     });
+    window.addEventListener('popstate', function (e) {
+      if (e.state && e.state.screen) {
+        state.screen = e.state.screen;
+        render(true);
+      } else {
+        state.screen = 'home';
+        render(true);
+      }
+    });
     setupPwaBanner();
     render();
   }
@@ -4159,8 +4178,15 @@
     });
   }
 
-  function render() {
+  function render(skipPushState) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (!skipPushState && window.history && window.history.pushState) {
+      const currentHistoryState = window.history.state;
+      if (!currentHistoryState || currentHistoryState.screen !== state.screen) {
+        window.history.pushState({ screen: state.screen }, '');
+      }
+    }
     switch (state.screen) {
       case 'home':
         renderHomeScreen();
@@ -4708,14 +4734,14 @@
       ? {
           badgeBg: 'bg-rose-500/15 text-[#FF2D55] border-rose-500/30',
           counterBg: 'bg-[#FF2D55] text-white shadow-rose-500/40',
-          btnBg: 'bg-gradient-to-r from-[#FF2D55] via-[#FF375F] to-[#FF9F0A] shadow-rose-500/30',
+          btnBg: 'bg-gradient-to-r from-[#FF2D55] to-[#FF375F] shadow-rose-500/30',
           selectedClass: 'card-p1-selected',
           checkClass: 'ios-check-p1'
         }
       : {
           badgeBg: 'bg-indigo-500/15 text-[#5E5CE6] border-indigo-500/30',
           counterBg: 'bg-[#5E5CE6] text-white shadow-indigo-500/40',
-          btnBg: 'bg-gradient-to-r from-[#5E5CE6] via-[#0A84FF] to-[#30D158] shadow-indigo-500/30',
+          btnBg: 'bg-gradient-to-r from-[#5E5CE6] to-[#0A84FF] shadow-indigo-500/30',
           selectedClass: 'card-p2-selected',
           checkClass: 'ios-check-p2'
         };
@@ -4796,9 +4822,9 @@
         }
 
         if (pdur !== 'all') {
-          // Duración rápida (<= 1.5h) o larga (> 2h)
+          // Duración rápida (<= 1.5h) o larga (>= 2h)
           const isQuick = ['plan-escape-room', 'plan-paseo-helado', 'plan-museo'].includes(r.id);
-          const isLong = ['plan-cine', 'plan-picnic', 'plan-senderismo', 'plan-concierto', 'plan-cocinar-juntos'].includes(r.id);
+          const isLong = ['plan-cine', 'plan-picnic', 'plan-senderismo', 'plan-concierto', 'plan-cocinar-juntos', 'plan-bolera', 'plan-spa', 'plan-cata-vinos', 'plan-juegos-mesa'].includes(r.id);
           if (pdur === 'quick' && !isQuick) return false;
           if (pdur === 'long' && !isLong) return false;
         }
@@ -5778,6 +5804,56 @@
       });
     });
 
+    // Actualización quirúrgica del estado visual de todas las tarjetas
+    function updateAllCardsUI() {
+      const currentVeto = isP1 ? state.player1Veto : state.player2Veto;
+      const currentSuperlike = isP1 ? state.player1Superlike : state.player2Superlike;
+
+      document.querySelectorAll('.ios-glass-card').forEach(function (card) {
+        const id = card.dataset.id;
+        const isSelected = currentSelections.has(id);
+        const isVetoed = currentVeto === id;
+        const isSuper = currentSuperlike === id;
+
+        card.classList.toggle(theme.selectedClass, isSelected && !isVetoed);
+        card.classList.toggle('card-vetoed', isVetoed);
+        card.classList.toggle('opacity-65', isVetoed);
+        card.classList.toggle('card-superliked', isSuper);
+
+        const checkEl = card.querySelector('.check-badge');
+        if (checkEl) {
+          checkEl.className = 'ios-check ' + (isSelected && !isVetoed ? theme.checkClass : 'ios-check-unselected') + ' check-badge pointer-events-none';
+        }
+
+        const vetoBtn = card.querySelector('.btn-card-veto');
+        if (vetoBtn) {
+          if (isVetoed) {
+            vetoBtn.className = 'btn-card-veto w-7 h-7 rounded-full flex items-center justify-center text-xs transition active:scale-90 bg-rose-500 text-white shadow-md font-bold';
+          } else {
+            vetoBtn.className = 'btn-card-veto w-7 h-7 rounded-full flex items-center justify-center text-xs transition active:scale-90 bg-white/10 text-neutral-400 hover:text-rose-400';
+          }
+        }
+
+        const superBtn = card.querySelector('.btn-card-superlike');
+        if (superBtn) {
+          if (isSuper) {
+            superBtn.className = 'btn-card-superlike w-7 h-7 rounded-full flex items-center justify-center text-xs transition active:scale-90 bg-amber-500 text-black shadow-md font-bold';
+          } else {
+            superBtn.className = 'btn-card-superlike w-7 h-7 rounded-full flex items-center justify-center text-xs transition active:scale-90 bg-white/10 text-neutral-400 hover:text-amber-400';
+          }
+          const svgEl = superBtn.querySelector('svg');
+          if (svgEl) {
+            svgEl.setAttribute('class', 'w-3.5 h-3.5 ' + (isSuper ? 'fill-black stroke-black' : 'fill-none stroke-current'));
+          }
+        }
+      });
+
+      const counterEl = document.getElementById('selected-counter');
+      if (counterEl) {
+        counterEl.textContent = currentSelections.size;
+      }
+    }
+
     document.querySelectorAll('.btn-card-veto').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
@@ -5808,7 +5884,7 @@
           }
         }
         broadcastLiveVoteProgress();
-        renderPlayerScreen(playerNum);
+        updateAllCardsUI();
       });
     });
 
@@ -5842,7 +5918,7 @@
           }
         }
         broadcastLiveVoteProgress();
-        renderPlayerScreen(playerNum);
+        updateAllCardsUI();
       });
     });
 
@@ -6262,7 +6338,10 @@
       </div>
     `;
 
-    const logos = [
+    const isMovies = state.activeMode === 'movies';
+    const isPlans = state.activeMode === 'plans';
+
+    let logos = [
       './mcdonalds.png',
       './burger_king.png',
       './kfc.png',
@@ -6271,6 +6350,14 @@
       './kebab.png',
       './telepizza.png'
     ];
+
+    if (isMovies || isPlans) {
+      const activeOptions = (state.restaurants || []).slice(0, 7);
+      const posters = activeOptions.map(function (opt) { return opt.poster || opt.logo || opt.image; }).filter(Boolean);
+      if (posters.length > 0) {
+        logos = posters;
+      }
+    }
 
     let tickCount = 0;
     const interval = setInterval(function () {
@@ -6311,6 +6398,29 @@
                 render();
                 return;
               }
+
+              // En caso de que seamos Player 2 y aún no esté completado, Player 1 (host) es quien sortea
+              // Si Player 1 tarda un instante, le damos prioridad para evitar ganadores discordantes
+              if (state.remoteRole === 'player2') {
+                // Esperar brevemente a que Player 1 firme el resultado
+                await new Promise(function (res) { setTimeout(res, 600); });
+                const recheckSnap = await db.ref('rooms/' + state.roomId).once('value');
+                const recheckData = recheckSnap.val();
+                if (recheckData && recheckData.status === 'completed' && recheckData.result) {
+                  state.winningRestaurant = getAnyItemById(recheckData.result.winnerId) || state.restaurants[0];
+                  state.matchesCount = recheckData.result.matchesCount || 1;
+                  state.tieBreakerUser = recheckData.result.tieBreakerUser || null;
+                  if (!state.userCoords) state.userCoords = await getUserLocation();
+                  state.winningBranch = findClosestBranch(state.winningRestaurant, state.userCoords);
+                  state.isNameRevealed = false;
+                  state.showClues = false;
+                  state.clueIndex = 0;
+                  state.screen = 'result';
+                  render();
+                  return;
+                }
+              }
+
               // Si aún no está completado, aseguramos poblar las selecciones de ambos
               if (Array.isArray(roomData.p1Selections)) {
                 state.player1Selections = new Set(roomData.p1Selections);
@@ -6330,9 +6440,16 @@
       }
 
       // 1. Coincidencias brutas (ambos han seleccionado)
-      const rawMatches = Array.from(state.player1Selections).filter(function (id) {
+      let rawMatches = Array.from(state.player1Selections).filter(function (id) {
         return state.player2Selections.has(id);
       });
+
+      // Si el switch "No repetir último ganador" está activo y hay más de 1 coincidencia, descartamos el último
+      if (state.avoidLastWinner && state.lastWinnerId && rawMatches.length > 1) {
+        rawMatches = rawMatches.filter(function (id) {
+          return id !== state.lastWinnerId;
+        });
+      }
 
       // 2. Aplicar VETOS: Si alguno lo vetó, queda completamente descartado
       const validMatches = rawMatches.filter(function (id) {
@@ -7287,17 +7404,20 @@
       });
 
     } else {
-      // Ronda 2 o Ruleta express
-      const candidateIds = state._showWheelEarly
-        ? Array.from(new Set([].concat(Array.from(state.player1Selections), Array.from(state.player2Selections))))
-        : Array.from(state.player2Selections);
+      // Ronda 2 o Ruleta express: Unir siempre opciones de ambos jugadores excluyendo explícitamente los vetos
+      const combinedSelections = Array.from(new Set([].concat(Array.from(state.player1Selections), Array.from(state.player2Selections))));
+      const candidateIds = combinedSelections.filter(function (id) {
+        return id !== state.player1Veto && id !== state.player2Veto;
+      });
 
       let candidateItems = candidateIds
         .map(function (id) { return getAnyItemById(id); })
         .filter(Boolean);
 
       if (candidateItems.length === 0) {
-        candidateItems = state.restaurants.slice(0, 6);
+        candidateItems = state.restaurants.filter(function (r) {
+          return r.id !== state.player1Veto && r.id !== state.player2Veto;
+        }).slice(0, 6);
       }
 
       app.innerHTML = `
@@ -8195,26 +8315,26 @@
                                   ${modeIcon}
                                   <span class="text-[10px] uppercase font-bold text-neutral-400 tracking-wider">Destino & Cita</span>
                                 </div>
-                                <h4 class="text-base font-extrabold text-white tracking-tight leading-snug truncate">${v.restaurantName}</h4>
+                                <h4 class="text-base font-extrabold text-white tracking-tight leading-snug truncate">${escapeHtml(v.restaurantName)}</h4>
                                 <div class="text-xs text-amber-400 font-bold tracking-widest mt-1">${starsHtml}</div>
                               </div>
                               <div class="text-right shrink-0">
                                 <span class="text-[9px] uppercase font-mono text-neutral-500 block">ASIENTOS</span>
-                                <span class="text-xs font-bold text-neutral-200">${(v.p1Name || state.player1Name).slice(0, 1)} + ${(v.p2Name || state.player2Name).slice(0, 1)} (PAREJA)</span>
+                                <span class="text-xs font-bold text-neutral-200">${escapeHtml(v.p1Name || state.player1Name).slice(0, 1)} + ${escapeHtml(v.p2Name || state.player2Name).slice(0, 1)} (PAREJA)</span>
                               </div>
                             </div>
 
                             ${v.photo ? `
                               <!-- Foto integrada en el billete con marco perforado -->
                               <div class="rounded-2xl overflow-hidden max-h-48 border border-white/10 shadow-lg relative group">
-                                <img src="${v.photo}" alt="${v.restaurantName}" class="w-full h-44 object-cover" />
+                                <img src="${v.photo}" alt="${escapeHtml(v.restaurantName)}" class="w-full h-44 object-cover" />
                                 <div class="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-[9px] font-mono text-white/80 border border-white/10">PHOTO ADMIT ONE</div>
                               </div>
                             ` : ''}
 
                             ${v.note ? `
                               <div class="bg-black/40 p-3 rounded-xl border border-white/[0.06] text-[11px] text-neutral-300 italic leading-relaxed">
-                                "${v.note}"
+                                "${escapeHtml(v.note)}"
                               </div>
                             ` : ''}
                           </div>
@@ -8505,8 +8625,8 @@
                             </span>
                             <span class="text-[10px] text-neutral-400">${w.date}</span>
                           </div>
-                          <div class="text-xs font-bold text-white truncate">${w.name}</div>
-                          ${w.note ? `<div class="text-[10px] text-neutral-400 italic truncate">${w.note}</div>` : ''}
+                          <div class="text-xs font-bold text-white truncate">${escapeHtml(w.name)}</div>
+                          ${w.note ? `<div class="text-[10px] text-neutral-400 italic truncate">${escapeHtml(w.note)}</div>` : ''}
                         </div>
                         <button data-id="${w.id}" class="btn-remove-wishlist p-1.5 rounded-lg text-neutral-500 hover:text-rose-400 hover:bg-rose-500/10 transition shrink-0" title="Eliminar de Wishlist">
                           <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
