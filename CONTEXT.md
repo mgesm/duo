@@ -116,6 +116,23 @@ Ideas aprobadas para incorporar progresivamente en futuras iteraciones de Duo:
 
 ## 📝 7. Historial de Cambios (Changelog)
 
+### [v1.9.31] - 2026-10-27
+- **Corrección Ortográfica de Plurales ("veces", no "vezes")**:
+  - Implementada la función auxiliar `formatTimes(n)` para garantizar gramática española impecable en todas las pantallas y modales:
+    - `1 vez`
+    - `2 veces`
+    - `3 veces`
+  - Eliminada cualquier concatenación errónea como `vezes` o `1 veces` tanto en el Top Podio de Favoritos como en el marcador de la moneda.
+- **Cálculo Exacto y Matemático de Frecuencias y Visitas ("Top Sitios & Planes Favoritos")**:
+  - **Deduplicación técnica en `recordSessionOutcome`**: Cada ronda de votación cuenta ahora con un `sessionId` estable (ej. `room-YQ665G`). Las llamadas repetidas (al tirar la moneda para ver quién paga o snapshots concurrentes de Firebase) actualizan la entrada existente en lugar de insertar partidas duplicadas.
+  - **Eliminación de llamadas duplicadas en `listenToRoom`**: Eliminado el bloque redundante que ejecutaba doblemente el guardado del resultado para el Jugador 1.
+  - **Conteo limpio entre Historial de Partidas y Diario Foodie**: En `openStatsModal`, las visitas registradas en el Diario para una sesión de votación ya realizada ese mismo día se consolidan como una única salida/comida real (1 vez), evitando que guardar un recuerdo en el diario duplique artificialmente el contador del restaurante.
+  - **Auto-deduplicación retroactiva**: Añadida deduplicación automática en `getDuoStatsHistory()` y `syncStatsFromFirebase()` que detecta y fusiona partidas duplicadas por milisegundos en `localStorage` y Firebase Realtime Database.
+  - **Limpieza de base de datos en Firebase RTDB**: Eliminados los registros duplicados de prueba concurrentes en `shared_stats`.
+- **Actualización de Service Worker & Caché PWA**:
+  - Bump a `CACHE_NAME = 'donde-comemos-v52'` en `sw.js`.
+  - Versionado de assets a `?v=52` en `index.html` para purga y actualización inmediata en PWAs móviles instaladas.
+
 ### [v1.4.0] - 2026-10-14
 - **Modo "Ruleta Rusa / A Ciegas Total" en Inicio**:
   - Botón directo *"🎲 Sorpréndenos directamente"* para los días con pereza de votar por turnos: realiza el sorteo instantáneo entre todos los restaurantes activos respetando la regla de no repetir el anterior.

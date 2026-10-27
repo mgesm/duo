@@ -2218,11 +2218,17 @@
     }
   }
 
-  function addFoodVisit(restaurantId, restaurantName, rating, note, photoBase64) {
+  function formatTimes(n) {
+    const count = typeof n === 'number' ? n : parseInt(n, 10) || 0;
+    return count + ' ' + (count === 1 ? 'vez' : 'veces');
+  }
+
+  function addFoodVisit(restaurantId, restaurantName, rating, note, photoBase64, customSessionId) {
     try {
       const list = getFoodDiary();
       const newVisit = {
         id: 'visit-' + Date.now(),
+        sessionId: customSessionId || (state.roomId ? ('room-' + state.roomId) : (state.currentSessionId || null)),
         restaurantId: restaurantId,
         restaurantName: restaurantName,
         rating: rating || 5,
@@ -2272,36 +2278,109 @@
 
   // Historial de resultados para estadísticas de afinidad y moneda
   const STATS_HISTORY_KEY = 'donde_comemos_stats_history_v1';
+
+  function deduplicateStatsHistory(list) {
+    if (!Array.isArray(list) || list.length === 0) return [];
+
+    const sorted = list.slice().sort(function (a, b) {
+      return (b.timestamp || 0) - (a.timestamp || 0);
+    });
+
+    const result = [];
+    const seenIds = new Set();
+
+    for (let i = 0; i < sorted.length; i++) {
+      const current = sorted[i];
+      if (!current || !current.winnerName) continue;
+
+      const sid = current.sessionId || current.id;
+      if (sid && seenIds.has(sid)) continue;
+
+      // Buscar si ya existe una sesión previa del mismo ganador en un intervalo de 10 minutos (duplicado técnico)
+      const duplicateIdx = result.findIndex(function (prev) {
+        if (!prev.winnerName || prev.winnerName.trim().toLowerCase() !== current.winnerName.trim().toLowerCase()) return false;
+        const timeDiff = Math.abs((prev.timestamp || 0) - (current.timestamp || 0));
+        return timeDiff < 600000; // 10 minutos
+      });
+
+      if (duplicateIdx >= 0) {
+        const match = result[duplicateIdx];
+        if (!match.payerWinner && current.payerWinner) {
+          match.payerWinner = current.payerWinner;
+        }
+        if ((!match.matchesCount || match.matchesCount < 1) && current.matchesCount) {
+          match.matchesCount = current.matchesCount;
+        }
+        continue;
+      }
+
+      if (sid) seenIds.add(sid);
+      result.push(current);
+    }
+
+    return result;
+  }
+
   function getDuoStatsHistory() {
     try {
       const raw = localStorage.getItem(STATS_HISTORY_KEY);
-      return raw ? JSON.parse(raw) : [];
+      const parsed = raw ? JSON.parse(raw) : [];
+      const clean = deduplicateStatsHistory(parsed);
+      if (parsed.length !== clean.length) {
+        localStorage.setItem(STATS_HISTORY_KEY, JSON.stringify(clean));
+      }
+      return clean;
     } catch (e) {
       return [];
     }
   }
 
-  function recordSessionOutcome(winnerName, mode, matchesCount, payerWinner) {
+  function recordSessionOutcome(winnerName, mode, matchesCount, payerWinner, customSessionId) {
+    if (!winnerName) return;
     try {
-      const list = getDuoStatsHistory();
-      const item = {
-        id: 'session-' + Date.now(),
-        winnerName: winnerName,
-        mode: mode || state.activeMode,
-        matchesCount: matchesCount || 1,
-        payerWinner: payerWinner || null,
-        p1Name: state.player1Name,
-        p2Name: state.player2Name,
-        timestamp: Date.now()
-      };
-      list.unshift(item);
+      const sessionId = customSessionId || (state.roomId ? ('room-' + state.roomId) : (state.currentSessionId || ('session-' + Date.now())));
+      state.currentSessionId = sessionId;
+
+      let list = getDuoStatsHistory();
+      const existingIdx = list.findIndex(function (item) {
+        return (item.sessionId && item.sessionId === sessionId) || (item.id && item.id === sessionId);
+      });
+
+      let itemToSave;
+      if (existingIdx >= 0) {
+        const existing = list[existingIdx];
+        if (winnerName) existing.winnerName = winnerName;
+        if (mode) existing.mode = mode;
+        if (typeof matchesCount === 'number') existing.matchesCount = matchesCount;
+        if (payerWinner) existing.payerWinner = payerWinner;
+        existing.sessionId = sessionId;
+        list[existingIdx] = existing;
+        itemToSave = existing;
+      } else {
+        itemToSave = {
+          id: sessionId,
+          sessionId: sessionId,
+          winnerName: winnerName,
+          mode: mode || state.activeMode || 'food',
+          matchesCount: typeof matchesCount === 'number' ? matchesCount : (state.matchesCount || 1),
+          payerWinner: payerWinner || state.payerWinner || null,
+          p1Name: state.player1Name,
+          p2Name: state.player2Name,
+          timestamp: Date.now()
+        };
+        list.unshift(itemToSave);
+      }
+
+      list = deduplicateStatsHistory(list);
       localStorage.setItem(STATS_HISTORY_KEY, JSON.stringify(list));
 
       const db = initFirebase();
       if (db) {
-        db.ref('shared_stats/' + item.id).set(item).catch(function () {});
+        db.ref('shared_stats/' + sessionId).set(itemToSave).catch(function () {});
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Error recording session outcome:', e);
+    }
   }
 
   function syncStatsFromFirebase() {
@@ -2310,10 +2389,9 @@
     db.ref('shared_stats').on('value', function (snap) {
       const val = snap.val();
       if (val && typeof val === 'object') {
-        const remoteList = Object.values(val).sort(function (a, b) {
-          return (b.timestamp || 0) - (a.timestamp || 0);
-        });
-        localStorage.setItem(STATS_HISTORY_KEY, JSON.stringify(remoteList));
+        const rawList = Object.values(val);
+        const deduplicated = deduplicateStatsHistory(rawList);
+        localStorage.setItem(STATS_HISTORY_KEY, JSON.stringify(deduplicated));
       }
     });
   }
@@ -2642,6 +2720,7 @@
   // ==========================================
   const state = {
     screen: 'home',
+    currentSessionId: null,
     player1Name: localStorage.getItem('donde_comemos_p1_name') || 'Jugador 1',
     player2Name: localStorage.getItem('donde_comemos_p2_name') || 'Jugador 2',
     player1Selections: new Set(),
@@ -3451,6 +3530,8 @@
     const db = initFirebase();
     const roomId = generateRoomId();
     state.roomId = roomId;
+    state.currentSessionId = 'room-' + roomId;
+    state.currentSessionId = 'room-' + roomId;
     state.isRemoteSession = true;
     state.remoteRole = 'player1';
 
@@ -3491,6 +3572,7 @@
   async function joinSimultaneousVotingSession(sessionData) {
     if (!sessionData || !sessionData.roomId) return;
     state.roomId = sessionData.roomId;
+    state.currentSessionId = 'room-' + sessionData.roomId;
     state.isRemoteSession = true;
     state.remoteRole = 'player2';
 
@@ -3534,6 +3616,7 @@
     const db = initFirebase();
     const roomId = generateRoomId();
     state.roomId = roomId;
+    state.currentSessionId = 'room-' + roomId;
 
     const roomData = {
       createdAt: Date.now(),
@@ -3673,27 +3756,10 @@
           state.screen = 'result';
           sound.playFanfare();
           sound.vibrate([100, 50, 150]);
-          recordSessionOutcome(state.winningRestaurant.name, state.activeMode, state.matchesCount, state.payerWinner);
+          recordSessionOutcome(state.winningRestaurant.name, state.activeMode, state.matchesCount, state.payerWinner, 'room-' + state.roomId);
           render();
           showToast('¡Votación completada! Resultado listo');
         }
-      }
-
-      // Si Jugador 1 está esperando y Jugador 2 ha completado la votación:
-      if (role === 'player1' && data.status === 'completed' && data.result) {
-        state.winningRestaurant = getAnyItemById(data.result.winnerId) || state.restaurants[0];
-        state.matchesCount = data.result.matchesCount || 1;
-        state.tieBreakerUser = data.result.tieBreakerUser || null;
-        state.winningBranch = findClosestBranch(state.winningRestaurant, state.userCoords);
-        state.isNameRevealed = false;
-        state.showClues = false;
-        state.clueIndex = 0;
-        state.screen = 'result';
-        sound.playFanfare();
-        sound.vibrate([100, 50, 150]);
-        recordSessionOutcome(state.winningRestaurant.name, state.activeMode, state.matchesCount, state.payerWinner);
-        render();
-        showToast('¡' + state.player2Name + ' ha votado! Resultado listo');
       }
     };
 
@@ -5691,6 +5757,7 @@
         state.activeChallenge = null;
         state.tieBreakerUser = 'Sorpréndenos al azar';
         state.screen = 'result';
+        recordSessionOutcome(winner.name, state.activeMode, candidateList.length, null);
         render();
       });
     }
@@ -5930,6 +5997,7 @@
         if (isP1) {
           clearActiveSession();
           state.roomId = null;
+      state.currentSessionId = null;
           state.isRemoteSession = false;
           state.remoteRole = null;
           state.screen = 'home';
@@ -6492,6 +6560,7 @@
         state.tieBreakerUser = null;
         state.activeChallenge = null;
         state.screen = 'result';
+        recordSessionOutcome(state.winningRestaurant.name, state.activeMode, state.matchesCount, state.payerWinner);
 
         // Si es una sala en vivo de Firebase, emitir el resultado automáticamente a ambos dispositivos
         if (state.roomId) {
@@ -7128,7 +7197,7 @@
       btnLogVisit.addEventListener('click', function () {
         sound.playPop();
         sound.vibrate([35]);
-        openDiaryModal(state.winningRestaurant.name, state.winningRestaurant.id);
+        openDiaryModal(state.winningRestaurant.name, state.winningRestaurant.id, state.currentSessionId || (state.roomId ? ('room-' + state.roomId) : null));
       });
     }
 
@@ -7145,6 +7214,7 @@
       sound.playWhoosh();
       clearActiveSession();
       state.roomId = null;
+      state.currentSessionId = null;
       state.isRemoteSession = false;
       state.remoteRole = null;
       state.remoteP1Done = false;
@@ -8136,7 +8206,7 @@
   // ==========================================
   // 12. MODAL DE HISTORIAL & DIARIO DE RECUERDOS (DUO MOMENTS)
   // ==========================================
-  function openDiaryModal(prefillName, prefillId) {
+  function openDiaryModal(prefillName, prefillId, prefillSessionId) {
     let currentRating = 5;
     let currentPhotoBase64 = null;
     let isFormOpen = !!prefillName;
@@ -8479,7 +8549,7 @@
             return;
           }
 
-          addFoodVisit(prefillId || ('item-' + Date.now()), nameVal, currentRating, noteVal, currentPhotoBase64);
+          addFoodVisit(prefillId || ('item-' + Date.now()), nameVal, currentRating, noteVal, currentPhotoBase64, prefillSessionId);
           sound.playFanfare();
           sound.vibrate([40, 40]);
           showToast('¡Recuerdo guardado en el Diario!');
@@ -8786,16 +8856,31 @@
     const p1Pct = totalFlips > 0 ? Math.round((p1Pays / totalFlips) * 100) : 50;
     const p2Pct = totalFlips > 0 ? Math.round((p2Pays / totalFlips) * 100) : 50;
 
-    // Podio de favoritos (sitios más repetidos en la historia)
+    // Podio de favoritos (sitios más repetidos en la historia de decisiones y visitas)
     const winnerFrequency = {};
+    // 1. Contar sesiones ganadas en Duo (ya deduplicadas)
     history.forEach(function (h) {
       if (h.winnerName) {
-        winnerFrequency[h.winnerName] = (winnerFrequency[h.winnerName] || 0) + 1;
+        const name = h.winnerName.trim();
+        winnerFrequency[name] = (winnerFrequency[name] || 0) + 1;
       }
     });
+    // 2. Sumar visitas del Diario sólo si no corresponden a una sesión de votación ya contada ese mismo día
     diary.forEach(function (d) {
-      if (d.restaurantName) {
-        winnerFrequency[d.restaurantName] = (winnerFrequency[d.restaurantName] || 0) + 1;
+      if (!d.restaurantName) return;
+      const dName = d.restaurantName.trim();
+      const dTime = d.timestamp || 0;
+      const alreadyCountedInSession = history.some(function (h) {
+        if (!h.winnerName || h.winnerName.trim().toLowerCase() !== dName.toLowerCase()) return false;
+        if (d.sessionId && h.sessionId && d.sessionId === h.sessionId) return true;
+        const hTime = h.timestamp || 0;
+        if (dTime && hTime) {
+          return Math.abs(dTime - hTime) < (6 * 3600 * 1000); // 6 horas
+        }
+        return false;
+      });
+      if (!alreadyCountedInSession) {
+        winnerFrequency[dName] = (winnerFrequency[dName] || 0) + 1;
       }
     });
 
@@ -8857,7 +8942,7 @@
               </p>
               
               <div class="text-[10px] text-neutral-400">
-                Basado en ${totalSessions} votaciones completadas juntos
+                Basado en ${totalSessions} ${totalSessions === 1 ? 'votación completada' : 'votaciones completadas'} juntos
               </div>
             </div>
 
@@ -8871,7 +8956,7 @@
                   </svg>
                   <span>Marcador de la Moneda</span>
                 </span>
-                <span class="text-[10px] text-neutral-400">${totalFlips} tiradas</span>
+                <span class="text-[10px] text-neutral-400">${totalFlips} ${totalFlips === 1 ? 'tirada' : 'tiradas'}</span>
               </div>
 
               ${totalFlips === 0 ? `
@@ -8881,8 +8966,8 @@
               ` : `
                 <div class="space-y-2">
                   <div class="flex items-center justify-between text-xs font-bold">
-                    <span class="text-rose-400">${state.player1Name}: ${p1Pays} veces</span>
-                    <span class="text-indigo-400">${state.player2Name}: ${p2Pays} veces</span>
+                    <span class="text-rose-400">${state.player1Name}: ${formatTimes(p1Pays)}</span>
+                    <span class="text-indigo-400">${state.player2Name}: ${formatTimes(p2Pays)}</span>
                   </div>
 
                   <!-- Barra de progreso comparativa estilo Apple -->
@@ -8933,7 +9018,7 @@
                           <span class="w-5 h-5 rounded-full bg-white/10 text-white flex items-center justify-center text-[10px] font-bold shrink-0">${rankNum}</span>
                           <span class="text-xs font-bold ${glow} truncate">${w.name}</span>
                         </div>
-                        <span class="text-[10px] font-bold text-neutral-400 shrink-0">${w.count} vez${w.count === 1 ? '' : 'es'}</span>
+                        <span class="text-[10px] font-bold text-neutral-400 shrink-0">${formatTimes(w.count)}</span>
                       </div>
                     `;
                   }).join('')}
