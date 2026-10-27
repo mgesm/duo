@@ -3407,10 +3407,22 @@
       }
 
       const now = Date.now();
-      const isRecent = data.createdAt && (now - data.createdAt < 20 * 60 * 1000); // 20 minutos de caducidad
+      const lastActive = data.lastActivityAt || data.createdAt || 0;
+      const isInactive = (now - lastActive) > (2 * 60 * 1000); // 2 minutos de inactividad
       const isOpen = data.status === 'open' || data.status === 'voting';
 
-      if (isRecent && isOpen) {
+      if (isOpen && isInactive) {
+        // Cerrar automáticamente la sesión por inactividad de 2 minutos
+        db.ref('active_session').remove().catch(function () {});
+        if (data.roomId) {
+          db.ref('rooms/' + data.roomId).update({ status: 'expired' }).catch(function () {});
+        }
+        state.activeLiveSession = null;
+        if (state.screen === 'home') renderHomeScreen();
+        return;
+      }
+
+      if (!isInactive && isOpen) {
         state.activeLiveSession = data;
         // Si el usuario está en la home y no es quien la inició, se refresca la home para mostrar el banner de unirse
         if (state.screen === 'home') {
@@ -3435,6 +3447,7 @@
     const sessionData = {
       roomId: roomId,
       createdAt: Date.now(),
+      lastActivityAt: Date.now(),
       mode: state.activeMode,
       initiator: state.player1Name,
       p1Name: state.player1Name,
@@ -3488,8 +3501,9 @@
 
     const db = initFirebase();
     if (db) {
-      db.ref('rooms/' + state.roomId).update({ status: 'voting' }).catch(function () {});
-      db.ref('active_session').update({ status: 'voting' }).catch(function () {});
+      const joinPayload = { status: 'voting', lastActivityAt: Date.now() };
+      db.ref('rooms/' + state.roomId).update(joinPayload).catch(function () {});
+      db.ref('active_session').update(joinPayload).catch(function () {});
       listenToRoom(state.roomId, 'player2');
     }
 
@@ -3683,7 +3697,7 @@
     const db = initFirebase();
     if (!db || !state.roomId) return;
     const isP1 = state.remoteRole !== 'player2';
-    const updateObj = {};
+    const updateObj = { lastActivityAt: Date.now() };
     if (isP1) {
       updateObj.p1Selections = Array.from(state.player1Selections);
       updateObj.p1Count = state.player1Selections.size;
@@ -4939,7 +4953,7 @@
 
         ${isFood ? `
           <!-- Barra de pestañas de comida estilo visionOS (Mis Restaurantes / Recomendados) -->
-          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-neutral-950 sticky top-[108px] z-10">
+          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-neutral-950">
             ${FOOD_TABS.map(function(c) {
               const isAct = (state.foodCategoryFilter || 'all') === c.id;
               return `
@@ -5083,7 +5097,7 @@
 
         ${isMovies ? `
           <!-- Barra de categorías de películas y series estilo visionOS -->
-          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-neutral-950 sticky top-[108px] z-10">
+          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-neutral-950">
             ${MOVIE_CATEGORIES.map(function(c) {
               const isAct = (state.movieCategoryFilter || 'all') === c.id;
               return `
@@ -5128,7 +5142,7 @@
 
         ${isPlans ? `
           <!-- Barra de categorías de planes y citas estilo visionOS -->
-          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-neutral-950 sticky top-[108px] z-10">
+          <div class="px-3 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-white/[0.08] bg-neutral-950">
             ${PLANS_CATEGORIES.map(function(c) {
               const isAct = (state.plansCategoryFilter || 'all') === c.id;
               return `
@@ -5838,6 +5852,10 @@
         sound.playPop();
         sound.vibrate([25]);
         if (isP1) {
+          clearActiveSession();
+          state.roomId = null;
+          state.isRemoteSession = false;
+          state.remoteRole = null;
           state.screen = 'home';
         } else {
           state.screen = 'handover';
@@ -5864,13 +5882,15 @@
                 p1Done: true,
                 p1Selections: Array.from(state.player1Selections),
                 p1Veto: state.player1Veto || null,
-                p1Superlike: state.player1Superlike || null
+                p1Superlike: state.player1Superlike || null,
+                lastActivityAt: Date.now()
               } 
             : { 
                 p2Done: true,
                 p2Selections: Array.from(state.player2Selections),
                 p2Veto: state.player2Veto || null,
-                p2Superlike: state.player2Superlike || null
+                p2Superlike: state.player2Superlike || null,
+                lastActivityAt: Date.now()
               };
           db.ref('rooms/' + state.roomId).update(upd).catch(function () {});
           db.ref('active_session').update(upd).catch(function () {});

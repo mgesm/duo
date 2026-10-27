@@ -518,6 +518,15 @@ Ideas aprobadas para incorporar progresivamente en futuras iteraciones de Duo:
   - Las tarjetas de recomendados se seleccionan directamente con las mecánicas del juego (voto, veto, superlike) sin cambiar de pantalla.
   - Service Worker actualizado a `donde-comemos-v34`.
 
+### [v1.9.27] - 2026-10-27
+- **Cierre Automático de Salas por Inactividad (2 minutos)**:
+  - Implementado timestamp de actividad `lastActivityAt` en Firebase tanto para `active_session` como para `rooms/<roomId>`.
+  - Cada interacción relevante (apertura de sala, unión de Jugador 2, selección/voto, confirmación, envío de notas o giro de moneda) actualiza `lastActivityAt`.
+  - En `syncActiveSessionFromFirebase()`, si transcurren más de 2 minutos (120.000 ms) sin ninguna interacción, la sala se cierra y se elimina automáticamente de Firebase (`active_session.remove()`), evitando que queden sesiones zombi o abiertas indefinidamente.
+  - Al pulsar el botón de volver a inicio durante el turno de Jugador 1 (`btn-player-back`), la sesión activa se limpia de inmediato.
+- **Service Worker v47**:
+  - Bump a `donde-comemos-v47` para despliegue instantáneo.
+
 ### [v1.9.26] - 2026-10-27
 - **Eliminación Definitiva del Difuminado en Barra de Estado de iOS (iOS Status Bar Blur)**:
   - Se identificó la causa exacta visible en la captura de pantalla del usuario:
