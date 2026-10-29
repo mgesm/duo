@@ -374,9 +374,10 @@ button,
    SISTEMA DE PASES ÚNICOS TEMÁTICOS (DUO PASS ENGINE & REALIA)
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Cormorant+Garamond:ital,wght@0,600;1,600&family=JetBrains+Mono:wght@400;600;800&family=Playfair+Display:ital,wght@0,700;1,600&family=Space+Grotesk:wght@600;700;800&family=Syne:wght@700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Cormorant+Garamond:ital,wght@0,600;1,600&family=JetBrains+Mono:wght@400;600;800&family=Playfair+Display:ital,wght@0,700;1,600&family=Space+Grotesk:wght@600;700;800&family=Special+Elite&family=Syne:wght@700;800&display=swap');
 
 .font-cinzel { font-family: 'Cinzel', serif; }
+.font-special { font-family: 'Special Elite', cursive, serif; }
 .font-playfair { font-family: 'Playfair Display', serif; }
 .font-cormorant { font-family: 'Cormorant Garamond', serif; }
 .font-syne { font-family: 'Syne', sans-serif; }
@@ -400,10 +401,11 @@ button,
 }
 .card-back {
   transform: rotateY(180deg);
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  box-sizing: border-box !important;
 }
 
 /* Papel Térmico de Restaurante y Corte de Sierra TPV */
@@ -582,4 +584,71 @@ button,
   background-position: top;
   background-size: 10px 1px;
   background-repeat: repeat-x;
+}
+
+/* ==========================================================================
+   Ephemera Deportiva y Ocio Activo (Golf, Karting, Arcade)
+   ========================================================================== */
+
+/* Textura Verjurada y Lino Británico para Golf */
+.golf-linen-paper {
+  background-color: #0d2e1c;
+  background-image: 
+    repeating-linear-gradient(45deg, rgba(212, 175, 55, 0.04) 0px, rgba(212, 175, 55, 0.04) 1px, transparent 1px, transparent 6px),
+    repeating-linear-gradient(-45deg, rgba(212, 175, 55, 0.04) 0px, rgba(212, 175, 55, 0.04) 1px, transparent 1px, transparent 6px),
+    radial-gradient(ellipse at 50% 15%, rgba(18, 68, 42, 0.9) 0%, rgba(7, 24, 15, 0.98) 100%);
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(212, 175, 55, 0.4),
+    inset 0 1px 0 rgba(254, 240, 138, 0.3),
+    inset 0 0 24px rgba(0, 0, 0, 0.5);
+}
+
+/* Filigrana de Marco Dorado Doble para Club de Golf */
+.golf-gold-frame {
+  border: 1px solid rgba(212, 175, 55, 0.7);
+  box-shadow: 
+    inset 0 0 0 2.5px rgba(13, 46, 28, 0.95),
+    inset 0 0 0 3.5px rgba(212, 175, 55, 0.45);
+}
+
+/* Sello Oficial de Green Fee Pagado */
+.stamp-greenfee-gold {
+  border: 2px dashed #d4af37;
+  color: #d4af37;
+  text-transform: uppercase;
+  font-family: 'Cinzel', serif;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  transform: rotate(-6deg);
+  mask-image: radial-gradient(circle, rgba(0,0,0,0.95) 60%, rgba(0,0,0,0.45) 100%);
+  text-shadow: 0 0 1px rgba(212, 175, 55, 0.6);
+  background: rgba(212, 175, 55, 0.06);
+  box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.25), inset 0 0 0 1px rgba(212, 175, 55, 0.25);
+}
+
+/* Textura de Fibra de Carbono Técnica para Karting */
+.carbon-fiber-tech {
+  background-color: #0b0c10;
+  background-image: 
+    radial-gradient(#1f242e 16%, transparent 17%),
+    radial-gradient(#1f242e 16%, transparent 17%);
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 4px;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.95),
+    0 0 0 1px rgba(245, 158, 11, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Trama de Bandera a Cuadros para Bordes Racing */
+.checkerboard-edge {
+  background-image: 
+    linear-gradient(45deg, #18181b 25%, transparent 25%), 
+    linear-gradient(-45deg, #18181b 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #18181b 75%), 
+    linear-gradient(-45deg, transparent 75%, #18181b 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+  background-color: #f59e0b;
 }
