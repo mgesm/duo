@@ -14,6 +14,16 @@
       ARCADE_SCORECARD: 'arcade-scorecard',
       KARTING_PASS: 'karting-pass',
       GOLF_SCORECARD: 'golf-scorecard',
+      STADIUM_TICKET: 'stadium-ticket',
+      RACKET_CLUB: 'racket-club',
+      FITNESS_PASS: 'fitness-pass',
+      GAMER_PASS: 'gamer-pass',
+      BOARDGAME_CARD: 'boardgame-card',
+      THEME_PARK: 'theme-park',
+      BEACH_CLUB: 'beach-club',
+      KARAOKE_LOUNGE: 'karaoke-lounge',
+      BRUNCH_CAFE: 'brunch-cafe',
+      BESPOKE_SIGNATURE: 'bespoke-signature',
       WINE_RESERVE: 'wine-reserve',
       NATURE_PERMIT: 'nature-permit',
       SUNSET_POSTCARD: 'sunset-postcard',
@@ -34,6 +44,16 @@
       'arcade-scorecard': 'Scorecard Neon Arcade & Bowling 1984',
       'karting-pass': 'Superlicencia Gran Prix Karting & Paddock',
       'golf-scorecard': 'Tarjeta Oficial de Juego & Green Fee Royal Duo Golf Club',
+      'stadium-ticket': 'Entrada Oficial de Estadio Match Day',
+      'racket-club': 'Scorecard Oficial Club de Padel & Tenis',
+      'fitness-pass': 'Dorsal Oficial de Carrera & Gym VIP',
+      'gamer-pass': 'Cartucho 16-Bit & Gamer Pass Co-Op',
+      'boardgame-card': 'Carta Legendaria de Tablero & Quest',
+      'theme-park': 'Golden Fast Pass Parque de Atracciones',
+      'beach-club': 'Day Pass Exclusivo Beach Club & Sol',
+      'karaoke-lounge': 'Pase VIP Cabina Privada de Karaoke',
+      'brunch-cafe': 'Comanda & Loyalty Pass Atelier de Cafe',
+      'bespoke-signature': 'Pase Bespoke Signature Duo',
       'wine-reserve': 'Certificado Cata & Lacre Real',
       'nature-permit': 'Permiso Expedicion Botanica',
       'sunset-postcard': 'Postal Golden Hour al Atardecer',
@@ -53,90 +73,140 @@
     },
 
     detectArchetype: function (name, note, mode) {
-      const text = ((name || '') + ' ' + (note || '')).toLowerCase();
+      const raw = ((name || '') + ' ' + (note || '')).toLowerCase();
+      // Normalizar texto eliminando tildes y diacriticos
+      const text = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-      // 0. Golf / Green Fee / Campo de golf / Pitch & Putt / Hoyo 19
-      if (/(golf|green fee|pitch & putt|putting|fairway|caddie|hoyo 19|club de campo|birdie|tee de salida|scramble)/i.test(text)) {
+      // 1. Futbol / Estadio / Baloncesto / Rugby / Grada / Match Day
+      if (/(futbol|partido|estadio|bernabeu|camp nou|metropolitano|mestalla|champions|la liga|liga\b|soccer|baloncesto|basket|nba|acb|rugby|balonmano|voleibol|derbi|tribuna|grada|fondo norte|palco|marcador|aficion|tifo)/i.test(text)) {
+        return 'stadium-ticket';
+      }
+
+      // 2. Padel / Tenis / Raqueta / Torneo de Raqueta
+      if (/(padel|tenis|tennis|raqueta|pala\b|peloteo|partidillo|tie break|deuce|match point|wimbledon|roland garros|us open|wpt|premier padel|pista de padel|saque y volea|smash)/i.test(text)) {
+        return 'racket-club';
+      }
+
+      // 3. Gym / Fitness / Running / Maraton / Entrenamiento / Pesas
+      if (/(gym\b|gimnasio|fitness|pesas|crossfit|calistenia|musculacion|entreno|entrenamiento|running|maraton|10k|5k|media maraton|atletismo|carrera popular|dorsal|spinning|cardio|pesas)/i.test(text)) {
+        return 'fitness-pass';
+      }
+
+      // 4. Videojuegos / Consolas / Gaming / Co-op
+      if (/(videojuego|videojuegos|gaming|gamer|playstation|ps5|ps4|xbox|nintendo|switch|game boy|pc gaming|steam|coop|co-op|partida coop|fifa|zelda|mario|consola|pantalla partida|arcade stick)/i.test(text)) {
+        return 'gamer-pass';
+      }
+
+      // 5. Juegos de Mesa / Cartas / Rol / Dados
+      if (/(juegos? de mesa|boardgames?|catan|monopoly|carcassonne|virus|dixit|poker|cartas|baraja|ajedrez|tablero|rol\b|dados|partida de cartas)/i.test(text)) {
+        return 'boardgame-card';
+      }
+
+      // 6. Parque de Atracciones / Feria / Montana Rusa
+      if (/(parque de atracciones|portaventura|warner|terra mitica|disney|feria|montana rusa|tiovivo|noria|autos de choque|atracciones|adrenalina|looping)/i.test(text)) {
+        return 'theme-park';
+      }
+
+      // 7. Beach Club / Playa / Cala / Cama Balinesa / Costa
+      if (/(playa|cala\b|beach club|chiringuito|cama balinesa|tomar el sol|bano en el mar|hamaca|orilla|costa|brisa marina|mar azul)/i.test(text)) {
+        return 'beach-club';
+      }
+
+      // 8. Karaoke / Cantar / Microfono / Dueto
+      if (/(karaoke|cantar|microfono|micro abierto|dueto|cantar juntos|afinador|estribillo)/i.test(text)) {
+        return 'karaoke-lounge';
+      }
+
+      // 9. Cafeteria / Brunch / Cafe de Especialidad / Merienda
+      if (/(cafeteria|cafe\b|brunch|merienda|tarta|cafe de especialidad|croissant|crepes?|gofres?|churros|tostadas|pancakes|smoothie|bolleria|desayuno)/i.test(text)) {
+        return 'brunch-cafe';
+      }
+
+      // 10. Golf / Green Fee / Campo de golf / Pitch & Putt / Hoyo 19
+      if (/(golf|green fee|pitch & putt|putting|fairway|caddie|hoyo 19|club de campo|birdie|tee de salida|scramble|hoyo|putt)/i.test(text)) {
         return 'golf-scorecard';
       }
 
-      // 0.1 Karts / Karting / Gran Premio / Circuito de velocidad
-      if (/(kart|karts|karting|paddock|gran prix|grand prix|pole position|pit lane|circuito|vuelta rapida|bandera a cuadros|quad|formula 1|f1\b|motor\b)/i.test(text)) {
+      // 11. Karts / Karting / Gran Premio / Circuito de velocidad
+      if (/(kart|karts|karting|paddock|gran prix|grand prix|pole position|pit lane|circuito|vuelta rapida|bandera a cuadros|quad|formula 1|f1\b|motor\b|tandas)/i.test(text)) {
         return 'karting-pass';
       }
 
-      // 1. Cine clasico en sala / cartelera / palomitas de cine (taquilla real)
+      // 12. Cine clasico en sala / cartelera / palomitas de cine (taquilla real)
       if (/(cine\b|cinesa|neocine|yelmo|kinepolis|taquilla|sala 3d|imax|butaca|palacio cinematogr|cartelera)/i.test(text)) {
         return 'cinema-ticket';
       }
 
-      // 2. Acuario / Oceanografico / Mundo marino / Zoo / Safari
+      // 13. Acuario / Oceanografico / Mundo marino / Zoo / Safari
       if (/(acuario|aquarium|oceanogr|bioparc|faunia|delfinario|zoo|safari|vida marina|tiburones|arrecife|peces|mantas)/i.test(text)) {
         return 'aquarium-pass';
       }
 
-      // 3. Concierto / Festival / Musica en vivo / Teatro musical
-      if (/(concierto|festival|m[uú]sica|directo|ac[uú]stico|dj|recital|banda|rock|pop|indie|teatro|musical|auditorio|conciertazo|fiesta|discoteca|baile|live tour|stage)/i.test(text)) {
+      // 14. Concierto / Festival / Musica en vivo / Teatro musical
+      if (/(concierto|festival|musica|directo|acustico|dj|recital|banda|rock|pop|indie|teatro|musical|auditorio|conciertazo|fiesta|discoteca|baile|live tour|stage)/i.test(text)) {
         return 'vip-backstage';
       }
 
-      // 4. Escape Room / Misterio / Espionaje / Laser Tag / Accion
-      if (/(escape|misterio|enigma|acertijo|candado|cluedo|l[aá]ser|laser tag|paintball|kart|karts|tirolina|misi[oó]n|secreto|agente|detective|investigaci[oó]n|terror|fantasma|pista secreta)/i.test(text)) {
+      // 15. Escape Room / Misterio / Espionaje / Laser Tag / Accion
+      if (/(escape|misterio|enigma|acertijo|candado|cluedo|laser|laser tag|paintball|tirolina|mision|secreto|agente|detective|investigacion|terror|fantasma|pista secreta)/i.test(text)) {
         return 'secret-dossier';
       }
 
-      // 5. Spa / Wellness / Balneario / Termal
-      if (/(spa|termal|termas|masaje|balneario|circuito termal|sauna|jacuzzi|relax|bienestar|desconexi[oó]n|yoga|meditaci[oó]n|hidromasaje|talaso|hammam|zen)/i.test(text)) {
+      // 16. Spa / Wellness / Balneario / Termal
+      if (/(spa|termal|termas|masaje|balneario|circuito termal|sauna|jacuzzi|relax|bienestar|desconexion|yoga|meditacion|hidromasaje|talaso|hammam|zen)/i.test(text)) {
         return 'spa-voucher';
       }
 
-      // 6. Bolera / Arcade / Billar / Minigolf / Recreativos retro
-      if (/(bolera|bolos|strike|arcade|recreativos|billar|dardos|minigolf|air hockey|pinball|futbol[ií]n|gaming|recreativo|lanes)/i.test(text)) {
+      // 17. Bolera / Arcade / Billar / Recreativos retro
+      if (/(bolera|bolos|strike|arcade|recreativos|billar|dardos|air hockey|pinball|futbolin|gaming retro|lanes|bolos americanos)/i.test(text)) {
         return 'arcade-scorecard';
       }
 
-      // 7. Vino / Bodega / Cata / Sumiller / Cerveza artesana
-      if (/(vino|bodega|cata|sommelier|sumiller|copa|barrica|degustaci[oó]n|maridaje|quesos|jam[oó]n ib[eé]rico|cerveza artesana|coctel|c[oó]ctel|vermut|ginebra)/i.test(text)) {
+      // 18. Vino / Bodega / Cata / Sumiller / Cerveza artesana
+      if (/(vino|bodega|cata|sommelier|sumiller|copa|barrica|degustacion|maridaje|quesos|jamon|cerveza artesana|coctel|vermut|ginebra)/i.test(text)) {
         return 'wine-reserve';
       }
 
-      // 8. Pelicula o Serie en sofa / Streaming en casa (modo movies o referencias a ver en casa)
-      if (mode === 'movies' || /(pel[ií]cula|peli|serie|estreno|filmaffinity|netflix|hbo|max|prime video|disney\+|movistar\+|filmin|sofa|maraton de series)/i.test(text)) {
+      // 19. Pelicula o Serie en sofa / Streaming en casa
+      if (mode === 'movies' || /(pelicula|peli|serie|estreno|filmaffinity|netflix|hbo|max|prime video|disney\+|movistar\+|filmin|sofa|maraton de series)/i.test(text)) {
         return 'streaming-ticket';
       }
 
-      // 9. Vuelos / Viajes / Escapadas / Aeropuertos
-      if (/(vuelo|viaje|escapada|avi[oó]n|aeropuerto|hotel|resort|tren|ave|maleta|par[ií]s|roma|londres|crucero|billete|embarque)/i.test(text)) {
+      // 20. Vuelos / Viajes / Escapadas / Aeropuertos
+      if (/(vuelo|viaje|escapada|avion|aeropuerto|hotel|resort|tren|ave|maleta|paris|roma|londres|crucero|billete|embarque)/i.test(text)) {
         return 'boarding-pass';
       }
 
-      // 10. Naturaleza / Senderismo / Aire libre / Mirador
-      if (/(senderismo|ruta|monta[nñ]a|playa|cala|picnic|parque|naturaleza|bosque|mirador|bici|kayak|paddle|surf|acampada|trekking|camping)/i.test(text)) {
+      // 21. Naturaleza / Senderismo / Aire libre / Mirador
+      if (/(senderismo|ruta|montana|picnic|parque|naturaleza|bosque|mirador|bici|kayak|paddle|surf|acampada|trekking|camping)/i.test(text)) {
         return 'nature-permit';
       }
 
-      // 11. Atardecer / Romantico / Helado al paseo
-      if (/(atardecer|puesta de sol|puesta del sol|golden hour|estrellas|constelaciones|paseo rom[aá]ntico|helado|velas|rom[aá]ntico)/i.test(text)) {
+      // 22. Atardecer / Romantico / Helado al paseo
+      if (/(atardecer|puesta de sol|puesta del sol|golden hour|estrellas|constelaciones|paseo romantico|helado|velas|romantico)/i.test(text)) {
         return 'sunset-postcard';
       }
 
-      // 12. Arte / Museos / Exposiciones culturales
-      if (/(museo|exposici[oó]n|galer[ií]a|arte|escultura|cuadros|cer[aá]mica|alfarer[ií]a|pintura|taller creativo|historia|exhibici[oó]n)/i.test(text)) {
+      // 23. Arte / Museos / Exposiciones culturales
+      if (/(museo|exposicion|galeria|arte|escultura|cuadros|ceramica|alfareria|pintura|taller creativo|historia|exhibicion)/i.test(text)) {
         return 'gallery-pass';
       }
 
-      // 13. Cocinar en casa / Atelier
-      if (/(cocinar|receta|sushi en casa|pasta casera|reposter[ií]a|tarta casera|chef|masterchef|cocinillas|hornear)/i.test(text)) {
+      // 24. Cocinar en casa / Atelier
+      if (/(cocinar|receta|sushi en casa|pasta casera|reposteria|tarta casera|chef|masterchef|cocinillas|hornear)/i.test(text)) {
         return 'chef-recipe';
       }
 
-      // 14. Comida / Restaurantes (Modo food o cualquier indicio gastronomico)
-      if (mode === 'food' || /(cena|comida|comer|almuerzo|desayuno|merienda|restaurante|pizza|burger|hamburguesa|popeyes|kfc|mcdonald|burger king|unica|goiko|tacos|mexicano|sushi|asi[aá]tico|italiano|chiringuito|asador|bar|tapas|poke|ramen|kebab|pollo|patatas|postre|brunch|cafeter[ií]a|marisquer[ií]a|churros|buffet)/i.test(text)) {
+      // 25. Comida / Restaurantes (Modo food con gastronomia explicita)
+      if (/(cena|comida|comer|almuerzo|restaurante|pizza|burger|hamburguesa|popeyes|kfc|mcdonald|burger king|unica|goiko|tacos|mexicano|sushi|asiatico|italiano|asador|\bbar\b|\bbars\b|tapas|poke|ramen|kebab|pollo|patatas|marisqueria|buffet|gastronom)/i.test(text)) {
+        return 'thermal-receipt';
+      }
+      if (mode === 'food' && (!name || /(plato|degustacion|menu|picar|tapeo)/i.test(text))) {
         return 'thermal-receipt';
       }
 
-      // 15. Por defecto: Pasaporte oficial de la pareja
-      return 'custom-visa';
+      // 26. Para cualquier plan no catalogado: Motor Bespoke Procedural (NUNCA mas pasaporte generico)
+      return 'bespoke-signature';
     },
 
     synthesizeDishes: function (name, note) {
@@ -845,6 +915,576 @@
         // ----------------------------------------------------
         // 6. SCORECARD BOLERA & RETRO ARCADE 1984
         // ----------------------------------------------------
+                // ----------------------------------------------------
+        // STADIUM MATCH TICKET (FUTBOL / BASKET / MATCH DAY)
+        // ----------------------------------------------------
+        case 'stadium-ticket':
+          frontHtml = `
+            <div class="card-face relative w-full rounded-2xl overflow-hidden stadium-grass text-white p-5 border-2 border-emerald-500/50 text-left select-none">
+              <!-- Muesca de Entrada Troquelada -->
+              <div class="flex items-center justify-between pb-2 border-b border-emerald-500/40 text-[9px] font-mono">
+                <div class="flex items-center gap-1.5 font-bold text-emerald-400">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>LIGA DUO MATCH DAY // ENTRADA OFICIAL</span>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">ACCESO TORNICUETE</span>
+              </div>
+
+              <!-- Balon de Futbol 3D Vectorial y Reflectores SVG -->
+              <div class="my-3 text-center">
+                <svg viewBox="0 0 100 80" class="w-16 h-12 mx-auto drop-shadow-[0_0_12px_rgba(34,197,94,0.4)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="50" cy="40" r="28" fill="#f8fafc" stroke="#22c55e" stroke-width="2"/>
+                  <polygon points="50,28 58,34 55,44 45,44 42,34" fill="#0f172a"/>
+                  <line x1="50" y1="28" x2="50" y2="14" stroke="#0f172a" stroke-width="1.8"/>
+                  <line x1="58" y1="34" x2="71" y2="27" stroke="#0f172a" stroke-width="1.8"/>
+                  <line x1="55" y1="44" x2="68" y2="53" stroke="#0f172a" stroke-width="1.8"/>
+                  <line x1="45" y1="44" x2="32" y2="53" stroke="#0f172a" stroke-width="1.8"/>
+                  <line x1="42" y1="34" x2="29" y2="27" stroke="#0f172a" stroke-width="1.8"/>
+                  <path d="M15 72 C30 58, 70 58, 85 72" stroke="#4ade80" stroke-width="2" stroke-dasharray="3 3"/>
+                </svg>
+
+                <p class="font-mono text-[8px] text-emerald-400 tracking-[0.25em] uppercase mt-1">DERBI OFICIAL DE PAREJA</p>
+                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 via-white to-green-300 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
+                
+                <div class="inline-flex items-center gap-2 mt-1.5 px-3 py-1 rounded-full bg-black/60 border border-emerald-500/40 text-xs font-black">
+                  <span class="text-white">DUO FC</span>
+                  <span class="text-amber-400 font-mono text-[10px] bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/30">3 - 0</span>
+                  <span class="text-white">LOVE UNITED</span>
+                </div>
+              </div>
+
+              <!-- Grid de Grada / Fila / Asiento -->
+              <div class="p-2.5 bg-black/70 rounded-xl border border-emerald-500/30 font-mono text-[9px] grid grid-cols-3 gap-1 text-center my-3">
+                <div class="border-r border-emerald-500/20">
+                  <span class="text-emerald-400/80 text-[7.5px] block uppercase">SECTOR</span>
+                  <strong class="text-white text-xs">TRIBUNA</strong>
+                </div>
+                <div class="border-r border-emerald-500/20">
+                  <span class="text-emerald-400/80 text-[7.5px] block uppercase">FILA</span>
+                  <strong class="text-emerald-300 text-xs">FILA 04</strong>
+                </div>
+                <div>
+                  <span class="text-emerald-400/80 text-[7.5px] block uppercase">ASIENTOS</span>
+                  <strong class="text-amber-300 text-xs">18 &amp; 19 VIP</strong>
+                </div>
+              </div>
+
+              <div class="flex justify-between items-center px-1 font-mono text-[10px] text-neutral-300 mb-2">
+                <span>AFICIONADOS: <strong class="text-emerald-200">${escapeHtml(pass.coupleNames)}</strong></span>
+                <span class="text-emerald-400 font-bold">ABONO DUO</span>
+              </div>
+
+              <!-- Footer Codigo de Barras Torniquete -->
+              <div class="pt-2 border-t border-dashed border-emerald-500/40 flex items-center justify-between">
+                <div class="w-28 opacity-85">
+                  ${this.getBarcodeSvg('#22c55e')}
+                </div>
+                <div class="px-2 py-1 rounded border border-emerald-500/50 bg-emerald-500/10 text-emerald-300 text-[7.5px] font-mono font-bold leading-tight text-center">
+                  VALID ENTRY<br>GATE 07 PASS
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        // ----------------------------------------------------
+        // RACKET CLUB (PADEL & TENIS COURT SCORECARD)
+        // ----------------------------------------------------
+        case 'racket-club':
+          frontHtml = `
+            <div class="card-face relative w-full rounded-2xl overflow-hidden court-blue text-white p-5 border-2 border-sky-400/50 text-left select-none">
+              <div class="flex items-center justify-between pb-2 border-b border-sky-400/30 text-[9px] font-mono">
+                <span class="font-bold text-sky-300 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+                  WORLD DUO TOUR // PADEL &amp; TENNIS
+                </span>
+                <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-200 border border-sky-400/40 font-bold">PISTA CENTRAL</span>
+              </div>
+
+              <!-- Palas y Pelota Vectorial SVG -->
+              <div class="my-2.5 text-center">
+                <svg viewBox="0 0 100 70" class="w-16 h-12 mx-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Pala Padel -->
+                  <line x1="25" y1="62" x2="52" y2="28" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+                  <ellipse cx="58" cy="22" rx="13" ry="16" fill="#0284c7" stroke="#38bdf8" stroke-width="1.5" transform="rotate(35 58 22)"/>
+                  <circle cx="56" cy="20" r="1" fill="#fff"/>
+                  <circle cx="60" cy="24" r="1" fill="#fff"/>
+                  <circle cx="55" cy="25" r="1" fill="#fff"/>
+                  <!-- Raqueta Tenis -->
+                  <line x1="75" y1="62" x2="48" y2="28" stroke="#facc15" stroke-width="3" stroke-linecap="round"/>
+                  <ellipse cx="42" cy="22" rx="13" ry="16" fill="#854d0e" stroke="#facc15" stroke-width="1.5" transform="rotate(-35 42 22)"/>
+                  <path d="M36 14 L48 30 M36 30 L48 14" stroke="#fef08a" stroke-width="0.8"/>
+                  <!-- Pelota Tenis -->
+                  <circle cx="50" cy="44" r="7" fill="#ccff00" stroke="#84cc16" stroke-width="1"/>
+                  <path d="M45 40 C48 44, 52 44, 55 40" stroke="#fff" stroke-width="0.8" fill="none"/>
+                </svg>
+
+                <p class="font-mono text-[8px] text-sky-300 tracking-[0.25em] uppercase mt-1">MASTER FINAL EN DIRECTO</p>
+                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-white to-blue-300 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
+                <p class="font-mono text-[10px] text-sky-200 mt-0.5">Pareja: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+              </div>
+
+              <!-- Marcador de Sets en Directo -->
+              <div class="my-2.5 p-2 bg-black/60 rounded-xl border border-sky-400/30 font-mono text-[9px] grid grid-cols-3 gap-1 text-center">
+                <div class="border-r border-sky-400/20">
+                  <span class="text-sky-300/80 text-[7.5px] block uppercase">SET 1</span>
+                  <strong class="text-white text-xs">6 - 4</strong>
+                </div>
+                <div class="border-r border-sky-400/20">
+                  <span class="text-sky-300/80 text-[7.5px] block uppercase">SET 2</span>
+                  <strong class="text-amber-300 text-xs">7 - 5 (TB)</strong>
+                </div>
+                <div>
+                  <span class="text-sky-300/80 text-[7.5px] block uppercase">ESTADO</span>
+                  <strong class="text-emerald-400 text-xs">VICTORIA</strong>
+                </div>
+              </div>
+
+              <!-- Footer Codigo de Barras -->
+              <div class="pt-2 border-t border-dashed border-sky-400/30 flex items-center justify-between">
+                <div class="w-28 opacity-85">
+                  ${this.getBarcodeSvg('#38bdf8')}
+                </div>
+                <div class="px-2 py-1 rounded border border-sky-400/50 bg-sky-500/10 text-sky-200 text-[7.5px] font-mono font-bold leading-tight text-center">
+                  MATCH POINT OK<br>PISTA AZUL DUO
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        // ----------------------------------------------------
+        // FITNESS PASS (DORSAL OFICIAL & RUNNING / GYM VIP)
+        // ----------------------------------------------------
+        case 'fitness-pass':
+          frontHtml = `
+            <div class="card-face relative w-full rounded-2xl overflow-hidden bib-fiber text-slate-900 p-5 border-2 border-slate-300 text-left select-none">
+              <!-- Imperdibles en las 4 esquinas SVG -->
+              <div class="flex items-center justify-between pb-1.5 border-b border-slate-300 text-[9px] font-mono text-slate-600">
+                <div class="flex items-center gap-1 font-bold text-red-600">
+                  <span class="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
+                  <span>DUO PERFORMANCE // RUN &amp; FITNESS</span>
+                </div>
+                <span class="px-1.5 py-0.5 rounded bg-slate-200 font-bold text-slate-700">DORSAL OFICIAL</span>
+              </div>
+
+              <!-- Numero de Dorsal Gigante y Titulo -->
+              <div class="my-3 text-center">
+                <p class="font-mono text-[8px] text-slate-500 uppercase tracking-widest">CATEGORIA PAREJA MIXTA</p>
+                <div class="font-black text-4xl sm:text-5xl tracking-tighter text-slate-900 my-0.5 font-mono drop-shadow-sm">
+                  #DUO-01
+                </div>
+                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide truncate max-w-[280px] mx-auto">${escapeHtml(pass.name)}</h3>
+                <p class="font-mono text-[10px] text-slate-600 mt-0.5">Corredores: <strong>${escapeHtml(pass.coupleNames)}</strong></p>
+              </div>
+
+              <!-- Chips de Meta y Rendimiento -->
+              <div class="p-2 bg-slate-100 rounded-xl border border-slate-200 font-mono text-[9px] grid grid-cols-3 gap-1 text-center my-2.5">
+                <div class="border-r border-slate-200">
+                  <span class="text-slate-500 text-[7.5px] block uppercase">TIEMPO META</span>
+                  <strong class="text-slate-900 text-xs">48:21</strong>
+                </div>
+                <div class="border-r border-slate-200">
+                  <span class="text-slate-500 text-[7.5px] block uppercase">RITMO MEDIO</span>
+                  <strong class="text-red-600 text-xs">4:50/km</strong>
+                </div>
+                <div>
+                  <span class="text-slate-500 text-[7.5px] block uppercase">CALORIAS</span>
+                  <strong class="text-amber-600 text-xs">740 kcal</strong>
+                </div>
+              </div>
+
+              <!-- Footer con QR y Chip RFID -->
+              <div class="pt-2 border-t border-dashed border-slate-300 flex items-center justify-between">
+                <div class="w-28 opacity-75">
+                  ${this.getBarcodeSvg('#0f172a')}
+                </div>
+                <div class="px-2 py-1 rounded bg-amber-500/10 border border-amber-500/40 text-amber-700 text-[7.5px] font-mono font-bold leading-tight text-center">
+                  FINISHER MEDAL<br>DUO FIT CHALLENGE
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        // ----------------------------------------------------
+        // GAMER PASS (CARTUCHO RETRO 16-BIT & CO-OP)
+        // ----------------------------------------------------
+        case 'gamer-pass':
+          frontHtml = `
+            <div class="card-face relative w-full rounded-2xl overflow-hidden cartridge-gold text-white p-5 border-2 border-amber-400/60 text-left select-none">
+              <!-- Ranura y Header de Consola -->
+              <div class="flex items-center justify-between pb-2 border-b border-amber-400/30 text-[9px] font-mono">
+                <span class="font-bold text-amber-300 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                  16-BIT RETRO SYSTEM // CO-OP CARTRIDGE
+                </span>
+                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-200 border border-amber-400/40 font-bold">2 PLAYERS</span>
+              </div>
+
+              <!-- Controles Retro y Barras de Vida SVG -->
+              <div class="my-3 text-center">
+                <div class="inline-block px-3 py-1 rounded-lg bg-black/60 border border-amber-400/40 font-mono text-[9px] space-y-1 mb-2">
+                  <div class="flex justify-between items-center gap-3">
+                    <span class="text-rose-400 font-bold">P1 HP</span>
+                    <div class="w-24 h-2 bg-neutral-800 rounded-full overflow-hidden border border-neutral-700">
+                      <div class="w-full h-full bg-gradient-to-r from-rose-500 to-emerald-400"></div>
+                    </div>
+                    <span class="text-emerald-400 font-bold">100%</span>
+                  </div>
+                  <div class="flex justify-between items-center gap-3">
+                    <span class="text-indigo-400 font-bold">P2 HP</span>
+                    <div class="w-24 h-2 bg-neutral-800 rounded-full overflow-hidden border border-neutral-700">
+                      <div class="w-full h-full bg-gradient-to-r from-indigo-500 to-cyan-400"></div>
+                    </div>
+                    <span class="text-cyan-400 font-bold">100%</span>
+                  </div>
+                </div>
+
+                <p class="font-mono text-[8px] text-amber-400 tracking-[0.25em] uppercase">LEVEL 99 DUO LEGENDS</p>
+                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-300 to-orange-400 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
+                <p class="font-mono text-[10px] text-neutral-300 mt-1">Jugadores: <strong class="text-amber-300">${escapeHtml(pass.coupleNames)}</strong></p>
+              </div>
+
+              <!-- Pines de Conexion PCB Dorado en la Base -->
+              <div class="mt-3 pt-2 border-t border-amber-400/40 flex items-center justify-between">
+                <div class="w-28 opacity-85">
+                  ${this.getBarcodeSvg('#f59e0b')}
+                </div>
+                <div class="flex items-center gap-1">
+                  <span class="w-2 h-4 rounded-sm bg-yellow-400/80"></span>
+                  <span class="w-2 h-4 rounded-sm bg-yellow-400/80"></span>
+                  <span class="w-2 h-4 rounded-sm bg-yellow-400/80"></span>
+                  <span class="w-2 h-4 rounded-sm bg-yellow-400/80"></span>
+                  <span class="w-2 h-4 rounded-sm bg-yellow-400/80"></span>
+                  <span class="w-2 h-4 rounded-sm bg-yellow-400/80"></span>
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        // ----------------------------------------------------
+        // BOARDGAME CARD (CARTA MITICA DE TABLERO & QUEST)
+        // ----------------------------------------------------
+        case 'boardgame-card':
+          frontHtml = `
+            <div class="card-face relative w-full rounded-2xl overflow-hidden boardgame-parchment text-amber-100 p-5 border-2 border-amber-500/60 text-left select-none">
+              <div class="flex items-center justify-between pb-1.5 border-b border-amber-500/30 text-[9px] font-mono">
+                <span class="font-bold text-amber-300 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                  CARTA LEGENDARIA // DUO QUEST
+                </span>
+                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">10 VP</span>
+              </div>
+
+              <!-- D20 y Meeple Vectorial SVG -->
+              <div class="my-3 text-center">
+                <svg viewBox="0 0 80 70" class="w-14 h-12 mx-auto drop-shadow-[0_0_10px_rgba(245,158,11,0.4)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- D20 -->
+                  <polygon points="40,8 65,22 65,52 40,66 15,52 15,22" stroke="#f59e0b" stroke-width="2" fill="#78350f"/>
+                  <polygon points="40,24 56,48 24,48" stroke="#fef08a" stroke-width="1.5" fill="#b45309"/>
+                  <text x="40" y="42" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle" font-family="monospace">20</text>
+                </svg>
+
+                <p class="font-mono text-[8px] text-amber-400 tracking-[0.25em] uppercase mt-1">TABLERO &amp; ESTRATEGIA</p>
+                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
+                <p class="font-mono text-[10px] text-amber-200/90 mt-0.5">Aventureros: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+              </div>
+
+              <!-- Habilidad Especial de Pareja -->
+              <div class="p-2.5 bg-black/60 rounded-xl border border-amber-500/30 text-[10px] leading-relaxed italic text-amber-100 my-2">
+                "Habilidad Pasiva: Complicidad Estrategica. El mejor equipo en la mesa de juego siempre comparte risas y la victoria final."
+              </div>
+
+              <!-- Footer Runico -->
+              <div class="pt-2 border-t border-dashed border-amber-500/30 flex items-center justify-between">
+                <div class="w-28 opacity-80">
+                  ${this.getBarcodeSvg('#f59e0b')}
+                </div>
+                <div class="px-2 py-1 rounded border border-amber-500/40 bg-amber-500/10 text-amber-300 text-[7.5px] font-mono font-bold leading-tight text-center">
+                  VICTORY POINT<br>MYTHIC EDITION
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        // ----------------------------------------------------
+        // THEME PARK (FAST PASS PARQUE DE ATRACCIONES)
+        // ----------------------------------------------------
+        case 'theme-park':
+          frontHtml = `
+            <div class="card-face relative w-full rounded-2xl overflow-hidden theme-park-glow text-white p-5 border-2 border-pink-500/50 text-left select-none">
+              <div class="flex items-center justify-between pb-2 border-b border-pink-500/30 text-[9px] font-mono">
+                <span class="font-bold text-pink-300 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-pink-400 animate-pulse"></span>
+                  GOLDEN FAST PASS // ALL RIDES
+                </span>
+                <span class="px-2 py-0.5 rounded bg-pink-500/20 text-pink-200 border border-pink-400/40 font-bold">ACCESO PRIORITARIO</span>
+              </div>
+
+              <!-- Montana Rusa Vectorial SVG -->
+              <div class="my-2.5 text-center">
+                <svg viewBox="0 0 100 65" class="w-16 h-11 mx-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M10 55 C30 55, 35 15, 55 15 C75 15, 80 55, 95 55" stroke="#ec4899" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M10 58 C30 58, 35 18, 55 18 C75 18, 80 58, 95 58" stroke="#f472b6" stroke-width="1" stroke-dasharray="2 2"/>
+                  <!-- Vagon -->
+                  <rect x="50" y="8" width="12" height="7" rx="2" fill="#fbbf24" stroke="#d97706" stroke-width="1"/>
+                  <circle cx="53" cy="16" r="1.5" fill="#f8fafc"/>
+                  <circle cx="59" cy="16" r="1.5" fill="#f8fafc"/>
+                </svg>
+
+                <p class="font-mono text-[8px] text-pink-300 tracking-[0.25em] uppercase mt-1">ADRENALINA &amp; EMOCIONES</p>
+                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-200 via-rose-100 to-amber-300 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
+                <p class="font-mono text-[10px] text-pink-200 mt-0.5">Pasajeros VIP: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+              </div>
+
+              <!-- Privilegio Express -->
+              <div class="p-2.5 bg-black/60 rounded-xl border border-pink-500/30 text-center font-mono text-[9px] my-2">
+                <span class="text-amber-300 font-bold block mb-0.5">PULSERA EXPRESS UNLIMITED</span>
+                <span class="text-neutral-300">Sin esperas en las mejores montanas rusas y atracciones</span>
+              </div>
+
+              <!-- Footer Codigo de Barras -->
+              <div class="pt-2 border-t border-dashed border-pink-500/30 flex items-center justify-between">
+                <div class="w-28 opacity-85">
+                  ${this.getBarcodeSvg('#ec4899')}
+                </div>
+                <div class="px-2 py-1 rounded border border-pink-400/50 bg-pink-500/10 text-pink-200 text-[7.5px] font-mono font-bold leading-tight text-center">
+                  FAST TRACK OK<br>EXPRESS ENTRY
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        // ----------------------------------------------------
+        // BEACH CLUB (DAY PASS PLAYA, SOL & CALA)
+        // ----------------------------------------------------
+        case 'beach-club':
+          frontHtml = `
+            <div class="card-face relative w-full rounded-2xl overflow-hidden beach-club-azure text-white p-5 border-2 border-cyan-400/50 text-left select-none">
+              <div class="flex items-center justify-between pb-2 border-b border-cyan-400/30 text-[9px] font-mono">
+                <span class="font-bold text-cyan-300 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                  MEDITERRANEAN DAY PASS // BEACH CLUB
+                </span>
+                <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-200 border border-cyan-400/40 font-bold">RESERVA VIP</span>
+              </div>
+
+              <!-- Sol y Palmera Vectorial SVG -->
+              <div class="my-2.5 text-center">
+                <svg viewBox="0 0 90 65" class="w-16 h-11 mx-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Sol Radiante -->
+                  <circle cx="45" cy="30" r="14" fill="#facc15" stroke="#fef08a" stroke-width="1.5"/>
+                  <line x1="45" y1="10" x2="45" y2="4" stroke="#facc15" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="45" y1="56" x2="45" y2="50" stroke="#facc15" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="25" y1="30" x2="19" y2="30" stroke="#facc15" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="71" y1="30" x2="65" y2="30" stroke="#facc15" stroke-width="2" stroke-linecap="round"/>
+                  <!-- Palmera -->
+                  <path d="M68 55 C65 40, 58 35, 52 35" stroke="#a16207" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M52 35 C42 30, 38 22, 40 18" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M52 35 C58 26, 68 24, 72 26" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+
+                <p class="font-mono text-[8px] text-cyan-300 tracking-[0.25em] uppercase mt-1">BRISA MARINA &amp; SOL</p>
+                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-white to-amber-200 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
+                <p class="font-mono text-[10px] text-cyan-200 mt-0.5">Huespedes: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+              </div>
+
+              <!-- Reserva Balinesa -->
+              <div class="p-2.5 bg-black/60 rounded-xl border border-cyan-400/30 font-mono text-[9px] grid grid-cols-2 gap-2 text-center my-2">
+                <div>
+                  <span class="text-cyan-300/80 text-[7.5px] block uppercase">UBICACION</span>
+                  <strong class="text-white text-xs">CAMA BALINESA 07</strong>
+                </div>
+                <div>
+                  <span class="text-cyan-300/80 text-[7.5px] block uppercase">SERVICIO</span>
+                  <strong class="text-amber-300 text-xs">TOALLAS &amp; BOTELLA</strong>
+                </div>
+              </div>
+
+              <!-- Footer Codigo de Barras -->
+              <div class="pt-2 border-t border-dashed border-cyan-400/30 flex items-center justify-between">
+                <div class="w-28 opacity-85">
+                  ${this.getBarcodeSvg('#22d3ee')}
+                </div>
+                <div class="px-2 py-1 rounded border border-cyan-400/50 bg-cyan-500/10 text-cyan-200 text-[7.5px] font-mono font-bold leading-tight text-center">
+                  BEACH DAY OK<br>FIRST ROW SEA
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        // ----------------------------------------------------
+        // KARAOKE LOUNGE (PASE VIP CABINA PRIVADA)
+        // ----------------------------------------------------
+        case 'karaoke-lounge':
+          frontHtml = `
+            <div class="card-face relative w-full rounded-2xl overflow-hidden karaoke-neon text-white p-5 border-2 border-pink-500/60 text-left select-none">
+              <div class="flex items-center justify-between pb-2 border-b border-pink-500/40 text-[9px] font-mono">
+                <span class="font-bold text-pink-300 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-pink-400 animate-pulse"></span>
+                  NEON STAR KARAOKE // PRIVATE SUITE
+                </span>
+                <span class="px-2 py-0.5 rounded bg-pink-500/20 text-pink-200 border border-pink-400/40 font-bold">CABINA VIP 04</span>
+              </div>
+
+              <!-- Microfono Vintage SVG -->
+              <div class="my-2 text-center">
+                <svg viewBox="0 0 80 65" class="w-14 h-11 mx-auto drop-shadow-[0_0_12px_rgba(236,72,153,0.5)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Microfono Shure 55 -->
+                  <rect x="32" y="10" width="16" height="24" rx="8" fill="#d4af37" stroke="#fef08a" stroke-width="1.2"/>
+                  <line x1="32" y1="18" x2="48" y2="18" stroke="#78350f" stroke-width="1"/>
+                  <line x1="32" y1="24" x2="48" y2="24" stroke="#78350f" stroke-width="1"/>
+                  <path d="M28 22 C28 34, 52 34, 52 22" stroke="#fef08a" stroke-width="2" fill="none"/>
+                  <line x1="40" y1="34" x2="40" y2="48" stroke="#fef08a" stroke-width="2"/>
+                  <line x1="30" y1="48" x2="50" y2="48" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+
+                <p class="font-mono text-[8px] text-pink-300 tracking-[0.25em] uppercase mt-1">DUETOS &amp; BALADAS</p>
+                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-200 via-white to-purple-300 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
+                <p class="font-mono text-[10px] text-pink-200 mt-0.5">Duo Solista: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+              </div>
+
+              <!-- Ecualizador y Sistema de Sonido -->
+              <div class="p-2 bg-black/60 rounded-xl border border-pink-500/30 text-center font-mono text-[9px] my-2">
+                <span class="text-amber-300 font-bold block mb-0.5">100 PUNTOS // PERFECT PITCH</span>
+                <span class="text-neutral-300">Microfonos inalambricos y repertorio sin limites</span>
+              </div>
+
+              <!-- Footer Codigo de Barras -->
+              <div class="pt-2 border-t border-dashed border-pink-500/30 flex items-center justify-between">
+                <div class="w-28 opacity-85">
+                  ${this.getBarcodeSvg('#f43f5e')}
+                </div>
+                <div class="px-2 py-1 rounded border border-pink-400/50 bg-pink-500/10 text-pink-200 text-[7.5px] font-mono font-bold leading-tight text-center">
+                  VOICE MASTER<br>VIP DUET PASS
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        // ----------------------------------------------------
+        // BRUNCH & CAFE (COMANDA ATELIER & LOYALTY PASS)
+        // ----------------------------------------------------
+        case 'brunch-cafe':
+          frontHtml = `
+            <div class="card-face relative w-full rounded-2xl overflow-hidden kraft-paper text-amber-100 p-5 border-2 border-amber-600/40 text-left select-none">
+              <div class="flex items-center justify-between pb-2 border-b border-amber-600/30 text-[9px] font-mono">
+                <span class="font-bold text-amber-300 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                  SPECIALTY COFFEE // ATELIER ROASTERY
+                </span>
+                <span class="px-2 py-0.5 rounded bg-amber-600/20 text-amber-200 border border-amber-500/40 font-bold">MESA RESERVADA</span>
+              </div>
+
+              <!-- Taza con Latte Art Corazon SVG -->
+              <div class="my-2.5 text-center">
+                <svg viewBox="0 0 80 65" class="w-14 h-11 mx-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Taza -->
+                  <path d="M15 20 L20 48 C22 54, 46 54, 48 48 L53 20 Z" fill="#451a03" stroke="#d97706" stroke-width="1.5"/>
+                  <path d="M48 24 C58 24, 58 38, 48 40" stroke="#d97706" stroke-width="2" fill="none"/>
+                  <!-- Latte Art Corazon -->
+                  <path d="M34 26 C30 22, 26 25, 34 33 C42 25, 38 22, 34 26 Z" fill="#fef3c7"/>
+                  <!-- Plato -->
+                  <ellipse cx="34" cy="54" rx="26" ry="4" stroke="#d97706" stroke-width="1.5" fill="#291307"/>
+                </svg>
+
+                <p class="font-mono text-[8px] text-amber-400 tracking-[0.25em] uppercase mt-1">BRUNCH &amp; SOBREMESA</p>
+                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
+                <p class="font-mono text-[10px] text-amber-200/90 mt-0.5">Degustadores: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+              </div>
+
+              <!-- Comanda Artesanal -->
+              <div class="p-2.5 bg-black/60 rounded-xl border border-amber-600/30 font-mono text-[9px] space-y-1 my-2">
+                <div class="flex justify-between text-neutral-300">
+                  <span>2x Flat White Etiopia Yirgacheffe</span>
+                  <span class="text-amber-300">6.40 EUR</span>
+                </div>
+                <div class="flex justify-between text-neutral-300">
+                  <span>1x Tostada Aguacate &amp; Huevo Poche</span>
+                  <span class="text-amber-300">7.50 EUR</span>
+                </div>
+                <div class="flex justify-between text-neutral-300">
+                  <span>1x Tarta Casera de Pistacho &amp; Frambuesa</span>
+                  <span class="text-amber-300">5.80 EUR</span>
+                </div>
+              </div>
+
+              <!-- Footer Codigo de Barras -->
+              <div class="pt-2 border-t border-dashed border-amber-600/30 flex items-center justify-between">
+                <div class="w-28 opacity-80">
+                  ${this.getBarcodeSvg('#d97706')}
+                </div>
+                <div class="px-2 py-1 rounded border border-amber-500/40 bg-amber-600/10 text-amber-300 text-[7.5px] font-mono font-bold leading-tight text-center">
+                  BARISTA APPROVED<br>ROASTERY DUO
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        // ----------------------------------------------------
+        // BESPOKE SIGNATURE (MOTOR PROCEDURAL PARA PLANES LIBRES)
+        // ----------------------------------------------------
+        case 'bespoke-signature':
+          frontHtml = `
+            <div class="card-face relative w-full rounded-2xl overflow-hidden text-white p-5 border-2 border-amber-400/50 text-left select-none shadow-2xl bg-gradient-to-b from-[#181124] via-[#0d0915] to-[#050408]">
+              <!-- Sello Holografico Superior -->
+              <div class="flex items-center justify-between pb-2 border-b border-amber-400/30 text-[9px] font-mono">
+                <div class="flex items-center gap-1.5 font-bold text-amber-300">
+                  <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                  <span>DUO BESPOKE SIGNATURE // LIMITED PASS</span>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-400/40 font-bold">UNICO &amp; EXCLUSIVO</span>
+              </div>
+
+              <!-- Blason Heraldico Procedural SVG -->
+              <div class="my-3 text-center">
+                <svg viewBox="0 0 100 80" class="w-16 h-12 mx-auto drop-shadow-[0_0_12px_rgba(245,158,11,0.5)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Laureles -->
+                  <path d="M22 55 C16 42 20 28 32 20 C33 24 32 28 28 32 C35 25 41 25 44 30 C39 33 36 37 37 43 C32 38 26 41 24 48 Z" fill="#d4af37" opacity="0.8"/>
+                  <path d="M78 55 C84 42 80 28 68 20 C67 24 68 28 72 32 C65 25 59 25 56 30 C61 33 64 37 63 43 C68 38 74 41 76 48 Z" fill="#d4af37" opacity="0.8"/>
+                  <!-- Corona Real y Monograma -->
+                  <path d="M38 18 L43 23 L50 16 L57 23 L62 18 L60 25 L40 25 Z" fill="#facc15" stroke="#fef08a" stroke-width="0.8"/>
+                  <circle cx="50" cy="46" r="16" fill="#1e1430" stroke="#f59e0b" stroke-width="1.8"/>
+                  <!-- Simbolo de Infinito Duo -->
+                  <path d="M43 46 C43 43, 47 43, 50 46 C53 49, 57 49, 57 46 C57 43, 53 43, 50 46 C47 49, 43 49, 43 46 Z" stroke="#fde047" stroke-width="2" fill="none"/>
+                </svg>
+
+                <p class="font-mono text-[8px] text-amber-300 tracking-[0.25em] uppercase mt-1">PLAN ESPECIAL DE PAREJA</p>
+                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
+                <p class="font-mono text-[10px] text-neutral-300 mt-1">Titulares: <strong class="text-amber-200">${escapeHtml(pass.coupleNames)}</strong></p>
+              </div>
+
+              <!-- Metadatos del Plan Personalizado -->
+              <div class="p-2.5 bg-black/60 rounded-xl border border-amber-400/30 font-mono text-[9px] grid grid-cols-2 gap-2 text-center my-2.5">
+                <div>
+                  <span class="text-amber-400/80 text-[7.5px] block uppercase">MEMORIA COMPARTIDA</span>
+                  <strong class="text-white text-xs">${pass.ticketNum}</strong>
+                </div>
+                <div>
+                  <span class="text-amber-400/80 text-[7.5px] block uppercase">CALIFICACION</span>
+                  <strong class="text-yellow-300 text-xs">${pass.rating || 5}/5 ESTRELLAS</strong>
+                </div>
+              </div>
+
+              <!-- Footer Codigo de Barras de Lujo -->
+              <div class="pt-2 border-t border-dashed border-amber-400/30 flex items-center justify-between">
+                <div class="w-28 opacity-85">
+                  ${this.getBarcodeSvg('#f59e0b')}
+                </div>
+                <div class="px-2 py-1 rounded border border-amber-400/50 bg-amber-500/10 text-amber-300 text-[7.5px] font-mono font-bold leading-tight text-center">
+                  BESPOKE GOLD<br>DUO EXCLUSIVE
+                </div>
+              </div>
+            </div>
+          `;
+          break;
         case 'arcade-scorecard':
           frontHtml = `
             <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 bg-[#0c0d1e] border-2 border-cyan-400/50 p-5 text-white arcade-scanlines text-left select-none">
@@ -1951,6 +2591,467 @@
                 <svg viewBox="0 0 140 35" class="w-full h-7" fill="none" stroke="#f59e0b" stroke-linecap="round">
                   <path d="M8 24 C18 8, 28 8, 36 20 C44 32, 38 36, 50 16 C60 5, 68 28, 82 18 C94 10, 104 26, 118 15 C128 8, 134 22, 138 18" stroke-width="1.8"/>
                 </svg>
+              </div>
+            </div>
+          </div>
+        `;
+            } else if (arc === 'stadium-ticket') {
+        backHtml = `
+          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden stadium-grass text-white p-5 border-2 border-emerald-500/50 flex flex-col justify-between text-left select-none">
+            <div>
+              <div class="border-b border-emerald-500/40 pb-2 flex justify-between items-center font-mono">
+                <span class="text-xs font-black text-emerald-400">ACTA DEL PARTIDO &amp; AFICION</span>
+                <span class="text-[9px] text-neutral-400">ESTADIO MATCH DAY</span>
+              </div>
+
+              <div class="my-3 grid grid-cols-2 gap-2 font-mono text-[10px]">
+                <div class="p-2 rounded-lg bg-black/60 border border-emerald-500/30">
+                  <div class="text-[8px] text-emerald-400/80 uppercase">POSESION DE BALON</div>
+                  <div class="text-sm font-bold text-white mt-0.5">68% <span class="text-[9px] text-emerald-400">(Control Total)</span></div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/60 border border-emerald-500/30">
+                  <div class="text-[8px] text-emerald-400/80 uppercase">DISPAROS A PUERTA</div>
+                  <div class="text-sm font-bold text-white mt-0.5">14 <span class="text-[9px] text-amber-300">(3 Golazos)</span></div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/60 border border-emerald-500/30">
+                  <div class="text-[8px] text-emerald-400/80 uppercase">GOLEADORES DE ORO</div>
+                  <div class="text-xs font-bold text-emerald-300 mt-0.5 truncate">${escapeHtml(pass.coupleNames)}</div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/60 border border-emerald-500/30">
+                  <div class="text-[8px] text-emerald-400/80 uppercase">AMBIENTE EN GRADA</div>
+                  <div class="text-sm font-bold text-emerald-400 mt-0.5">100% Inolvidable</div>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-black/70 border border-emerald-500/25 font-mono text-[10px] leading-relaxed italic text-emerald-100">
+                "${escapeHtml(pass.note || '90 minutos cantando en la grada. Pase de gol milimetrico y celebracion con abrazo eterno en el descuento.')}"
+              </div>
+
+              ${pass.photo ? `
+                <div class="mt-2 w-full h-24 rounded-lg overflow-hidden border border-emerald-500/40 shadow-sm">
+                  <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo de Partido">
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="pt-2 border-t border-emerald-500/30 flex items-center justify-between">
+              <div>
+                <span class="text-[8px] font-mono text-emerald-400/80 block uppercase">ARBITRO PRINCIPAL:</span>
+                <span class="font-mono text-[9px] text-neutral-300">Colegiado Oficial Liga Duo</span>
+              </div>
+              <div class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[8px] font-bold border border-emerald-500/40">
+                ACTA FIRMADA &bull; 3 PUNTOS
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (arc === 'racket-club') {
+        backHtml = `
+          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden court-blue text-white p-5 border-2 border-sky-400/50 flex flex-col justify-between text-left select-none">
+            <div>
+              <div class="border-b border-sky-400/30 pb-2 flex justify-between items-center font-mono">
+                <span class="text-xs font-bold text-sky-300">ESTADISTICAS DE PISTA</span>
+                <span class="text-[9px] text-neutral-400">WORLD DUO TOUR</span>
+              </div>
+
+              <div class="my-3 grid grid-cols-2 gap-2 font-mono text-[10px]">
+                <div class="p-2 rounded-lg bg-black/60 border border-sky-400/30">
+                  <div class="text-[8px] text-sky-300/80 uppercase">ACES DIRECTOS</div>
+                  <div class="text-sm font-bold text-white mt-0.5">7 Aces <span class="text-[9px] text-emerald-400">(Inapelables)</span></div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/60 border border-sky-400/30">
+                  <div class="text-[8px] text-sky-300/80 uppercase">REMATES X3 GANADORES</div>
+                  <div class="text-sm font-bold text-amber-300 mt-0.5">4 Por Tres</div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/60 border border-sky-400/30">
+                  <div class="text-[8px] text-sky-300/80 uppercase">PUNTOS DE ORO</div>
+                  <div class="text-sm font-bold text-emerald-400 mt-0.5">5/5 Ganados</div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/60 border border-sky-400/30">
+                  <div class="text-[8px] text-sky-300/80 uppercase">COMPLICIDAD EN RED</div>
+                  <div class="text-sm font-bold text-white mt-0.5">100% Invicto</div>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-black/70 border border-sky-400/25 font-mono text-[10px] leading-relaxed italic text-sky-100">
+                "${escapeHtml(pass.note || 'Defensa increible desde el fondo de pista y volea cruzada ganadora en la red. Partidazo inolvidable.')}"
+              </div>
+
+              ${pass.photo ? `
+                <div class="mt-2 w-full h-24 rounded-lg overflow-hidden border border-sky-400/40 shadow-sm">
+                  <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo de Pista">
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="pt-2 border-t border-sky-400/30 flex items-center justify-between">
+              <div>
+                <span class="text-[8px] font-mono text-sky-300/80 block uppercase">JUEZ ARBITRO:</span>
+                <span class="font-mono text-[9px] text-neutral-300">Master Referee Racket Tour</span>
+              </div>
+              <div class="px-2 py-1 rounded bg-sky-500/20 text-sky-200 font-mono text-[8px] font-bold border border-sky-400/40">
+                CHAMPIONS DUO
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (arc === 'fitness-pass') {
+        backHtml = `
+          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden bib-fiber text-slate-900 p-5 border-2 border-slate-300 flex flex-col justify-between text-left select-none">
+            <div>
+              <div class="border-b border-slate-300 pb-2 flex justify-between items-center font-mono">
+                <span class="text-xs font-bold text-red-600">TELEMETRIA &amp; PULSACIONES</span>
+                <span class="text-[9px] text-slate-500">CHIP TIMING SYSTEM</span>
+              </div>
+
+              <!-- Electrocardiograma SVG -->
+              <div class="my-2 p-2 bg-slate-100 rounded-xl border border-slate-200">
+                <svg viewBox="0 0 200 35" class="w-full h-7" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round">
+                  <path d="M0 18 L35 18 L42 6 L50 30 L58 10 L66 24 L74 18 L125 18 L133 4 L141 32 L149 12 L157 18 L200 18"/>
+                </svg>
+              </div>
+
+              <div class="my-2 grid grid-cols-2 gap-2 font-mono text-[10px]">
+                <div class="p-2 rounded-lg bg-slate-100 border border-slate-200">
+                  <div class="text-[8px] text-slate-500 uppercase">PULSACIONES MEDIAS</div>
+                  <div class="text-sm font-bold text-slate-900 mt-0.5">154 PPM <span class="text-[9px] text-red-600">(Zona Cardio)</span></div>
+                </div>
+                <div class="p-2 rounded-lg bg-slate-100 border border-slate-200">
+                  <div class="text-[8px] text-slate-500 uppercase">ESFUERZO DE PAREJA</div>
+                  <div class="text-sm font-bold text-amber-600 mt-0.5">Maximo Nivel</div>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-slate-100 border border-slate-200 font-mono text-[10px] leading-relaxed italic text-slate-700">
+                "${escapeHtml(pass.note || 'Superando limites juntos en cada serie y kilometro. Victoria compartida al cruzar la meta.')}"
+              </div>
+
+              ${pass.photo ? `
+                <div class="mt-2 w-full h-20 rounded-lg overflow-hidden border border-slate-300 shadow-sm">
+                  <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo de Meta">
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="pt-2 border-t border-slate-300 flex items-center justify-between">
+              <div>
+                <span class="text-[8px] font-mono text-slate-500 block uppercase">REGISTRO OFICIAL:</span>
+                <span class="font-mono text-[9px] text-slate-800">Duo Timing Committee</span>
+              </div>
+              <div class="px-2 py-1 rounded bg-red-600 text-white font-mono text-[8px] font-bold">
+                FINISHER OK
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (arc === 'gamer-pass') {
+        backHtml = `
+          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden cartridge-gold text-white p-5 border-2 border-amber-400/60 flex flex-col justify-between text-left select-none">
+            <div>
+              <div class="border-b border-amber-400/30 pb-2 flex justify-between items-center font-mono">
+                <span class="text-xs font-bold text-amber-300">LOGROS &amp; TROFEO PLATINO</span>
+                <span class="text-[9px] text-neutral-400">100% COMPLETE</span>
+              </div>
+
+              <div class="my-3 space-y-2 font-mono text-[10px]">
+                <div class="p-2 rounded-lg bg-black/60 border border-amber-400/30 flex items-center justify-between">
+                  <span class="text-neutral-200">[OK] JEFE FINAL SUPERADO A LA PRIMERA</span>
+                  <span class="text-amber-400 font-bold">+500 XP</span>
+                </div>
+                <div class="p-2 rounded-lg bg-black/60 border border-amber-400/30 flex items-center justify-between">
+                  <span class="text-neutral-200">[OK] COMBO COOPERATIVO PERFECTO</span>
+                  <span class="text-amber-400 font-bold">+750 XP</span>
+                </div>
+                <div class="p-2 rounded-lg bg-black/60 border border-amber-400/30 flex items-center justify-between">
+                  <span class="text-neutral-200">[OK] RISAS SIN MIRAR LA GUIA</span>
+                  <span class="text-amber-400 font-bold">PLATINO</span>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-black/70 border border-amber-400/25 font-mono text-[10px] leading-relaxed italic text-amber-100">
+                "${escapeHtml(pass.note || 'Partidaza legendaria en coop. Coordinacion perfecta en los mandos y victoria contra el boss final.')}"
+              </div>
+
+              ${pass.photo ? `
+                <div class="mt-2 w-full h-20 rounded-lg overflow-hidden border border-amber-400/40 shadow-sm">
+                  <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo Gamer">
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="pt-2 border-t border-amber-400/30 flex items-center justify-between">
+              <div>
+                <span class="text-[8px] font-mono text-amber-400/80 block uppercase">CERTIFICADO GAMER:</span>
+                <span class="font-mono text-[9px] text-neutral-200">Player 1 &amp; Player 2 Mastery</span>
+              </div>
+              <div class="px-2 py-1 rounded bg-amber-500/20 text-amber-300 font-mono text-[8px] font-bold border border-amber-400/40">
+                GAME OVER // WINNERS
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (arc === 'boardgame-card') {
+        backHtml = `
+          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden boardgame-parchment text-amber-100 p-5 border-2 border-amber-500/60 flex flex-col justify-between text-left select-none">
+            <div>
+              <div class="border-b border-amber-500/30 pb-2 flex justify-between items-center font-mono">
+                <span class="text-xs font-bold text-amber-300">ACTA DE PARTIDA &amp; PUNTUACION</span>
+                <span class="text-[9px] text-amber-400/70">QUEST ARCHIVE</span>
+              </div>
+
+              <div class="my-3 grid grid-cols-2 gap-2 font-mono text-[10px]">
+                <div class="p-2 rounded-lg bg-black/60 border border-amber-500/30">
+                  <div class="text-[8px] text-amber-400/80 uppercase">PUNTOS DE VICTORIA</div>
+                  <div class="text-sm font-bold text-white mt-0.5">142 VP <span class="text-[9px] text-amber-300">(Record)</span></div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/60 border border-amber-500/30">
+                  <div class="text-[8px] text-amber-400/80 uppercase">TIRADA DECISIVA</div>
+                  <div class="text-sm font-bold text-yellow-300 mt-0.5">20 Natural</div>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-black/70 border border-amber-500/25 font-mono text-[10px] leading-relaxed italic text-amber-100">
+                "${escapeHtml(pass.note || 'Tarde epica de tablero entre risas, alianzas secretas y un desenlace de partida que se recordara por anos.')}"
+              </div>
+
+              ${pass.photo ? `
+                <div class="mt-2 w-full h-24 rounded-lg overflow-hidden border border-amber-500/40 shadow-sm">
+                  <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo de Tablero">
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="pt-2 border-t border-amber-500/30 flex items-center justify-between">
+              <div>
+                <span class="text-[8px] font-mono text-amber-400/80 block uppercase">MASTER DEL JUEGO:</span>
+                <span class="font-mono text-[9px] text-amber-200">Gran Canciller de los Dados</span>
+              </div>
+              <div class="px-2 py-1 rounded bg-amber-500/20 text-amber-300 font-mono text-[8px] font-bold border border-amber-500/40">
+                QUEST COMPLETED
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (arc === 'theme-park') {
+        backHtml = `
+          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden theme-park-glow text-white p-5 border-2 border-pink-500/50 flex flex-col justify-between text-left select-none">
+            <div>
+              <div class="border-b border-pink-500/30 pb-2 flex justify-between items-center font-mono">
+                <span class="text-xs font-bold text-pink-300">BITACORA DE ADRENALINA</span>
+                <span class="text-[9px] text-neutral-400">EXPRESS LOG</span>
+              </div>
+
+              <div class="my-3 space-y-2 font-mono text-[10px]">
+                <div class="p-2 rounded-lg bg-black/60 border border-pink-500/30 flex items-center justify-between">
+                  <span>[V] MONTANA RUSA DE ACELERACION</span>
+                  <span class="text-amber-300 font-bold">115 km/h</span>
+                </div>
+                <div class="p-2 rounded-lg bg-black/60 border border-pink-500/30 flex items-center justify-between">
+                  <span>[V] CAIDA LIBRE AL VACIO</span>
+                  <span class="text-pink-400 font-bold">100m Alto</span>
+                </div>
+                <div class="p-2 rounded-lg bg-black/60 border border-pink-500/30 flex items-center justify-between">
+                  <span>[V] FOTO DE FOTOMATON CON CARA EPICA</span>
+                  <span class="text-emerald-400 font-bold">Inmortalizada</span>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-black/70 border border-pink-500/25 font-mono text-[10px] leading-relaxed italic text-pink-100">
+                "${escapeHtml(pass.note || 'Dia de pura emocion sin hacer ni una sola cola. Gritos en las bajadas y risas en cada curva.')}"
+              </div>
+
+              ${pass.photo ? `
+                <div class="mt-2 w-full h-20 rounded-lg overflow-hidden border border-pink-400/40 shadow-sm">
+                  <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo Parque">
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="pt-2 border-t border-pink-500/30 flex items-center justify-between">
+              <div>
+                <span class="text-[8px] font-mono text-pink-300/80 block uppercase">CONTROL DE PARQUE:</span>
+                <span class="font-mono text-[9px] text-neutral-200">Director de Operaciones VIP</span>
+              </div>
+              <div class="px-2 py-1 rounded bg-pink-500/20 text-pink-200 font-mono text-[8px] font-bold border border-pink-400/40">
+                ALL ACCESS VALID
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (arc === 'beach-club') {
+        backHtml = `
+          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden beach-club-azure text-white p-5 border-2 border-cyan-400/50 flex flex-col justify-between text-left select-none">
+            <div>
+              <div class="border-b border-cyan-400/30 pb-2 flex justify-between items-center font-mono">
+                <span class="text-xs font-bold text-cyan-300">BITACORA MEDITERRANEA</span>
+                <span class="text-[9px] text-neutral-400">CALA SERENA</span>
+              </div>
+
+              <div class="my-3 grid grid-cols-2 gap-2 font-mono text-[10px]">
+                <div class="p-2 rounded-lg bg-black/60 border border-cyan-400/30">
+                  <div class="text-[8px] text-cyan-300/80 uppercase">AGUA CRISTALINA</div>
+                  <div class="text-sm font-bold text-white mt-0.5">24&deg;C <span class="text-[9px] text-cyan-300">(Calma Total)</span></div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/60 border border-cyan-400/30">
+                  <div class="text-[8px] text-cyan-300/80 uppercase">COCTELERIA &amp; BRINDIS</div>
+                  <div class="text-sm font-bold text-amber-300 mt-0.5">Fruta &amp; Mojitos</div>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-black/70 border border-cyan-400/25 font-mono text-[10px] leading-relaxed italic text-cyan-100">
+                "${escapeHtml(pass.note || 'Tarde de desconexion bajo el sol. El rumor de las olas, un chapuzon en agua turquesa y el mejor descanso juntos.')}"
+              </div>
+
+              ${pass.photo ? `
+                <div class="mt-2 w-full h-24 rounded-lg overflow-hidden border border-cyan-400/40 shadow-sm">
+                  <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo de Playa">
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="pt-2 border-t border-cyan-400/30 flex items-center justify-between">
+              <div>
+                <span class="text-[8px] font-mono text-cyan-300/80 block uppercase">CAPITANIA:</span>
+                <span class="font-mono text-[9px] text-neutral-200">Cala Serena Day Club</span>
+              </div>
+              <div class="px-2 py-1 rounded bg-cyan-500/20 text-cyan-200 font-mono text-[8px] font-bold border border-cyan-400/40">
+                PERFECT SUMMER
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (arc === 'karaoke-lounge') {
+        backHtml = `
+          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden karaoke-neon text-white p-5 border-2 border-pink-500/60 flex flex-col justify-between text-left select-none">
+            <div>
+              <div class="border-b border-pink-500/40 pb-2 flex justify-between items-center font-mono">
+                <span class="text-xs font-bold text-pink-300">SETLIST DE EXITOS DE PAREJA</span>
+                <span class="text-[9px] text-neutral-400">CABINA PRIVADA</span>
+              </div>
+
+              <div class="my-3 space-y-2 font-mono text-[10px]">
+                <div class="p-2 rounded-lg bg-black/60 border border-pink-500/30 flex items-center justify-between">
+                  <span>1. CANCION MITICA A DUETO</span>
+                  <span class="text-amber-300 font-bold">100 PUNTOS</span>
+                </div>
+                <div class="p-2 rounded-lg bg-black/60 border border-pink-500/30 flex items-center justify-between">
+                  <span>2. BALADA CANTADA CON EL ALMA</span>
+                  <span class="text-pink-400 font-bold">99 PUNTOS</span>
+                </div>
+                <div class="p-2 rounded-lg bg-black/60 border border-pink-500/30 flex items-center justify-between">
+                  <span>3. CLASICO POP PARA BAILAR</span>
+                  <span class="text-emerald-400 font-bold">OVACION</span>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-black/70 border border-pink-500/25 font-mono text-[10px] leading-relaxed italic text-pink-100">
+                "${escapeHtml(pass.note || 'Cantando a pleno pulmon sin que nos importe desafinar ni un segundo. Noche de risas y complicidad maxima.')}"
+              </div>
+
+              ${pass.photo ? `
+                <div class="mt-2 w-full h-20 rounded-lg overflow-hidden border border-pink-400/40 shadow-sm">
+                  <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo Karaoke">
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="pt-2 border-t border-pink-500/30 flex items-center justify-between">
+              <div>
+                <span class="text-[8px] font-mono text-pink-300/80 block uppercase">SOUND ENGINEER:</span>
+                <span class="font-mono text-[9px] text-neutral-200">Neon Star Audio Lab</span>
+              </div>
+              <div class="px-2 py-1 rounded bg-pink-500/20 text-pink-200 font-mono text-[8px] font-bold border border-pink-400/40">
+                HIT RECORDED
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (arc === 'brunch-cafe') {
+        backHtml = `
+          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden kraft-paper text-amber-100 p-5 border-2 border-amber-600/40 flex flex-col justify-between text-left select-none">
+            <div>
+              <div class="border-b border-amber-600/30 pb-2 flex justify-between items-center font-mono">
+                <span class="text-xs font-bold text-amber-300">NOTAS DE CATA DEL BARISTA</span>
+                <span class="text-[9px] text-amber-400/70">SPECIALTY COFFEE</span>
+              </div>
+
+              <div class="my-3 grid grid-cols-2 gap-2 font-mono text-[10px]">
+                <div class="p-2 rounded-lg bg-black/60 border border-amber-600/30">
+                  <div class="text-[8px] text-amber-400/80 uppercase">PERFIL SENSORIAL</div>
+                  <div class="text-xs font-bold text-white mt-0.5">Jazmin, Miel &amp; Frutos Rojos</div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/60 border border-amber-600/30">
+                  <div class="text-[8px] text-amber-400/80 uppercase">TUESTE ARTESANAL</div>
+                  <div class="text-xs font-bold text-amber-300 mt-0.5">Medio // Filtro V60</div>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-black/70 border border-amber-600/25 font-mono text-[10px] leading-relaxed italic text-amber-100">
+                "${escapeHtml(pass.note || 'Desayuno pausado y cafe delicioso. Hablando de todo un poco y disfrutando de cada bocado sin prisas.')}"
+              </div>
+
+              ${pass.photo ? `
+                <div class="mt-2 w-full h-24 rounded-lg overflow-hidden border border-amber-500/40 shadow-sm">
+                  <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo de Cafe">
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="pt-2 border-t border-amber-600/30 flex items-center justify-between">
+              <div>
+                <span class="text-[8px] font-mono text-amber-400/80 block uppercase">HEAD BARISTA:</span>
+                <span class="font-mono text-[9px] text-amber-200">Duo Specialty Roastery</span>
+              </div>
+              <div class="px-2 py-1 rounded bg-amber-600/20 text-amber-300 font-mono text-[8px] font-bold border border-amber-500/40">
+                100% ARABICA
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (arc === 'bespoke-signature') {
+        backHtml = `
+          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden text-white p-5 border-2 border-amber-400/50 flex flex-col justify-between text-left select-none shadow-2xl bg-gradient-to-b from-[#181124] to-[#050408]">
+            <div>
+              <div class="border-b border-amber-400/30 pb-2 flex justify-between items-center font-mono">
+                <span class="text-xs font-bold text-amber-300">CERTIFICADO OFICIAL DE VIVENCIA</span>
+                <span class="text-[9px] text-neutral-400">EMISION BESPOKE</span>
+              </div>
+
+              <div class="my-3 space-y-2 font-mono text-[10px]">
+                <div class="p-2.5 rounded-xl bg-black/60 border border-amber-400/20">
+                  <div class="text-[8px] text-amber-400/80 uppercase">TITULARES HONORIFICOS</div>
+                  <div class="text-sm font-bold text-amber-200 mt-0.5">${escapeHtml(pass.coupleNames)}</div>
+                </div>
+                <div class="p-2.5 rounded-xl bg-black/60 border border-amber-400/20 flex justify-between items-center">
+                  <div>
+                    <div class="text-[8px] text-amber-400/80 uppercase">FECHA DE EMISION</div>
+                    <div class="text-xs font-bold text-white mt-0.5">${pass.date}</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-[8px] text-amber-400/80 uppercase">IDENTIFICADOR</div>
+                    <div class="text-xs font-bold text-amber-300 mt-0.5">${pass.ticketNum}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-black/70 border border-amber-400/25 font-mono text-[10px] leading-relaxed italic text-amber-100">
+                "${escapeHtml(pass.note || 'Un momento unico grabado para siempre en nuestro diario. Porque cualquier plan juntos se convierte en una aventura inolvidable.')}"
+              </div>
+
+              ${pass.photo ? `
+                <div class="mt-2 w-full h-22 rounded-lg overflow-hidden border border-amber-400/40 shadow-sm">
+                  <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo Personalizado">
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="pt-2 border-t border-amber-400/30 flex items-center justify-between">
+              <div>
+                <span class="text-[8px] font-mono text-amber-400/80 block uppercase">SELLO DE AUTENTICIDAD:</span>
+                <span class="font-mono text-[9px] text-neutral-300">Duo Official Memory Vault</span>
+              </div>
+              <div class="px-2 py-1 rounded bg-amber-500/20 text-amber-300 font-mono text-[8px] font-bold border border-amber-400/40">
+                RECORDED &bull; 100% DUO
               </div>
             </div>
           </div>
