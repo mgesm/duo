@@ -468,6 +468,16 @@ button,
   -webkit-mask-composite: source-in;
 }
 
+/* Troquelado de Ticket de Acuario / Zoológico */
+.aquarium-notched-edges {
+  mask: radial-gradient(circle 14px at 50% 0%, transparent 99%, black 100%) top center,
+        radial-gradient(circle 14px at 50% 100%, transparent 99%, black 100%) bottom center;
+  mask-composite: intersect;
+  -webkit-mask: radial-gradient(circle 14px at 50% 0%, transparent 99%, black 100%) top center,
+                radial-gradient(circle 14px at 50% 100%, transparent 99%, black 100%) bottom center;
+  -webkit-mask-composite: source-in;
+}
+
 /* Textura Fibra de Papel */
 .bg-paper-fiber {
   background-image: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 0),

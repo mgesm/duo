@@ -6753,6 +6753,36 @@
           </p>
         </div>
 
+                <!-- Acceso directo destacado: EMITIR DUO PASS -->
+        <div class="w-full mt-3 mb-1">
+          <button 
+            id="btn-log-visit" 
+            class="w-full p-3 rounded-2xl bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-indigo-500/20 border border-amber-500/40 hover:border-amber-400 text-left flex items-center justify-between gap-3 shadow-lg shadow-amber-500/10 active:scale-[0.98] transition group"
+          >
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-9 h-9 rounded-xl bg-amber-500/25 border border-amber-500/40 text-amber-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+                <svg class="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <div class="text-xs font-black text-amber-200 tracking-wide uppercase flex items-center gap-1.5">
+                  <span>Duo Pass Oficial</span>
+                  <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">COLECCIONABLE</span>
+                </div>
+                <div class="text-[11px] text-neutral-300 truncate mt-0.5">Ver o personalizar el pase exclusivo de esta cita</div>
+              </div>
+            </div>
+            <div class="px-2.5 py-1 rounded-xl bg-white/10 text-white font-bold text-xs shrink-0 flex items-center gap-1 group-hover:bg-amber-500 group-hover:text-black transition">
+              <span>Abrir</span>
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+          </button>
+        </div>
+
         <!-- Segmented Control estilo iOS / Apple HIG para Progressive Disclosure -->
         <div class="w-full mt-3 mb-1">
           <div class="grid grid-cols-${isMovies ? '2' : '3'} p-1 rounded-2xl bg-white/[0.06] border border-white/[0.1] backdrop-blur-xl">
@@ -6922,16 +6952,7 @@
                         : ''
                     }
 
-                    <div class="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between gap-2">
-                      <span class="text-[11px] text-neutral-400">¿Cita completada?</span>
-                      <button 
-                        id="btn-log-visit" 
-                        class="px-3.5 py-1.5 rounded-full text-xs font-bold text-amber-300 bg-amber-500/20 border border-amber-500/35 hover:bg-amber-500/30 active:scale-95 transition flex items-center gap-1.5"
-                      >
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                        <span>Emitir Duo Pass</span>
-                      </button>
-                    </div>
+                    
                   </div>
                 </div>
               </div>
@@ -8286,12 +8307,14 @@
   }
 
   // ==========================================
-  // DUO PASS ENGINE: GENERADOR Y RENDERIZADOR DE PASES ÚNICOS (REALIA & BESPOKE)
+  // DUO PASS ENGINE: GENERADOR Y RENDERIZADOR DE PASES UNICOS (REALIA & BESPOKE)
   // ==========================================
   const DuoPassEngine = {
     ARCHETYPES: {
       THERMAL_RECEIPT: 'thermal-receipt',
       CINEMA_TICKET: 'cinema-ticket',
+      STREAMING_TICKET: 'streaming-ticket',
+      AQUARIUM_PASS: 'aquarium-pass',
       SECRET_DOSSIER: 'secret-dossier',
       SPA_VOUCHER: 'spa-voucher',
       VIP_BACKSTAGE: 'vip-backstage',
@@ -8306,17 +8329,19 @@
     },
 
     LABELS: {
-      'thermal-receipt': 'Ticket Térmico de Restaurante',
-      'cinema-ticket': 'Entrada de Cine Vintage',
-      'secret-dossier': 'Dossier de Misión Secreta',
+      'thermal-receipt': 'Ticket Termico de Restaurante',
+      'cinema-ticket': 'Entrada Clasica de Cine & Palomitas',
+      'streaming-ticket': 'Pase Sesion de Cine en Casa',
+      'aquarium-pass': 'Pase Oceanico Acuario & Bioparc',
+      'secret-dossier': 'Dossier de Mision Secreta',
       'spa-voucher': 'Voucher Ritual Wellness',
       'vip-backstage': 'Pase VIP Backstage Tour',
       'boarding-pass': 'Tarjeta de Embarque Oficial',
-      'nature-permit': 'Permiso de Expedición Botánica',
+      'nature-permit': 'Permiso de Expedicion Botanica',
       'wine-reserve': 'Certificado de Reserva & Bodega',
-      'arcade-scorecard': 'Scorecard Neón Arcade & Bolera',
+      'arcade-scorecard': 'Scorecard Neon Arcade & Bolera',
       'sunset-postcard': 'Postal Golden Hour Atardecer',
-      'gallery-pass': 'Pase Exclusivo de Galería de Arte',
+      'gallery-pass': 'Pase Exclusivo de Galeria de Arte',
       'chef-recipe': 'Comanda Atelier de Cocina',
       'custom-visa': 'Pase Prestige Oficial Duo'
     },
@@ -8334,55 +8359,77 @@
     detectArchetype: function (name, note, mode) {
       const text = ((name || '') + ' ' + (note || '')).toLowerCase();
 
-      // 1. Cine y Películas
-      if (mode === 'movies' || /(cine|pel[ií]cula|peli|serie|estreno|palomitas|filmaffinity|cinesa|neocine|hollywood|butaca|sala 3d|imax|pantalla)/i.test(text)) {
+      // 1. Cine clasico en sala / taquilla (distinto a ver una pelicula en casa)
+      if (/(cine\b|cinesa|neocine|yelmo|kinepolis|taquilla|sala 3d|imax|butaca|palacio cinematogr|cartelera)/i.test(text)) {
         return 'cinema-ticket';
       }
-      // 2. Escape Room / Juegos de misterio / Karts / Acción
+
+      // 2. Acuario / Oceanografico / Zoo / Safari marino
+      if (/(acuario|aquarium|oceanogr|bioparc|faunia|delfinario|zoo|safari|vida marina|peces|tiburones)/i.test(text)) {
+        return 'aquarium-pass';
+      }
+
+      // 3. Pelicula / Serie en casa / streaming (modo movies o ver en el sofa)
+      if (mode === 'movies' || /(pel[ií]cula|peli|serie|estreno|filmaffinity|netflix|hbo|max|prime video|disney\+|movistar\+|filmin|sofa|palomitas|maraton de series)/i.test(text)) {
+        return 'streaming-ticket';
+      }
+
+      // 4. Escape Room / Juegos de misterio / Karts / Accion
       if (/(escape|misterio|enigma|acertijo|candado|cluedo|l[aá]ser|laser tag|paintball|kart|karts|tirolina|misi[oó]n|secreto|agente|detective|investigaci[oó]n|terror|fantasma|pista secreta)/i.test(text)) {
         return 'secret-dossier';
       }
-      // 3. Spa / Bienestar / Termal
+
+      // 5. Spa / Bienestar / Termal
       if (/(spa|termal|termas|masaje|balneario|circuito termal|sauna|jacuzzi|relax|bienestar|desconexi[oó]n|yoga|meditaci[oó]n|hidromasaje|talaso|hammam)/i.test(text)) {
         return 'spa-voucher';
       }
-      // 4. Música / Conciertos / Festivales
-      if (/(concierto|festival|m[uú]sica|directo|ac[uú]stico|dj|recital|banda|rock|pop|indie|teatro musical|auditorio|conciertazo|fiesta|discoteca|baile)/i.test(text)) {
+
+      // 6. Musica / Conciertos / Festivales / Teatro
+      if (/(concierto|festival|m[uú]sica|directo|ac[uú]stico|dj|recital|banda|rock|pop|indie|teatro|musical|auditorio|conciertazo|fiesta|discoteca|baile)/i.test(text)) {
         return 'vip-backstage';
       }
-      // 5. Viajes / Vuelos / Escapadas
+
+      // 7. Viajes / Vuelos / Escapadas
       if (/(vuelo|viaje|escapada|avi[oó]n|aeropuerto|hotel|resort|tren|ave|maleta|par[ií]s|roma|londres|crucero|billete)/i.test(text)) {
         return 'boarding-pass';
       }
-      // 6. Vino / Bodega / Cerveza / Degustación
+
+      // 8. Vino / Bodega / Cerveza / Degustacion
       if (/(vino|bodega|cata|sommelier|copa|barrica|degustaci[oó]n|maridaje|quesos|jam[oó]n ib[eé]rico|cerveza artesana|coctel|c[oó]ctel|vermut|ginebra)/i.test(text)) {
         return 'wine-reserve';
       }
-      // 7. Bolos / Arcade / Minigolf
+
+      // 9. Bolos / Arcade / Minigolf / Recreativos
       if (/(bolera|bolos|strike|arcade|recreativos|billar|dardos|minigolf|air hockey|pinball|futbol[ií]n|gaming|recreativo)/i.test(text)) {
         return 'arcade-scorecard';
       }
-      // 8. Naturaleza / Senderismo / Aire libre
-      if (/(senderismo|ruta|monta[nñ]a|playa|cala|picnic|parque|naturaleza|bosque|mirador|bici|kayak|paddle|surf|acampada|trekking)/i.test(text)) {
+
+      // 10. Naturaleza / Senderismo / Aire libre / Playa
+      if (/(senderismo|ruta|monta[nñ]a|playa|cala|picnic|parque|naturaleza|bosque|mirador|bici|kayak|paddle|surf|acampada|trekking|camping)/i.test(text)) {
         return 'nature-permit';
       }
-      // 9. Atardecer / Romántico / Estrellas
+
+      // 11. Atardecer / Romantico / Estrellas / Helado
       if (/(atardecer|puesta de sol|puesta del sol|golden hour|estrellas|constelaciones|paseo rom[aá]ntico|helado|velas|rom[aá]ntico)/i.test(text)) {
         return 'sunset-postcard';
       }
-      // 10. Arte / Museos / Cultura
+
+      // 12. Arte / Museos / Cultura
       if (/(museo|exposici[oó]n|galer[ií]a|arte|escultura|cuadros|cer[aá]mica|alfarer[ií]a|pintura|taller creativo|historia|exhibici[oó]n)/i.test(text)) {
         return 'gallery-pass';
       }
-      // 11. Cocinar en casa
-      if (/(cocinar|receta|sushi en casa|pasta casera|reposter[ií]a|tarta casera|chef|masterchef|cocinillas)/i.test(text)) {
+
+      // 13. Cocinar en casa / Atelier
+      if (/(cocinar|receta|sushi en casa|pasta casera|reposter[ií]a|tarta casera|chef|masterchef|cocinillas|hornear)/i.test(text)) {
         return 'chef-recipe';
       }
-      // 12. Comida / Restaurantes (Modo food o cualquier indicio gastronómico)
+
+      // 14. Comida / Restaurantes (Modo food o cualquier indicio gastronomico)
       if (mode === 'food' || /(cena|comida|comer|almuerzo|desayuno|merienda|restaurante|pizza|burger|hamburguesa|popeyes|kfc|mcdonald|burger king|unica|goiko|tacos|mexicano|sushi|asi[aá]tico|italiano|chiringuito|asador|bar|tapas|poke|ramen|kebab|pollo|patatas|postre|brunch|cafeter[ií]a|marisquer[ií]a|churros|buffet)/i.test(text)) {
         return 'thermal-receipt';
       }
-      // Por defecto pase lifestyle prestige
+
+      // 15. Por defecto pase lifestyle prestige
       return 'custom-visa';
     },
 
@@ -8390,46 +8437,45 @@
       const text = ((name || '') + ' ' + (note || '')).toLowerCase();
       if (/mexican|taco|burrito|guacamole|nacho/i.test(text)) {
         return [
-          { qty: '2x', name: 'Tacos al Pastor Especial de la Casa', price: '13.50 €' },
-          { qty: '1x', name: 'Totopos con Guacamole Fresco y Queso', price: '7.80 €' },
-          { qty: '2x', name: 'Margaritas Frozen de Lima', price: '12.00 €' }
+          { qty: '2x', name: 'Tacos al Pastor Especial de la Casa', price: '13.50 EUR' },
+          { qty: '1x', name: 'Totopos con Guacamole Fresco y Queso', price: '7.80 EUR' },
+          { qty: '2x', name: 'Margaritas Frozen de Lima', price: '12.00 EUR' }
         ];
       }
       if (/italian|pizza|pasta|lasa|trattoria/i.test(text)) {
         return [
-          { qty: '1x', name: 'Pizza Artesanal al Horno de Leña', price: '14.90 €' },
-          { qty: '1x', name: 'Pasta Fresca al Tartufo con Parmigiano', price: '15.50 €' },
-          { qty: '1x', name: 'Tiramisù Tradizionale Fatto in Casa', price: '6.20 €' },
-          { qty: '2x', name: 'Calice di Vino Chianti', price: '7.00 €' }
+          { qty: '1x', name: 'Pizza Artesanal al Horno de Lena', price: '14.90 EUR' },
+          { qty: '1x', name: 'Pasta Fresca al Tartufo con Parmigiano', price: '15.50 EUR' },
+          { qty: '1x', name: 'Tiramisu Tradizionale Fatto in Casa', price: '6.20 EUR' },
+          { qty: '2x', name: 'Calice di Vino Chianti', price: '7.00 EUR' }
         ];
       }
       if (/sushi|japon|asia|ramen|gyoza|poke/i.test(text)) {
         return [
-          { qty: '1x', name: 'Variado Especial Nigiris & Uramakis (16 pz)', price: '19.50 €' },
-          { qty: '1x', name: 'Gyozas Crujientes de Langostino y Verduras', price: '6.80 €' },
-          { qty: '2x', name: 'Mochis Artesanales de Té Matcha y Fresa', price: '5.50 €' }
+          { qty: '1x', name: 'Variado Especial Nigiris & Uramakis (16 pz)', price: '19.50 EUR' },
+          { qty: '1x', name: 'Gyozas Crujientes de Langostino y Verduras', price: '6.80 EUR' },
+          { qty: '2x', name: 'Mochis Artesanales de Te Matcha y Fresa', price: '5.50 EUR' }
         ];
       }
       if (/burger|hamburgues|smash/i.test(text)) {
         return [
-          { qty: '2x', name: 'Duo Burger Gourmet Doble Carne con Queso Ahumado', price: '18.90 €' },
-          { qty: '1x', name: 'Patatas Rústicas con Salsa Trufada', price: '4.90 €' },
-          { qty: '2x', name: 'Bebidas Grandes Refill', price: '5.60 €' }
+          { qty: '2x', name: 'Duo Burger Gourmet Doble Carne con Queso Ahumado', price: '18.90 EUR' },
+          { qty: '1x', name: 'Patatas Rusticas con Salsa Trufada', price: '4.90 EUR' },
+          { qty: '2x', name: 'Bebidas Grandes Refill', price: '5.60 EUR' }
         ];
       }
       if (/tapas|bar|taberna|ca[nñ]as/i.test(text)) {
         return [
-          { qty: '1x', name: 'Tabla de Jamón Ibérico y Queso Curado', price: '16.00 €' },
-          { qty: '1x', name: 'Patatas Bravas Crujientes de la Taberna', price: '5.50 €' },
-          { qty: '1x', name: 'Croquetas Caseras Cremosas (6 uds)', price: '7.20 €' },
-          { qty: '2x', name: 'Cañas Dobles Bien Frías', price: '5.00 €' }
+          { qty: '1x', name: 'Tabla de Jamon Iberico de Bellota y Queso Curado', price: '16.50 EUR' },
+          { qty: '1x', name: 'Patatas Bravas con Alioli Casero', price: '5.20 EUR' },
+          { qty: '2x', name: 'Canyas Dobles Bien Tiradas', price: '5.00 EUR' }
         ];
       }
+      // General comida
       return [
-        { qty: '2x', name: 'Plato Especial Seleccionado de la Casa', price: '21.00 €' },
-        { qty: '1x', name: 'Guarnición Especial para Compartir', price: '6.50 €' },
-        { qty: '1x', name: 'Postre Delicioso de Enamorados', price: '6.00 €' },
-        { qty: '2x', name: 'Bebidas de Celebración en Pareja', price: '6.00 €' }
+        { qty: '2x', name: 'Menu Degustacion Especial para Dos', price: '24.00 EUR' },
+        { qty: '1x', name: 'Racion Especial de la Casa', price: '8.50 EUR' },
+        { qty: '2x', name: 'Bebidas Refrescantes', price: '5.00 EUR' }
       ];
     },
 
@@ -8437,10 +8483,10 @@
       if (!item) item = {};
       const name = item.name || item.restaurantName || 'Plan Especial';
       const note = item.note || '';
-      const mode = item.mode || state.activeMode || 'food';
+      const mode = item.mode || (typeof state !== 'undefined' ? state.activeMode : 'food') || 'food';
       const id = item.id || item.restaurantId || ('custom-' + Date.now());
-      const p1 = item.p1Name || state.player1Name || 'Miguel';
-      const p2 = item.p2Name || state.player2Name || 'Patri';
+      const p1 = item.p1Name || (typeof state !== 'undefined' ? state.player1Name : 'Miguel') || 'Miguel';
+      const p2 = item.p2Name || (typeof state !== 'undefined' ? state.player2Name : 'Patri') || 'Patri';
       const coupleNames = `${p1} & ${p2}`;
       const date = item.date || new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
       const rating = item.rating || 5;
@@ -8458,47 +8504,47 @@
       let dishes = null;
       let navQuery = name;
 
-      // Coincidencias de catálogo oficial
+      // Coincidencias de catalogo oficial
       if (lowerId.includes('popeyes') || lowerName.includes('popeyes')) {
         archetype = 'thermal-receipt';
         brandLogo = './popeyes.png';
-        venueAddress = 'CC ESPACIO MEDITERRÁNEO • LOCAL B-14, CARTAGENA';
+        venueAddress = 'CC ESPACIO MEDITERRANEO - LOCAL B-14, CARTAGENA';
         navQuery = 'Popeyes CC Espacio Mediterraneo Cartagena';
         dishes = [
-          { qty: '2x', name: 'The Chicken Sandwich (12h marinado cajún)', price: '13.80 €' },
-          { qty: '1x', name: 'Patatas Cajún Grandes', price: '3.60 €' },
-          { qty: '4x', name: 'Tenders Crujientes Louisiana', price: '5.90 €' },
-          { qty: '2x', name: 'Refresco Refill Ilimitado', price: '5.40 €' }
+          { qty: '2x', name: 'The Chicken Sandwich (12h marinado cajun)', price: '13.80 EUR' },
+          { qty: '1x', name: 'Patatas Cajun Grandes', price: '3.60 EUR' },
+          { qty: '4x', name: 'Tenders Crujientes Louisiana', price: '5.90 EUR' },
+          { qty: '2x', name: 'Refresco Refill Ilimitado', price: '5.40 EUR' }
         ];
-      } else if (lowerId.includes('unica') || lowerName.includes('única') || lowerName.includes('unica')) {
+      } else if (lowerId.includes('unica') || lowerName.includes('unica')) {
         archetype = 'thermal-receipt';
         brandLogo = './unica.png';
-        venueAddress = 'CASCO HISTÓRICO • CALLE MAYOR, CARTAGENA';
+        venueAddress = 'CASCO HISTORICO - CALLE MAYOR, CARTAGENA';
         navQuery = 'Unica Smash Burgers Cartagena';
         dishes = [
-          { qty: '2x', name: 'Smash Burger Doble Bacon Trufada', price: '17.90 €' },
-          { qty: '1x', name: 'Patatas Especiales Queso Ahumado', price: '4.80 €' },
-          { qty: '2x', name: 'Bebidas Artesanales', price: '6.00 €' }
+          { qty: '2x', name: 'Smash Burger Doble Bacon Trufada', price: '17.90 EUR' },
+          { qty: '1x', name: 'Patatas Especiales Queso Ahumado', price: '4.80 EUR' },
+          { qty: '2x', name: 'Bebidas Artesanales', price: '6.00 EUR' }
         ];
       } else if (lowerId.includes('kfc') || lowerName.includes('kfc')) {
         archetype = 'thermal-receipt';
         brandLogo = './kfc.png';
-        venueAddress = 'CC MANDARACHE • RONDA CIUDAD DE LA UNIÓN, CARTAGENA';
+        venueAddress = 'CC MANDARACHE - RONDA CIUDAD DE LA UNION, CARTAGENA';
         navQuery = 'KFC Mandarache Cartagena';
         dishes = [
-          { qty: '1x', name: 'Cubo Receta Original 8 Piezas', price: '15.99 €' },
-          { qty: '2x', name: 'Patatas Clásicas Grandes', price: '5.50 €' },
-          { qty: '2x', name: 'Refresco Grande', price: '5.20 €' }
+          { qty: '1x', name: 'Cubo Receta Original 8 Piezas', price: '15.99 EUR' },
+          { qty: '2x', name: 'Patatas Clasicas Grandes', price: '5.50 EUR' },
+          { qty: '2x', name: 'Refresco Grande', price: '5.20 EUR' }
         ];
       } else if (lowerId.includes('mcdonald') || lowerName.includes('mcdonald')) {
         archetype = 'thermal-receipt';
         brandLogo = './mcdonalds.png';
-        venueAddress = 'ESPACIO MEDITERRÁNEO / PUERTO DE CARTAGENA';
+        venueAddress = 'ESPACIO MEDITERRANEO / PUERTO DE CARTAGENA';
         navQuery = 'McDonalds Cartagena';
         dishes = [
-          { qty: '2x', name: 'Menú Big Mac con Patatas Deluxe', price: '18.40 €' },
-          { qty: '9x', name: 'McNuggets con Salsa Barbacoa', price: '5.90 €' },
-          { qty: '2x', name: 'McFlurry Lotus Biscoff', price: '6.20 €' }
+          { qty: '2x', name: 'Menu Big Mac con Patatas Deluxe', price: '18.40 EUR' },
+          { qty: '9x', name: 'McNuggets con Salsa Barbacoa', price: '5.90 EUR' },
+          { qty: '2x', name: 'McFlurry Lotus Biscoff', price: '6.20 EUR' }
         ];
       } else if (lowerId.includes('burger_king') || lowerName.includes('burger king')) {
         archetype = 'thermal-receipt';
@@ -8506,9 +8552,9 @@
         venueAddress = 'AVDA. TITO DIDIO / CC MANDARACHE, CARTAGENA';
         navQuery = 'Burger King Cartagena';
         dishes = [
-          { qty: '2x', name: 'Menú Whopper Doble a la Parrilla', price: '19.20 €' },
-          { qty: '1x', name: 'Aros de Cebolla Crujientes', price: '4.20 €' },
-          { qty: '2x', name: 'King Fusion Oreo', price: '6.00 €' }
+          { qty: '2x', name: 'Menu Whopper Doble a la Parrilla', price: '19.20 EUR' },
+          { qty: '1x', name: 'Aros de Cebolla Crujientes', price: '4.20 EUR' },
+          { qty: '2x', name: 'King Fusion Oreo', price: '6.00 EUR' }
         ];
       } else if (lowerId.includes('telepizza') || lowerName.includes('telepizza')) {
         archetype = 'thermal-receipt';
@@ -8516,25 +8562,28 @@
         venueAddress = 'CALLE ALFONSO X EL SABIO, CARTAGENA';
         navQuery = 'Telepizza Cartagena';
         dishes = [
-          { qty: '1x', name: 'Pizza Mediana Barbacoa Gourmet', price: '15.95 €' },
-          { qty: '1x', name: 'Pizza Mediana Carbonara Masa Fina', price: '14.95 €' },
-          { qty: '1x', name: 'Pizzolinos Ajo y Queso', price: '4.50 €' }
+          { qty: '1x', name: 'Pizza Mediana Barbacoa Gourmet', price: '15.95 EUR' },
+          { qty: '1x', name: 'Pizza Mediana Carbonara Masa Fina', price: '14.95 EUR' },
+          { qty: '1x', name: 'Pizzolinos Ajo y Queso', price: '4.50 EUR' }
         ];
       } else if (lowerId.includes('kebab') || lowerName.includes('kebab')) {
         archetype = 'thermal-receipt';
         brandLogo = './kebab.png';
         venueAddress = 'CALLE DEL CARMEN / PUERTO, CARTAGENA';
         dishes = [
-          { qty: '2x', name: 'Dürüm Mixto con Salsa Blanca y Picante', price: '14.00 €' },
-          { qty: '1x', name: 'Patatas Especiadas Orientales', price: '3.50 €' },
-          { qty: '2x', name: 'Bebidas Frías Refrescantes', price: '4.00 €' }
+          { qty: '2x', name: 'Durum Mixto con Salsa Blanca y Picante', price: '14.00 EUR' },
+          { qty: '1x', name: 'Patatas Especiadas Orientales', price: '3.50 EUR' },
+          { qty: '2x', name: 'Bebidas Frias Refrescantes', price: '4.00 EUR' }
         ];
-      } else if (lowerId === 'plan-cine') {
+      } else if (lowerId === 'plan-cine' || /cinesa|neocine|cine\b/i.test(name)) {
         archetype = 'cinema-ticket';
-        venueAddress = 'Neocine Mandarache • Sala 04';
+        venueAddress = 'Neocine Mandarache - Sala 04';
+      } else if (archetype === 'aquarium-pass' || lowerId.includes('acuario') || lowerName.includes('acuario')) {
+        archetype = 'aquarium-pass';
+        venueAddress = 'Oceanic Marine World - Tunel de Tiburones';
       } else if (lowerId === 'plan-escape-room') {
         archetype = 'secret-dossier';
-        venueAddress = 'Mystery Lab Centro • Sala Enigma';
+        venueAddress = 'Mystery Lab Centro - Sala Enigma';
       } else if (lowerId === 'plan-spa') {
         archetype = 'spa-voucher';
         venueAddress = 'Talaso Spa Marino & Aguas Termales';
@@ -8543,19 +8592,19 @@
         venueAddress = 'Auditorio y Sala de Conciertos';
       } else if (lowerId === 'plan-bolera') {
         archetype = 'arcade-scorecard';
-        venueAddress = 'Bowling Espacio Mediterráneo';
+        venueAddress = 'Bowling Espacio Mediterraneo';
       } else if (lowerId === 'plan-cata-vinos') {
         archetype = 'wine-reserve';
         venueAddress = 'Taberna y Bodega Selecta';
       } else if (lowerId === 'plan-picnic' || lowerId === 'plan-senderismo') {
         archetype = 'nature-permit';
-        venueAddress = 'Parque Natural / Mirador Panorámico';
+        venueAddress = 'Parque Natural / Mirador Panoramico';
       } else if (lowerId === 'plan-paseo-helado') {
         archetype = 'sunset-postcard';
-        venueAddress = 'Puerto y Paseo Marítimo';
+        venueAddress = 'Puerto y Paseo Maritimo';
       } else if (lowerId === 'plan-museo') {
         archetype = 'gallery-pass';
-        venueAddress = 'Museo Teatro Romano / Galería de Arte';
+        venueAddress = 'Museo Teatro Romano / Galeria de Arte';
       } else if (lowerId === 'plan-cocinar-juntos') {
         archetype = 'chef-recipe';
         venueAddress = 'Cocina Atelier en Casa';
@@ -8563,7 +8612,7 @@
         dishes = this.synthesizeDishes(name, note);
       }
 
-      const archetypeLabel = this.LABELS[archetype] || 'Pase Único Duo';
+      const archetypeLabel = this.LABELS[archetype] || 'Pase Unico Duo';
 
       return {
         id: id,
@@ -8587,7 +8636,7 @@
       };
     },
 
-    // Generador SVG del Código de Barras
+    // Generador SVG del Codigo de Barras
     getBarcodeSvg: function (color) {
       const c = color || 'currentColor';
       return `
@@ -8611,79 +8660,42 @@
           <rect x="80" y="0" width="4" height="36" />
           <rect x="87" y="0" width="2" height="36" />
           <rect x="91" y="0" width="5" height="36" />
-          <rect x="98" y="0" width="1" height="36" />
-          <rect x="102" y="0" width="4" height="36" />
-          <rect x="108" y="0" width="2" height="36" />
-          <rect x="112" y="0" width="3" height="36" />
-          <rect x="117" y="0" width="1" height="36" />
-          <rect x="121" y="0" width="5" height="36" />
-          <rect x="128" y="0" width="2" height="36" />
-          <rect x="132" y="0" width="4" height="36" />
-          <rect x="138" y="0" width="2" height="36" />
-          <rect x="142" y="0" width="3" height="36" />
-          <rect x="148" y="0" width="1" height="36" />
-          <rect x="152" y="0" width="5" height="36" />
-          <rect x="158" y="0" width="2" height="36" />
+          <rect x="99" y="0" width="1" height="36" />
+          <rect x="103" y="0" width="3" height="36" />
+          <rect x="109" y="0" width="4" height="36" />
+          <rect x="116" y="0" width="2" height="36" />
+          <rect x="120" y="0" width="1" height="36" />
+          <rect x="124" y="0" width="4" height="36" />
+          <rect x="131" y="0" width="2" height="36" />
+          <rect x="135" y="0" width="5" height="36" />
+          <rect x="143" y="0" width="2" height="36" />
+          <rect x="147" y="0" width="4" height="36" />
+          <rect x="154" y="0" width="1" height="36" />
+          <rect x="157" y="0" width="3" height="36" />
         </svg>
       `;
     },
 
-    // Generador SVG del Corte de Sierra Superior e Inferior
+    // Generador SVG del Borde Dentado (Sawtooth)
     getSawtoothSvg: function () {
       return `
-        <svg viewBox="0 0 400 8" class="w-full h-2 text-[#0A0B0E] fill-current" preserveAspectRatio="none">
-          <polygon points="0,0 5,8 10,0 15,8 20,0 25,8 30,0 35,8 40,0 45,8 50,0 55,8 60,0 65,8 70,0 75,8 80,0 85,8 90,0 95,8 100,0 105,8 110,0 115,8 120,0 125,8 130,0 135,8 140,0 145,8 150,0 155,8 160,0 165,8 170,0 175,8 180,0 185,8 190,0 195,8 200,0 205,8 210,0 215,8 220,0 225,8 230,0 235,8 240,0 245,8 250,0 255,8 260,0 265,8 270,0 275,8 280,0 285,8 290,0 295,8 300,0 305,8 310,0 315,8 320,0 325,8 330,0 335,8 340,0 345,8 350,0 355,8 360,0 365,8 370,0 375,8 380,0 385,8 390,0 395,8 400,0" />
+        <svg viewBox="0 0 200 8" preserveAspectRatio="none" class="w-full h-full fill-white/95">
+          <polygon points="0,0 5,8 10,0 15,8 20,0 25,8 30,0 35,8 40,0 45,8 50,0 55,8 60,0 65,8 70,0 75,8 80,0 85,8 90,0 95,8 100,0 105,8 110,0 115,8 120,0 125,8 130,0 135,8 140,0 145,8 150,0 155,8 160,0 165,8 170,0 175,8 180,0 185,8 190,0 195,8 200,0" />
         </svg>
       `;
     },
 
-    // Renderizador del Reverso Común / Bitácora
-    renderCardBack: function (pass, cardId, isCompact) {
-      const stars = '★'.repeat(pass.rating || 5) + '☆'.repeat(5 - (pass.rating || 5));
-      const hasPhoto = !!pass.photo;
+    // Generador SVG del Escudo Oficial de Duo
+    getShieldSvg: function (color) {
+      const c = color || '#f59e0b';
       return `
-        <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden shadow-2xl p-4 sm:p-5 flex flex-col justify-between text-left select-none bg-neutral-900 border border-white/20 text-white font-sans">
-          <div>
-            <div class="flex items-center justify-between pb-2 border-b border-white/10">
-              <div class="flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-                <span class="text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-bold">BITÁCORA & REVERSO DUO</span>
-              </div>
-              <span class="text-[10px] font-mono text-neutral-400">${pass.ticketNum}</span>
-            </div>
-
-            <div class="mt-2.5">
-              <div class="text-[10px] text-amber-400 font-bold tracking-widest">${stars}</div>
-              <h4 class="text-sm font-extrabold text-white mt-0.5 truncate">${escapeHtml(pass.name)}</h4>
-              <div class="text-[11px] text-neutral-400 mt-0.5">Pareja: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></div>
-            </div>
-
-            ${hasPhoto ? `
-              <div class="mt-2.5 rounded-xl overflow-hidden max-h-36 border border-white/15 shadow-md relative group">
-                <img src="${pass.photo}" class="w-full h-28 object-cover" />
-                <div class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded bg-black/75 backdrop-blur-md text-[8px] font-mono text-white/90">FOTO OFICIAL</div>
-              </div>
-            ` : ''}
-
-            <div class="mt-2.5 p-2.5 bg-black/40 rounded-xl border border-white/10 text-[11px] text-neutral-300 italic leading-relaxed">
-              "${escapeHtml(pass.note || 'Cita celebrada y validada en Duo. Momentos únicos que construyen nuestra historia.')}"
-            </div>
-          </div>
-
-          <div class="pt-2 border-t border-white/10 flex items-center justify-between gap-2 mt-2">
-            <a href="${pass.navUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-[10px] font-bold text-white flex items-center gap-1 transition">
-              <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
-              <span class="flex items-center gap-1"><svg class="w-3 h-3 text-emerald-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><span>Ruta Maps</span></span>
-            </a>
-            <div class="text-right">
-              <span class="text-[9px] font-mono text-neutral-400 block">${pass.date}</span>
-            </div>
-          </div>
-        </div>
+        <svg viewBox="0 0 24 24" class="w-5 h-5 inline-block fill-none stroke-current" style="color: ${c};" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12l2 2 4-4" stroke-width="2.5"/>
+        </svg>
       `;
     },
 
-    // Renderizador Maestro de Pase según su Arquetipo
     renderPassCard: function (pass, options) {
       if (!pass) return '';
       if (!options) options = {};
@@ -8706,12 +8718,12 @@
               <!-- Cabecera Restaurante -->
               <div class="text-center pb-2.5 border-b-2 border-dashed border-neutral-400/60">
                 <div class="flex items-center justify-center gap-2 mb-1">
-                  ${pass.brandLogo ? `<img src="${pass.brandLogo}" class="w-7 h-7 object-contain filter grayscale contrast-125" alt="Logo">` : '<span class="text-xl">️</span>'}
+                  ${pass.brandLogo ? `<img src="${pass.brandLogo}" class="w-7 h-7 object-contain filter grayscale contrast-125" alt="Logo">` : '<span class="font-bold text-xs uppercase px-2 py-0.5 rounded bg-neutral-200">GASTRO</span>'}
                   <h3 class="font-extrabold text-sm sm:text-base tracking-tight text-neutral-900 uppercase">${escapeHtml(pass.name)}</h3>
                 </div>
                 <p class="text-[9px] text-neutral-600 leading-tight uppercase font-medium">
                   ${escapeHtml(pass.venueAddress)}<br>
-                  NIF: B-88291048 • TEL: 968 00 24 12
+                  NIF: B-88291048 - TEL: 968 00 24 12
                 </p>
               </div>
 
@@ -8734,13 +8746,13 @@
               <!-- Desglose de Platos -->
               <div class="py-2.5 border-b-2 border-dashed border-neutral-400/60 text-[10px] space-y-1.5">
                 <div class="flex justify-between font-bold text-[9px] text-neutral-500 pb-0.5 border-b border-neutral-300">
-                  <span>CANT / ARTÍCULO</span>
+                  <span>CANT / ARTICULO</span>
                   <span>TOTAL</span>
                 </div>
                 ${(pass.dishes || [
-                  { qty: '2x', name: 'Plato Especial de la Casa', price: '18.50 €' },
-                  { qty: '1x', name: 'Guarnición Especial Duo', price: '4.50 €' },
-                  { qty: '2x', name: 'Bebidas de Pareja', price: '5.00 €' }
+                  { qty: '2x', name: 'Plato Especial de la Casa', price: '18.50 EUR' },
+                  { qty: '1x', name: 'Guarnicion Especial Duo', price: '4.50 EUR' },
+                  { qty: '2x', name: 'Bebidas de Pareja', price: '5.00 EUR' }
                 ]).map(function (d) {
                   return `
                     <div class="flex justify-between items-start leading-tight">
@@ -8755,7 +8767,7 @@
               <div class="py-2 text-[11px] space-y-0.5 border-b border-dashed border-neutral-400/60">
                 <div class="flex justify-between text-neutral-600">
                   <span>SUBTOTAL:</span>
-                  <span>28.00 €</span>
+                  <span>28.00 EUR</span>
                 </div>
                 <div class="flex justify-between font-bold text-emerald-800 bg-emerald-100/60 px-1 py-0.5 rounded">
                   <span>DESCUENTO DUO LOVE (100%):</span>
@@ -8763,21 +8775,21 @@
                 </div>
                 <div class="flex justify-between font-extrabold text-neutral-950 text-xs sm:text-sm pt-1">
                   <span>TOTAL A PAGAR:</span>
-                  <span>0.00 €</span>
+                  <span>0.00 EUR</span>
                 </div>
               </div>
 
               <!-- Sello de Caucho Rojo Pagado -->
               <div class="py-3 text-center">
                 <div class="stamp-paid-red text-xs sm:text-sm">
-                  ★ PAGADO EN DUO ★
+                  PAGADO EN DUO
                 </div>
                 <div class="text-[9px] text-neutral-500 mt-1 uppercase font-semibold tracking-wider">
-                  ${pass.date} • MATCH COMPARTIDO AL 100%
+                  ${pass.date} - MATCH COMPARTIDO AL 100%
                 </div>
               </div>
 
-              <!-- Código de Barras Térmico -->
+              <!-- Codigo de Barras Termico -->
               <div class="pt-1 flex flex-col items-center">
                 ${this.getBarcodeSvg('#18191C')}
                 <span class="text-[8px] text-neutral-500 tracking-widest mt-0.5">${pass.ticketNum}</span>
@@ -8797,9 +8809,9 @@
               <div class="foil-glare absolute inset-0 pointer-events-none opacity-30"></div>
               <div class="border border-amber-500/40 rounded-xl p-3 sm:p-4 bg-gradient-to-b from-[#1a1114] via-[#120a0d] to-[#1c1216]">
                 <div class="text-center pb-2 border-b border-amber-500/30">
-                  <p class="font-cinzel text-[9px] tracking-[0.25em] text-amber-400 uppercase font-bold">★ PALACIO CINEMATOGRÁFICO DUO ★</p>
+                  <p class="font-cinzel text-[9px] tracking-[0.25em] text-amber-400 uppercase font-bold">CINEMA TAQUILLA & SALA GRAND</p>
                   <h2 class="font-cinzel text-xl sm:text-2xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-yellow-500 drop-shadow-sm mt-0.5">ADMIT TWO</h2>
-                  <p class="text-[10px] font-playfair italic text-amber-300/90 mt-0.5">Pase de Gala para <strong class="font-bold text-amber-100">${escapeHtml(pass.coupleNames)}</strong></p>
+                  <p class="text-[10px] font-playfair italic text-amber-300/90 mt-0.5">Entrada de Cine para <strong class="font-bold text-amber-100">${escapeHtml(pass.coupleNames)}</strong></p>
                 </div>
 
                 <div class="py-3 space-y-2">
@@ -8809,12 +8821,12 @@
                     <span>BUTACAS: <strong class="text-amber-100 font-sans">1A & 1B</strong></span>
                   </div>
                   <div>
-                    <span class="text-[9px] font-cinzel text-amber-400/80 uppercase block">PELÍCULA / PLAN:</span>
+                    <span class="text-[9px] font-cinzel text-amber-400/80 uppercase block">PELICULA / CARTELERA:</span>
                     <h3 class="text-base sm:text-lg font-black text-white font-cinzel tracking-tight leading-snug truncate">${escapeHtml(pass.name)}</h3>
                   </div>
                   <div class="flex justify-between items-center text-[10px] text-amber-200/80 pt-1">
                     <span>${pass.date}</span>
-                    <span class="px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 font-mono text-[9px] text-amber-300">LOVE SEAT VIP</span>
+                    <span class="px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 font-mono text-[9px] text-amber-300">PALOMITAS & BUTACAS DUO</span>
                   </div>
                 </div>
 
@@ -8823,8 +8835,96 @@
                     ${this.getBarcodeSvg('#f59e0b')}
                   </div>
                   <div class="stamp-circle-seal w-12 h-12 text-rose-400 text-[8px] font-bold tracking-tighter">
-                    CANJEADO<br>DUO
+                    CANJEADO<br>TAQUILLA
                   </div>
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'streaming-ticket':
+          frontHtml = `
+            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-[#0c0f1d] via-[#141026] to-[#0a0715] border border-indigo-500/40 text-indigo-100 p-4 sm:p-5 text-left select-none">
+              <div class="flex items-center justify-between pb-2 border-b border-indigo-500/25">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                  <span class="font-mono text-[10px] font-extrabold tracking-wider text-indigo-300 uppercase">SESION STREAMING EN CASA</span>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-indigo-500/20 text-indigo-200 border border-indigo-500/30">SOFA & PALOMITAS</span>
+              </div>
+
+              <div class="my-3 space-y-1">
+                <span class="text-[9px] font-mono text-neutral-400 uppercase tracking-widest">PELICULA O SERIE</span>
+                <h3 class="text-base sm:text-lg font-black text-white tracking-tight leading-snug truncate">${escapeHtml(pass.name)}</h3>
+                <p class="text-xs text-indigo-300 font-medium">${escapeHtml(pass.coupleNames)}</p>
+              </div>
+
+              <div class="p-2.5 bg-black/50 rounded-xl border border-indigo-500/20 font-mono text-[10px] grid grid-cols-3 gap-1 text-center">
+                <div>
+                  <span class="text-neutral-500 text-[8px] block">MODO</span>
+                  <strong class="text-white">SOFA VIP</strong>
+                </div>
+                <div>
+                  <span class="text-neutral-500 text-[8px] block">PALOMITAS</span>
+                  <strong class="text-amber-300">EXTRA</strong>
+                </div>
+                <div>
+                  <span class="text-neutral-500 text-[8px] block">CALIDAD</span>
+                  <strong class="text-indigo-400">4K HDR</strong>
+                </div>
+              </div>
+
+              <div class="mt-3 pt-2 border-t border-dashed border-indigo-500/30 flex items-center justify-between">
+                <div class="w-32">
+                  ${this.getBarcodeSvg('#818cf8')}
+                </div>
+                <div class="text-right">
+                  <span class="text-[9px] font-mono text-indigo-300 block">${pass.date}</span>
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'aquarium-pass':
+          frontHtml = `
+            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-[#021f2d] via-[#053b52] to-[#01141f] border border-cyan-400/40 text-cyan-100 p-4 sm:p-5 aquarium-notched-edges text-left select-none">
+              <div class="flex items-center justify-between pb-2 border-b border-cyan-400/30">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
+                  <span class="font-mono text-[10px] font-black tracking-widest text-cyan-300 uppercase">OCEANIC AQUARIUM EXPEDITION</span>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-cyan-950/80 text-cyan-200 text-[9px] font-mono font-bold border border-cyan-500/30">TUNEL MARINO</span>
+              </div>
+
+              <div class="my-3 space-y-1">
+                <span class="text-[9px] font-mono text-cyan-400 uppercase tracking-widest">PASE DE ACCESO TOTAL</span>
+                <h3 class="text-base sm:text-lg font-black text-white tracking-tight truncate">${escapeHtml(pass.name)}</h3>
+                <p class="text-xs text-cyan-200">${escapeHtml(pass.coupleNames)}</p>
+              </div>
+
+              <div class="p-2.5 bg-black/40 rounded-xl border border-cyan-400/25 font-mono text-[10px] grid grid-cols-3 gap-1 text-center">
+                <div>
+                  <span class="text-cyan-400/70 text-[8px] block">ZONA</span>
+                  <strong class="text-white">TIBURONES</strong>
+                </div>
+                <div>
+                  <span class="text-cyan-400/70 text-[8px] block">ENTRADAS</span>
+                  <strong class="text-amber-300">2x ADULTO</strong>
+                </div>
+                <div>
+                  <span class="text-cyan-400/70 text-[8px] block">ACCESO</span>
+                  <strong class="text-cyan-300">PRIORITARIO</strong>
+                </div>
+              </div>
+
+              <div class="mt-3 pt-2 border-t border-dashed border-cyan-400/30 flex items-center justify-between">
+                <div class="w-32">
+                  ${this.getBarcodeSvg('#22d3ee')}
+                </div>
+                <div class="stamp-circle-seal w-12 h-12 text-cyan-300 text-[8px] font-bold tracking-tighter">
+                  AQUARIUM<br>VALIDADO
                 </div>
               </div>
             </div>
@@ -8856,24 +8956,22 @@
 
               <div class="p-2.5 bg-zinc-900/80 rounded-xl border border-zinc-700/60 font-mono text-[10px] space-y-1">
                 <div class="flex justify-between">
-                  <span class="text-zinc-500">AGENTES ACTIVOS:</span>
-                  <span class="text-red-400 font-bold">${escapeHtml(pass.coupleNames)}</span>
+                  <span class="text-zinc-500">AGENTES ASIGNADOS:</span>
+                  <strong class="text-zinc-200 uppercase">${escapeHtml(pass.coupleNames)}</strong>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-zinc-500">FECHA CLAVE:</span>
-                  <span class="text-zinc-300">${pass.date}</span>
+                  <span class="text-zinc-500">UBICACION OBJETIVO:</span>
+                  <strong class="text-red-400 truncate max-w-[140px]">${escapeHtml(pass.venueAddress)}</strong>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-zinc-500">ESTADO MISIÓN:</span>
-                  <span class="text-emerald-400 font-bold">DESBLOQUEADO (100%)</span>
+                  <span class="text-zinc-500">ESTADO OPERACION:</span>
+                  <span class="text-emerald-400 font-bold">AUTORIZADA</span>
                 </div>
               </div>
 
-              <div class="mt-3 pt-2 border-t border-zinc-700 flex items-center justify-between">
-                <div class="w-32">
-                  ${this.getBarcodeSvg('#ef4444')}
-                </div>
-                <span class="font-mono text-[9px] text-zinc-500">${pass.ticketNum}</span>
+              <div class="mt-3 pt-2 border-t border-zinc-700 flex items-center justify-between font-mono text-[9px] text-zinc-500">
+                <span>DOC REF: ${pass.ticketNum}</span>
+                <span>FECHA: ${pass.date}</span>
               </div>
             </div>
           `;
@@ -8881,26 +8979,30 @@
 
         case 'spa-voucher':
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-[#FAF7F2] border border-[#e4ded5] p-5 text-[#2e2b27] text-left select-none">
-              <div class="flex items-center justify-between border-b border-stone-300 pb-2">
-                <span class="text-[10px] font-serif text-emerald-900/80 tracking-widest uppercase">DUO WELLNESS RETREAT</span>
-                <div class="w-6 h-6 rounded border-2 border-red-700 text-red-700 flex items-center justify-center font-serif text-xs font-bold">美</div>
+            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-b from-[#1b2320] via-[#121816] to-[#0c100e] border border-emerald-500/40 p-4 sm:p-5 text-emerald-100 text-left select-none">
+              <div class="text-center pb-2 border-b border-emerald-500/20">
+                <div class="flex items-center justify-center gap-1.5 text-emerald-400 font-playfair italic text-xs mb-0.5">
+                  <span>RITUAL DE BIENESTAR & CALMA</span>
+                </div>
+                <h3 class="text-base sm:text-xl font-bold font-playfair tracking-wide text-white uppercase">${escapeHtml(pass.name)}</h3>
+                <p class="text-[10px] font-sans text-emerald-300/80 mt-0.5">Voucher Exclusivo para Dos Personas</p>
               </div>
 
-              <div class="my-4 text-center">
-                <p class="font-cormorant italic text-[11px] text-stone-500 tracking-widest uppercase">INVITACIÓN AL BIENESTAR & CALMA</p>
-                <h3 class="font-serif text-xl sm:text-2xl font-bold text-stone-900 tracking-tight mt-0.5 truncate">${escapeHtml(pass.name)}</h3>
-                <p class="text-[11px] font-serif italic text-stone-600 mt-1">Válido para dos almas: <strong class="text-stone-900">${escapeHtml(pass.coupleNames)}</strong></p>
+              <div class="my-3 py-2 px-3 rounded-xl bg-emerald-950/40 border border-emerald-500/20 text-center">
+                <p class="text-[9px] font-sans text-emerald-400 uppercase tracking-widest font-semibold">INVITADOS DE HONOR</p>
+                <p class="text-sm font-bold text-white font-playfair mt-0.5">${escapeHtml(pass.coupleNames)}</p>
+                <div class="text-[10px] text-emerald-300/70 mt-1 flex justify-center gap-3">
+                  <span>Circuito Termal</span>
+                  <span>-</span>
+                  <span>Aromaterapia</span>
+                  <span>-</span>
+                  <span>Desconexion</span>
+                </div>
               </div>
 
-              <div class="p-3 bg-stone-100/70 rounded-xl border border-stone-200 font-serif text-[11px] text-center text-stone-700 space-y-0.5">
-                <div>Circuito Termal • Vapor & Aguas Claras</div>
-                <div class="text-[10px] text-stone-500 font-sans tracking-wide">EMITIDO EL ${pass.date} • CITA VALIDADA</div>
-              </div>
-
-              <div class="mt-3 pt-2 border-t border-stone-300/80 flex items-center justify-between text-[10px] font-serif text-stone-500">
-                <span>TERMAL DUO PASS</span>
-                <span class="font-bold text-stone-800">${pass.ticketNum}</span>
+              <div class="pt-2 border-t border-dashed border-emerald-500/25 flex items-center justify-between text-[10px]">
+                <span class="font-mono text-emerald-400/80">${pass.ticketNum}</span>
+                <span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold text-[9px]">CONFIRMADO</span>
               </div>
             </div>
           `;
@@ -8908,33 +9010,43 @@
 
         case 'vip-backstage':
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-b from-[#13072b] via-[#1a0a38] to-[#090317] border border-fuchsia-500/40 p-4 sm:p-5 text-fuchsia-100 text-left select-none">
-              <div class="hologram-shimmer absolute inset-0 opacity-40"></div>
-              
-              <!-- Agujero de Cinta Lanyard -->
-              <div class="w-10 h-2 rounded-full bg-black/80 border border-fuchsia-400/40 mx-auto mb-2.5"></div>
+            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-[#0d0b14] border-2 border-purple-500/60 p-4 sm:p-5 text-purple-100 text-left select-none">
+              <div class="w-8 h-2.5 bg-neutral-800 rounded-full mx-auto -mt-2 mb-2 border border-purple-500/40"></div>
 
-              <div class="flex items-center justify-between pb-2 border-b border-fuchsia-500/30">
-                <span class="text-[10px] font-mono tracking-widest text-fuchsia-400 font-bold uppercase">DUO LIVE TOUR PASS</span>
-                <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 font-bold border border-fuchsia-500/40">VIP ACCESS</span>
+              <div class="flex items-center justify-between pb-2 border-b border-purple-500/30 font-mono text-[10px]">
+                <span class="text-purple-400 font-black tracking-widest">WORLD TOUR LIVE</span>
+                <span class="px-2 py-0.5 rounded bg-purple-900/60 text-purple-300 font-bold border border-purple-500/40">ALL ACCESS</span>
               </div>
 
-              <div class="my-3">
-                <span class="text-[9px] font-mono text-fuchsia-400/80 uppercase">HEADLINER & CITA:</span>
-                <h3 class="text-lg sm:text-xl font-black text-white font-syne tracking-tight leading-tight truncate">${escapeHtml(pass.name)}</h3>
-                <p class="text-[11px] text-fuchsia-300 mt-0.5">Acceso Backstage: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+              <div class="my-3 text-center">
+                <h3 class="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-pink-300 to-indigo-300 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
+                <div class="inline-block px-3 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono text-[10px] font-bold mt-1">
+                  PASE VIP DUO: ${escapeHtml(pass.coupleNames)}
+                </div>
               </div>
 
-              <!-- Ecualizador Gráfico SVG -->
-              <div class="my-2.5 p-2 bg-black/50 rounded-xl border border-fuchsia-500/20 flex flex-col items-center">
-                <svg viewBox="0 0 100 20" class="w-full h-5 text-pink-400 fill-current opacity-90">
-                  <rect x="2" y="8" width="2" height="8" rx="1"/><rect x="6" y="4" width="2" height="16" rx="1"/><rect x="10" y="2" width="2" height="20" rx="1"/><rect x="14" y="6" width="2" height="12" rx="1"/><rect x="18" y="1" width="2" height="22" rx="1"/><rect x="22" y="5" width="2" height="14" rx="1"/><rect x="26" y="8" width="2" height="8" rx="1"/><rect x="30" y="3" width="2" height="18" rx="1"/><rect x="34" y="0" width="2" height="24" rx="1"/><rect x="38" y="4" width="2" height="16" rx="1"/><rect x="42" y="7" width="2" height="10" rx="1"/><rect x="46" y="2" width="2" height="20" rx="1"/><rect x="50" y="5" width="2" height="14" rx="1"/><rect x="54" y="1" width="2" height="22" rx="1"/><rect x="58" y="8" width="2" height="8" rx="1"/><rect x="62" y="4" width="2" height="16" rx="1"/><rect x="66" y="2" width="2" height="20" rx="1"/><rect x="70" y="6" width="2" height="12" rx="1"/><rect x="74" y="1" width="2" height="22" rx="1"/><rect x="78" y="5" width="2" height="14" rx="1"/><rect x="82" y="8" width="2" height="8" rx="1"/><rect x="86" y="3" width="2" height="18" rx="1"/><rect x="90" y="5" width="2" height="14" rx="1"/><rect x="94" y="8" width="2" height="8" rx="1"/>
-                </svg>
+              <div class="p-2.5 bg-purple-950/30 rounded-xl border border-purple-500/20 font-mono text-[10px] grid grid-cols-3 gap-1 text-center">
+                <div>
+                  <span class="text-purple-400 text-[8px] block">ACCESO</span>
+                  <strong class="text-white">FRONT ROW</strong>
+                </div>
+                <div>
+                  <span class="text-purple-400 text-[8px] block">ZONA</span>
+                  <strong class="text-pink-300">GOLDEN RING</strong>
+                </div>
+                <div>
+                  <span class="text-purple-400 text-[8px] block">PASES</span>
+                  <strong class="text-white">2x VIP</strong>
+                </div>
               </div>
 
-              <div class="pt-2 border-t border-fuchsia-500/30 flex items-center justify-between text-[10px] font-mono">
-                <span class="text-fuchsia-400">${pass.date}</span>
-                <span class="font-bold text-white">${pass.ticketNum}</span>
+              <div class="mt-3 pt-2 border-t border-purple-500/30 flex items-center justify-between">
+                <div class="w-28">
+                  ${this.getBarcodeSvg('#c084fc')}
+                </div>
+                <div class="text-right font-mono text-[9px] text-purple-400">
+                  <span>${pass.date}</span>
+                </div>
               </div>
             </div>
           `;
@@ -8945,8 +9057,7 @@
             <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-b from-[#0b1d33] via-[#081524] to-[#040a12] border border-sky-500/35 p-4 sm:p-5 text-sky-100 text-left select-none">
               <div class="flex items-center justify-between pb-2 border-b border-sky-500/30 font-mono text-[10px]">
                 <div class="flex items-center gap-1.5 font-bold text-white">
-                  <span class="text-sky-400"><svg class="w-3.5 h-3.5 text-sky-400 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3.5c-.5-.5-2.5 0-4 1.5L13.5 8.5 5.3 6.7c-.8-.2-1.6.1-2.1.7l-.7.7 5.7 3.6-2.5 2.5-2.3-.4c-.5-.1-1 .1-1.4.5l-.3.3 2.8 1.8 1.8 2.8.3-.3c.4-.4.6-.9.5-1.4l-.4-2.3 2.5-2.5 3.6 5.7.7-.7c.6-.5.9-1.3.7-2.1z"/></svg></span>
-                  <span>DUO AIRLINES • FIRST CLASS</span>
+                  <span>DUO AIRLINES - FIRST CLASS</span>
                 </div>
                 <span class="text-sky-300 font-bold">${pass.ticketNum}</span>
               </div>
@@ -8958,8 +9069,8 @@
                   <span class="text-[9px] text-sky-300">Rutina</span>
                 </div>
                 <div class="flex flex-col items-center px-3">
-                  <span class="text-xs text-sky-400 font-bold">➔</span>
-                  <span class="text-[8px] font-mono text-sky-400 mt-0.5">VUELO DUO</span>
+                  <span class="text-xs text-sky-400 font-bold">VUELO</span>
+                  <span class="text-[8px] font-mono text-sky-400 mt-0.5">DUO-001</span>
                 </div>
                 <div class="text-right">
                   <span class="text-[9px] font-mono text-sky-400 uppercase">DESTINO</span>
@@ -8999,7 +9110,7 @@
           frontHtml = `
             <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-b from-[#0a0d24] via-[#07091a] to-[#03040c] border-2 border-cyan-500/50 p-4 sm:p-5 text-cyan-100 text-left select-none">
               <div class="flex items-center justify-between pb-2 border-b border-cyan-500/30 font-mono text-[10px]">
-                <span class="text-cyan-400 font-bold tracking-widest">★ DUO ARCADE & BOWLING ★</span>
+                <span class="text-cyan-400 font-bold tracking-widest">DUO ARCADE & BOWLING</span>
                 <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold">100% MATCH</span>
               </div>
 
@@ -9035,7 +9146,7 @@
 
               <div class="mt-3 pt-2 border-t border-cyan-500/30 flex items-center justify-between text-[10px] font-mono">
                 <span class="text-neutral-400">${pass.date}</span>
-                <span class="text-cyan-400 font-bold">${pass.ticketNum}</span>
+                <span class="text-cyan-300 font-bold">PLAYER 1 & PLAYER 2 CO-OP</span>
               </div>
             </div>
           `;
@@ -9043,34 +9154,34 @@
 
         case 'nature-permit':
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-b from-[#0f2115] via-[#0b170e] to-[#060d08] border border-emerald-600/40 p-4 sm:p-5 text-emerald-100 text-left select-none">
-              <div class="flex items-center justify-between pb-2 border-b border-emerald-500/30 font-mono text-[10px]">
-                <div class="flex items-center gap-1.5 font-bold text-emerald-400">
-                  <span></span>
-                  <span>PERMISO OFICIAL DE EXPEDICIÓN</span>
-                </div>
-                <span class="text-emerald-300 font-bold">DUO NATURE</span>
+            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-[#131b14] border-2 border-emerald-700/60 p-4 sm:p-5 text-emerald-100 text-left select-none">
+              <div class="flex items-center justify-between pb-2 border-b border-emerald-700/50">
+                <span class="font-mono text-[9px] font-bold text-emerald-400 uppercase tracking-widest">PARQUES NATURALES & RUTAS</span>
+                <span class="font-mono text-[9px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">PERMISO OFICIAL</span>
               </div>
 
-              <div class="my-3">
-                <span class="text-[9px] font-mono text-emerald-400/80 uppercase">DESTINO & RUTA:</span>
-                <h3 class="text-base sm:text-lg font-black text-white tracking-tight leading-tight truncate">${escapeHtml(pass.name)}</h3>
-                <p class="text-[11px] text-emerald-300 mt-0.5">Exploradores: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+              <div class="my-3 space-y-1">
+                <span class="text-[9px] font-mono text-emerald-400/80 uppercase">EXPEDICION DE SENDERISMO</span>
+                <h3 class="text-base sm:text-lg font-black text-white tracking-tight truncate">${escapeHtml(pass.name)}</h3>
+                <p class="text-xs text-emerald-300 font-medium">${escapeHtml(pass.coupleNames)}</p>
               </div>
 
-              <div class="p-2.5 bg-emerald-950/40 rounded-xl border border-emerald-500/20 font-mono text-[10px] flex items-center justify-between">
-                <div>
-                  <span class="text-emerald-400 text-[8px] block">COORDENADAS</span>
-                  <span class="text-white font-bold">${pass.date}</span>
+              <div class="p-2.5 bg-black/40 rounded-xl border border-emerald-800/60 text-[10px] font-mono space-y-1">
+                <div class="flex justify-between">
+                  <span class="text-emerald-500">UBICACION:</span>
+                  <strong class="text-emerald-200 truncate max-w-[150px]">${escapeHtml(pass.venueAddress)}</strong>
                 </div>
-                <div class="stamp-circle-seal px-2 py-1 text-emerald-300 text-[9px] font-bold">
-                  VALIDADO
+                <div class="flex justify-between">
+                  <span class="text-emerald-500">AUTORIZACION:</span>
+                  <strong class="text-amber-300">RUTA & PICNIC DUO</strong>
                 </div>
               </div>
 
-              <div class="mt-3 pt-2 border-t border-emerald-500/30 flex items-center justify-between font-mono text-[10px]">
-                <span class="text-emerald-400">AIRE PURO • CITA 100%</span>
-                <span class="text-neutral-400">${pass.ticketNum}</span>
+              <div class="mt-3 pt-2 border-t border-emerald-700/40 flex items-center justify-between text-[10px]">
+                <span class="font-mono text-emerald-400">${pass.date}</span>
+                <div class="stamp-circle-seal w-11 h-11 text-emerald-400 text-[8px] font-bold">
+                  ECO<br>PARK
+                </div>
               </div>
             </div>
           `;
@@ -9078,26 +9189,21 @@
 
         case 'wine-reserve':
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-b from-[#230b14] via-[#17060d] to-[#0d0307] border border-amber-600/40 p-4 sm:p-5 text-amber-100 text-left select-none">
-              <div class="text-center pb-2 border-b border-amber-500/30">
-                <span class="font-cinzel text-[9px] tracking-widest text-amber-400 uppercase font-bold">BODEGA & DEGUSTACIÓN SELECTA</span>
-                <h3 class="font-cinzel text-lg sm:text-xl font-black text-white tracking-tight mt-0.5 truncate">${escapeHtml(pass.name)}</h3>
-                <p class="text-[10px] font-playfair italic text-amber-300/80 mt-0.5">Reserva Especial para <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-b from-[#1a0f14] via-[#12080c] to-[#0a0407] border border-amber-600/40 p-4 sm:p-5 text-amber-100 text-left select-none">
+              <div class="text-center pb-2 border-b border-amber-600/30 font-serif">
+                <p class="text-[9px] tracking-[0.25em] text-amber-400 uppercase font-semibold">RESERVA PRIVADA & BODEGA</p>
+                <h3 class="text-base sm:text-xl font-bold text-white mt-0.5 tracking-wide">${escapeHtml(pass.name)}</h3>
+                <p class="text-[10px] italic text-amber-300/80 mt-0.5">Certificado de Degustacion & Maridaje</p>
               </div>
 
-              <div class="my-3 flex items-center justify-between p-2.5 bg-amber-950/30 rounded-xl border border-amber-500/20">
-                <div class="text-[10px] font-serif text-amber-200">
-                  <div>Cata de Autor • Maridaje en Pareja</div>
-                  <div class="text-amber-400/70 text-[9px] mt-0.5">${pass.date}</div>
-                </div>
-                <div class="w-10 h-10 rounded-full bg-red-900 border-2 border-amber-400/80 flex items-center justify-center text-amber-300 font-serif text-xs font-black shadow-lg">
-                  DUO
-                </div>
+              <div class="my-3 py-2 px-3 rounded-xl bg-amber-950/30 border border-amber-600/25 text-center font-serif">
+                <p class="text-[9px] text-amber-400 uppercase tracking-widest font-sans font-bold">TITULARES DE LA CATA</p>
+                <p class="text-sm font-bold text-white mt-0.5">${escapeHtml(pass.coupleNames)}</p>
               </div>
 
-              <div class="pt-2 border-t border-amber-500/30 flex items-center justify-between font-mono text-[10px]">
-                <span class="text-amber-400">SOMMELIER PASS</span>
-                <span class="text-neutral-400">${pass.ticketNum}</span>
+              <div class="pt-2 border-t border-dashed border-amber-600/30 flex items-center justify-between text-[10px] font-mono">
+                <span class="text-amber-400">${pass.date}</span>
+                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">COSECHA ESPECIAL</span>
               </div>
             </div>
           `;
@@ -9105,30 +9211,27 @@
 
         case 'sunset-postcard':
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-b from-[#331826] via-[#210f19] to-[#12080e] border border-orange-400/40 p-4 sm:p-5 text-orange-100 text-left select-none">
-              <div class="flex items-center justify-between pb-2 border-b border-orange-500/30 font-mono text-[10px]">
-                <span class="text-orange-400 font-bold uppercase tracking-wider">POSTAL GOLDEN HOUR DUO</span>
-                <span class="text-amber-300 font-bold">★ ROMÁNTICO</span>
+            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-[#2a1320] via-[#1e0f18] to-[#120a14] border border-pink-500/40 p-4 sm:p-5 text-pink-100 text-left select-none">
+              <div class="flex items-center justify-between pb-2 border-b border-pink-500/30">
+                <span class="text-[9px] font-bold text-pink-300 uppercase tracking-widest">GOLDEN HOUR & MOMENTO DUO</span>
+                <span class="text-[9px] font-bold text-amber-300 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30">ROMANTICO</span>
               </div>
 
-              <div class="my-3 flex items-center justify-between">
-                <div>
-                  <span class="text-[9px] font-mono text-orange-400 uppercase">MOMENTO ESPECIAL:</span>
-                  <h3 class="text-base sm:text-lg font-black text-white tracking-tight leading-tight truncate">${escapeHtml(pass.name)}</h3>
-                  <p class="text-[11px] font-playfair italic text-orange-200 mt-0.5">${escapeHtml(pass.coupleNames)}</p>
+              <div class="my-3 space-y-1">
+                <span class="text-[9px] text-pink-400/80 uppercase block">RECUERDO AL ATARDECER</span>
+                <h3 class="text-base sm:text-lg font-black text-white tracking-tight truncate">${escapeHtml(pass.name)}</h3>
+                <p class="text-xs text-pink-200 font-medium">${escapeHtml(pass.coupleNames)}</p>
+              </div>
+
+              <div class="p-2.5 bg-black/40 rounded-xl border border-pink-500/20 text-[10px] space-y-1">
+                <p class="italic text-pink-100 text-xs leading-relaxed">"Un momento compartido para detener el tiempo juntos."</p>
+              </div>
+
+              <div class="mt-3 pt-2 border-t border-pink-500/30 flex items-center justify-between text-[10px]">
+                <span class="font-mono text-pink-300">${pass.date}</span>
+                <div class="stamp-circle-seal w-11 h-11 text-pink-300 text-[8px] font-bold">
+                  GOLDEN<br>HOUR
                 </div>
-                <div class="stamp-circle-seal w-12 h-12 text-orange-400 text-[8px] font-mono font-bold">
-                  POSTAL<br>${pass.date.slice(0, 6)}
-                </div>
-              </div>
-
-              <div class="p-2 bg-black/40 rounded-xl border border-orange-500/20 text-[10px] text-orange-200/90 italic">
-                "Paseos tranquilos, atardeceres dorados y risas que quedan para siempre."
-              </div>
-
-              <div class="mt-3 pt-2 border-t border-orange-500/30 flex items-center justify-between font-mono text-[10px]">
-                <span class="text-neutral-400">${pass.date}</span>
-                <span class="text-orange-400 font-bold">${pass.ticketNum}</span>
               </div>
             </div>
           `;
@@ -9136,32 +9239,34 @@
 
         case 'gallery-pass':
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-[#0f1014] border border-white/20 p-4 sm:p-5 text-neutral-100 text-left select-none">
-              <div class="flex items-center justify-between pb-2 border-b border-white/10 font-mono text-[10px]">
-                <span class="text-neutral-400 font-bold uppercase tracking-widest font-syne">ARCHIVO CULTURAL DUO</span>
-                <span class="px-2 py-0.5 rounded bg-white/10 text-white font-mono text-[9px]">SALA 01</span>
+            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-[#0f1118] border border-white/20 p-4 sm:p-5 text-neutral-200 text-left select-none">
+              <div class="flex items-center justify-between pb-2 border-b border-white/10 font-mono text-[9px]">
+                <span class="text-white font-bold tracking-widest">EXPOSICION CULTURAL</span>
+                <span class="text-neutral-400">${pass.ticketNum}</span>
               </div>
 
-              <div class="my-3">
-                <span class="text-[9px] font-mono text-neutral-400 uppercase">EXHIBICIÓN & CITA:</span>
-                <h3 class="text-base sm:text-lg font-black text-white font-syne tracking-tight leading-snug truncate">${escapeHtml(pass.name)}</h3>
-                <p class="text-[11px] text-neutral-400 mt-0.5">Invitados de Honor: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+              <div class="my-3 space-y-1">
+                <span class="text-[9px] font-mono text-neutral-400 uppercase">PASE DE GALERIA & MUSEO</span>
+                <h3 class="text-base sm:text-lg font-black text-white tracking-tight truncate">${escapeHtml(pass.name)}</h3>
+                <p class="text-xs text-neutral-300">${escapeHtml(pass.coupleNames)}</p>
               </div>
 
-              <div class="p-2.5 bg-white/5 rounded-xl border border-white/10 font-mono text-[10px] flex items-center justify-between">
-                <div>
-                  <span class="text-neutral-400 text-[8px] block">Nº DE ARCHIVO</span>
-                  <span class="font-bold text-white">${pass.ticketNum}</span>
+              <div class="p-2.5 bg-white/[0.04] rounded-xl border border-white/10 font-mono text-[10px] space-y-1">
+                <div class="flex justify-between">
+                  <span class="text-neutral-500">UBICACION:</span>
+                  <strong class="text-white truncate max-w-[150px]">${escapeHtml(pass.venueAddress)}</strong>
                 </div>
-                <div class="text-right">
-                  <span class="text-neutral-400 text-[8px] block">FECHA INGRESO</span>
-                  <span class="text-neutral-200 font-bold">${pass.date}</span>
+                <div class="flex justify-between">
+                  <span class="text-neutral-500">ACCESO:</span>
+                  <strong class="text-amber-300">COLECCION PRIVADA</strong>
                 </div>
               </div>
 
-              <div class="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-mono text-neutral-400">
-                <span>ADMISIÓN LIBRE DE PAREJA</span>
-                <span class="text-white font-bold">100% VALORADO</span>
+              <div class="mt-3 pt-2 border-t border-white/10 flex items-center justify-between">
+                <div class="w-32">
+                  ${this.getBarcodeSvg('#9ca3af')}
+                </div>
+                <span class="font-mono text-[10px] text-neutral-400">${pass.date}</span>
               </div>
             </div>
           `;
@@ -9169,32 +9274,27 @@
 
         case 'chef-recipe':
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-[#1f1a14] border border-amber-600/40 p-4 sm:p-5 text-amber-100 text-left select-none">
-              <div class="flex items-center justify-between pb-2 border-b border-amber-500/30 font-mono text-[10px]">
-                <span class="text-amber-400 font-bold uppercase">ATELIER GASTRONÓMICO DUO</span>
-                <span class="text-amber-300 font-bold">★★★ MICHELIN</span>
+            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-[#1b1915] border border-amber-600/30 p-4 sm:p-5 text-amber-100 text-left select-none">
+              <div class="flex items-center justify-between pb-2 border-b border-amber-600/30 font-mono text-[10px]">
+                <span class="text-amber-400 font-bold uppercase tracking-widest">ATELIER CULINARIO EN CASA</span>
+                <span class="text-amber-300 font-bold">CHEF DUO</span>
               </div>
 
-              <div class="my-3">
-                <span class="text-[9px] font-mono text-amber-400/80 uppercase">RECETA / MENÚ:</span>
-                <h3 class="text-base sm:text-lg font-black text-white tracking-tight leading-snug truncate">${escapeHtml(pass.name)}</h3>
-                <p class="text-[11px] text-amber-200 mt-0.5">Chefs: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+              <div class="my-3 space-y-1">
+                <span class="text-[9px] font-mono text-amber-400/80 uppercase">COMANDA GASTRONOMICA</span>
+                <h3 class="text-base sm:text-lg font-black text-white tracking-tight truncate">${escapeHtml(pass.name)}</h3>
+                <p class="text-xs text-amber-200">${escapeHtml(pass.coupleNames)}</p>
               </div>
 
-              <div class="p-2.5 bg-black/40 rounded-xl border border-amber-500/20 font-mono text-[10px] space-y-1">
-                <div class="flex justify-between">
-                  <span class="text-neutral-400">INGREDIENTES:</span>
-                  <span class="text-amber-300">Cariño, vino y buena música</span>
+              <div class="p-2.5 bg-black/40 rounded-xl border border-amber-600/20 text-[10px] font-mono space-y-1">
+                <p class="text-neutral-300">Preparado con carino a cuatro manos.</p>
+              </div>
+
+              <div class="mt-3 pt-2 border-t border-amber-600/30 flex items-center justify-between text-[10px]">
+                <span class="font-mono text-amber-400">${pass.date}</span>
+                <div class="stamp-circle-seal w-11 h-11 text-amber-400 text-[8px] font-bold">
+                  CHEF<br>HOMEMADE
                 </div>
-                <div class="flex justify-between">
-                  <span class="text-neutral-400">VEREDICTO:</span>
-                  <span class="text-emerald-400 font-bold">¡Delicioso! 10/10</span>
-                </div>
-              </div>
-
-              <div class="mt-3 pt-2 border-t border-amber-500/30 flex items-center justify-between font-mono text-[10px]">
-                <span class="text-neutral-400">${pass.date}</span>
-                <span class="text-amber-400 font-bold">${pass.ticketNum}</span>
               </div>
             </div>
           `;
@@ -9203,91 +9303,130 @@
         case 'custom-visa':
         default:
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-b from-[#18181b] via-[#111113] to-[#09090b] border border-yellow-500/40 p-4 sm:p-5 text-yellow-100 text-left select-none">
-              <div class="flex items-center justify-between pb-2 border-b border-yellow-500/30 font-mono text-[10px]">
-                <span class="text-yellow-400 font-bold uppercase tracking-widest font-cinzel">★ PASAPORTE DUO • PRESTIGE ★</span>
-                <span class="px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-300 font-bold border border-yellow-500/30">OFICIAL</span>
+            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-b from-[#121422] via-[#0d0e18] to-[#07080f] border-2 border-amber-500/40 p-4 sm:p-5 text-amber-100 text-left select-none">
+              <div class="flex items-center justify-between pb-2 border-b border-amber-500/30">
+                <div class="flex items-center gap-1.5 font-bold text-xs text-amber-400">
+                  ${this.getShieldSvg('#f59e0b')}
+                  <span class="font-cinzel tracking-wider">PASAPORTE DUO PRESTIGE</span>
+                </div>
+                <span class="font-mono text-[10px] font-bold text-amber-300">${pass.ticketNum}</span>
               </div>
 
-              <div class="my-3">
-                <span class="text-[9px] font-mono text-yellow-400/80 uppercase">PLAN EXCLUSIVO:</span>
-                <h3 class="text-base sm:text-lg font-black text-white font-cinzel tracking-tight leading-snug truncate">${escapeHtml(pass.name)}</h3>
-                <p class="text-[11px] text-yellow-200 mt-0.5">Titulares: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+              <div class="my-3 space-y-1">
+                <span class="text-[9px] font-mono text-amber-400/80 uppercase">EXPERIENCIA AUTORIZADA</span>
+                <h3 class="text-base sm:text-lg font-black text-white tracking-tight truncate">${escapeHtml(pass.name)}</h3>
+                <p class="text-xs text-amber-200">${escapeHtml(pass.coupleNames)}</p>
               </div>
 
-              <div class="p-2.5 bg-yellow-950/25 rounded-xl border border-yellow-500/20 font-mono text-[10px] flex items-center justify-between">
+              <div class="p-2.5 bg-black/40 rounded-xl border border-amber-500/20 font-mono text-[10px] grid grid-cols-2 gap-2">
                 <div>
-                  <span class="text-yellow-500 text-[8px] block">VISADO DUO</span>
-                  <span class="text-white font-bold">${pass.ticketNum}</span>
+                  <span class="text-amber-500 text-[8px] block">UBICACION</span>
+                  <strong class="text-white truncate block">${escapeHtml(pass.venueAddress)}</strong>
                 </div>
-                <div class="stamp-circle-seal px-2 py-1 text-yellow-300 text-[9px] font-bold">
-                  VALIDADO
+                <div>
+                  <span class="text-amber-500 text-[8px] block">ESTADO</span>
+                  <strong class="text-emerald-400">APROBADO DUO</strong>
                 </div>
               </div>
 
-              <div class="mt-3 pt-2 border-t border-yellow-500/30 flex items-center justify-between text-[10px] font-mono text-neutral-400">
-                <span>MEMORIA REGISTRADA</span>
-                <span class="text-yellow-400 font-bold">${pass.date}</span>
+              <div class="mt-3 pt-2 border-t border-dashed border-amber-500/30 flex items-center justify-between">
+                <div class="w-32">
+                  ${this.getBarcodeSvg('#f59e0b')}
+                </div>
+                <div class="stamp-circle-seal w-12 h-12 text-amber-400 text-[8px] font-bold">
+                  PASAPORTE<br>OFICIAL
+                </div>
               </div>
             </div>
           `;
           break;
       }
 
-      const backHtml = this.renderCardBack(pass, cardId, isCompact);
+      // REVERSO EN 3D (RECUERDO, VALORACION Y NOTA DE PAREJA)
+      const starsDisplay = (pass.rating || 5) + ' / 5 estrellas';
 
-      return `
-        <div id="${cardId}" class="duo-pass-wrapper relative w-full perspective-scene my-2 group" data-pass-json="${escapeHtml(JSON.stringify(pass))}">
-          <div id="${cardId}-flipper" class="flipper-container relative w-full cursor-pointer transition-transform duration-500">
+      const backHtml = `
+        <div class="card-face card-back relative w-full rounded-2xl overflow-hidden shadow-2xl bg-neutral-900 border border-white/20 p-4 sm:p-5 text-white text-left flex flex-col justify-between select-none">
+          <div>
+            <div class="flex items-center justify-between pb-2 border-b border-white/10 text-xs">
+              <span class="font-bold text-amber-400 uppercase tracking-wider text-[10px]">DIARIO DE PAREJA</span>
+              <span class="text-neutral-400 font-mono text-[10px]">${pass.date}</span>
+            </div>
+
+            <div class="my-3">
+              <div class="text-[10px] text-neutral-400 uppercase">VALORACION:</div>
+              <div class="text-sm font-bold text-amber-400 mt-0.5">${starsDisplay}</div>
+            </div>
+
+            ${pass.photo ? `
+              <div class="my-2 w-full h-28 rounded-xl overflow-hidden border border-white/15 shadow-md">
+                <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo">
+              </div>
+            ` : ''}
+
+            <div class="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-neutral-300 leading-relaxed italic">
+              "${escapeHtml(pass.note || 'Cita memorable guardada en nuestro historial de momentos especiales.')}"
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-white/10 flex items-center justify-between text-[10px] text-neutral-400 font-mono">
+            <span>PASE: ${pass.ticketNum}</span>
+            <span class="text-rose-400 font-bold">${escapeHtml(pass.coupleNames)}</span>
+          </div>
+        </div>
+      `;
+
+      if (isPreview) {
+        return `
+          <div class="duo-pass-wrapper relative w-full max-w-sm mx-auto" data-pass-json="${escapeHtml(JSON.stringify(pass))}">
             ${frontHtml}
             ${backHtml}
           </div>
+        `;
+      }
 
-          <!-- Barra de Acciones del Pase -->
-          ${!isPreview ? `
-            <div class="mt-2.5 px-2 flex items-center justify-between text-xs font-semibold">
-              <div class="flex items-center gap-1.5">
-                <button type="button" class="btn-flip-pass py-1 px-2.5 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-neutral-300 hover:text-white flex items-center gap-1 transition active:scale-95 text-[11px]" data-card="${cardId}">
-                  <span>Voltear</span>
-                </button>
-                <button type="button" class="btn-inspect-pass py-1 px-2.5 rounded-full bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 text-indigo-300 flex items-center gap-1 transition active:scale-95 text-[11px]" data-card="${cardId}">
-                  <span>Ver 3D</span>
-                </button>
-              </div>
-
-              ${options.id ? `
-                <button type="button" class="btn-delete-visit p-1 text-neutral-500 hover:text-rose-400 transition" data-id="${options.id}" title="Eliminar del Diario">
-                  ✕
-                </button>
-              ` : ''}
+      // Version embebida para listas o pasaporte con flip interactivo
+      return `
+        <div class="duo-pass-wrapper relative w-full max-w-sm mx-auto my-2" data-pass-json="${escapeHtml(JSON.stringify(pass))}">
+          <div id="${cardId}" class="perspective-scene relative w-full">
+            <div id="${cardId}-flipper" class="flipper-container relative w-full cursor-pointer">
+              ${frontHtml}
+              ${backHtml}
             </div>
-          ` : ''}
+          </div>
+          
+          <div class="mt-1.5 flex items-center justify-between px-1 text-[11px] text-neutral-400">
+            <span class="text-[10px] font-mono text-neutral-500">${pass.archetypeLabel}</span>
+            <div class="flex items-center gap-2">
+              <button type="button" class="btn-flip-pass text-neutral-400 hover:text-white font-semibold transition" data-card="${cardId}">
+                Voltear
+              </button>
+              <button type="button" class="btn-inspect-pass text-amber-400 hover:text-amber-300 font-bold transition">
+                Ampliar
+              </button>
+            </div>
+          </div>
         </div>
       `;
     },
 
-    // Modal de Inspección 3D a Pantalla Completa
     openPassInspectorModal: function (pass, options) {
       if (!pass) return;
-      if (!options) options = {};
-      const modalId = 'modal-pass-inspector';
+      const isWinnerEmission = !!(options && options.isWinnerEmission);
+      const modalId = 'pass-inspector-modal';
       const cardId = 'inspector-card';
-      sound.playStamp();
-      sound.vibrate([40, 30]);
-
-      const isWinnerEmission = !!options.isWinnerEmission;
 
       modalContainer.innerHTML = `
-        <div id="${modalId}" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-ios-fade">
-          <div class="w-full max-w-sm flex flex-col items-center">
+        <div id="${modalId}" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-ios-slide">
+          <div class="bg-neutral-950 border border-white/15 w-full max-w-sm rounded-[32px] p-4 flex flex-col items-center overflow-hidden shadow-2xl relative">
             
-            <!-- Barra Superior del Modal -->
-            <div class="w-full flex items-center justify-between mb-3 text-white">
+            <!-- Header Modal -->
+            <div class="w-full flex items-center justify-between pb-2 border-b border-white/10 mb-2">
               <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                <span class="text-xs font-mono font-bold tracking-wider uppercase text-amber-300">${pass.archetypeLabel}</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                <span class="text-xs font-bold text-white uppercase tracking-wider font-mono">${pass.archetypeLabel}</span>
               </div>
-              <button id="btn-close-pass-inspector" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-neutral-300 hover:text-white flex items-center justify-center font-bold text-xs transition">
+              <button id="btn-close-pass-inspector" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-neutral-300 hover:text-white flex items-center justify-center font-bold text-xs transition">
                 ✕
               </button>
             </div>
@@ -9301,20 +9440,20 @@
               </div>
             </div>
 
-            <!-- Botonera de Interacción 3D -->
+            <!-- Botonera de Interaccion 3D -->
             <div class="w-full mt-3 flex items-center justify-center gap-2">
               <button id="btn-modal-flip" class="flex-1 py-2.5 px-3 rounded-xl bg-white/[0.1] hover:bg-white/[0.18] border border-white/15 text-xs font-bold text-white flex items-center justify-center gap-1.5 transition active:scale-95">
                 <span>Voltear Reverso</span>
               </button>
 
               <a href="${pass.navUrl}" target="_blank" rel="noopener noreferrer" class="py-2.5 px-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/35 text-xs font-bold text-emerald-300 flex items-center justify-center gap-1.5 transition active:scale-95">
-                <span>️ Maps</span>
+                <span>Maps</span>
               </a>
             </div>
 
             ${isWinnerEmission ? `
               <button id="btn-save-winner-pass-diary" class="w-full mt-2.5 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-indigo-500 text-xs font-extrabold text-white shadow-lg shadow-rose-500/25 active:scale-98 transition flex items-center justify-center gap-2">
-                <span>★ Guardar este Pase en el Diario</span>
+                <span>Guardar este Pase en el Diario</span>
               </button>
             ` : ''}
           </div>
@@ -9348,7 +9487,7 @@
           addFoodVisit(pass.id, pass.name, pass.rating, pass.note, pass.photo, null, pass);
           sound.playFanfare();
           sound.vibrate([50, 50]);
-          showToast('¡Pase guardado en el Diario de Pareja!');
+          showToast('Pase guardado en el Diario de Pareja');
           modalContainer.innerHTML = '';
           openDiaryModal();
         });
@@ -9401,9 +9540,6 @@
   };
 
 
-  // ==========================================
-  // 12. MODAL DE HISTORIAL & DIARIO DE RECUERDOS (DUO MOMENTS)
-  // ==========================================
   function openDiaryModal(prefillName, prefillId, prefillSessionId) {
     let currentRating = 5;
     let currentPhotoBase64 = null;
