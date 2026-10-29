@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ¿Dónde comemos? - Bundle unificado compatible con protocolo file:// y http(s)://
  * Diseñado con estética Apple HIG (iOS 17/18 y visionOS) y 'Liquid Glass'.
  * Sin bloqueos CORS al abrir con doble clic en index.html.
@@ -7315,6 +7315,21 @@
 
     document.getElementById('btn-restart').addEventListener('click', function () {
       sound.playWhoosh();
+      // Auto-emitir y guardar en el diario si no se habia guardado todavia
+      try {
+        if (state.winningRestaurant && state.winningRestaurant.name && !state.winnerPassSaved) {
+          const autoPass = DuoPassEngine.generatePassData({
+            id: state.winningRestaurant.id,
+            name: state.winningRestaurant.name,
+            mode: state.activeMode,
+            p1Name: state.player1Name,
+            p2Name: state.player2Name,
+            date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
+          });
+          addFoodVisit(state.winningRestaurant.id, state.winningRestaurant.name, 5, 'Plan ganador de cita Duo', null, state.currentSessionId || null, autoPass);
+          state.winnerPassSaved = true;
+        }
+      } catch (err) {}
       clearActiveSession();
       state.roomId = null;
       state.currentSessionId = null;
@@ -8320,6 +8335,7 @@
       SPA_VOUCHER: 'spa-voucher',
       BOARDING_PASS: 'boarding-pass',
       ARCADE_SCORECARD: 'arcade-scorecard',
+      KARTING_PASS: 'karting-pass',
       WINE_RESERVE: 'wine-reserve',
       NATURE_PERMIT: 'nature-permit',
       SUNSET_POSTCARD: 'sunset-postcard',
@@ -8338,6 +8354,7 @@
       'spa-voucher': 'Ritual Termal Zen & Hidromasaje',
       'boarding-pass': 'Tarjeta de Embarque First Class',
       'arcade-scorecard': 'Scorecard Neon Arcade & Bowling 1984',
+      'karting-pass': 'Superlicencia Gran Prix Karting & Paddock',
       'wine-reserve': 'Certificado Cata & Lacre Real',
       'nature-permit': 'Permiso Expedicion Botanica',
       'sunset-postcard': 'Postal Golden Hour al Atardecer',
@@ -8357,79 +8374,86 @@
     },
 
     detectArchetype: function (name, note, mode) {
-      const text = ((name || '') + ' ' + (note || '')).toLowerCase();
+      // Normalizar texto eliminando tildes y diacrÃ­ticos
+      const raw = ((name || '') + ' ' + (note || '')).toLowerCase();
+      const text = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-      // 1. Cine clasico en sala / cartelera / palomitas de cine (taquilla real)
-      if (/(cine\b|cinesa|neocine|yelmo|kinepolis|taquilla|sala 3d|imax|butaca|palacio cinematogr|cartelera)/i.test(text)) {
+      // 1. Karts / Karting / Gran Premio / Circuito de velocidad
+      if (/(kart|karts|karting|paddock|gran prix|grand prix|pole position|pit lane|circuito|vuelta rapida|bandera a cuadros|quad|formula 1|f1\b|motor\b)/i.test(text)) {
+        return 'karting-pass';
+      }
+
+      // 2. Cine clÃ¡sico en sala / taquilla / cartelera
+      if (/(cine\b|cinesa|neocine|yelmo|kinepolis|taquilla|sala 3d|imax|butaca|palacio cinematogr|cartelera|pantalla grande)/i.test(text)) {
         return 'cinema-ticket';
       }
 
-      // 2. Acuario / Oceanografico / Mundo marino / Zoo / Safari
+      // 3. Acuario / OceanogrÃ¡fico / Mundo marino / Zoo / Safari
       if (/(acuario|aquarium|oceanogr|bioparc|faunia|delfinario|zoo|safari|vida marina|tiburones|arrecife|peces|mantas)/i.test(text)) {
         return 'aquarium-pass';
       }
 
-      // 3. Concierto / Festival / Musica en vivo / Teatro musical
-      if (/(concierto|festival|m[uú]sica|directo|ac[uú]stico|dj|recital|banda|rock|pop|indie|teatro|musical|auditorio|conciertazo|fiesta|discoteca|baile|live tour|stage)/i.test(text)) {
+      // 4. Concierto / Festival / MÃºsica en vivo / Recital
+      if (/(concierto|festival|musica|directo|acustico|dj|recital|banda|rock|pop|indie|teatro|musical|auditorio|conciertazo|fiesta|discoteca|baile|live tour|stage)/i.test(text)) {
         return 'vip-backstage';
       }
 
-      // 4. Escape Room / Misterio / Espionaje / Laser Tag / Accion
-      if (/(escape|misterio|enigma|acertijo|candado|cluedo|l[aá]ser|laser tag|paintball|kart|karts|tirolina|misi[oó]n|secreto|agente|detective|investigaci[oó]n|terror|fantasma|pista secreta)/i.test(text)) {
+      // 5. Escape Room / Misterio / Espionaje / Laser Tag
+      if (/(escape|misterio|enigma|acertijo|candado|cluedo|laser|laser tag|paintball|tirolina|mision|secreto|agente|detective|investigacion|terror|fantasma|pista secreta)/i.test(text)) {
         return 'secret-dossier';
       }
 
-      // 5. Spa / Wellness / Balneario / Termal
-      if (/(spa|termal|termas|masaje|balneario|circuito termal|sauna|jacuzzi|relax|bienestar|desconexi[oó]n|yoga|meditaci[oó]n|hidromasaje|talaso|hammam|zen)/i.test(text)) {
+      // 6. Spa / Wellness / Balneario / Termal
+      if (/(spa|termal|termas|masaje|balneario|circuito termal|sauna|jacuzzi|relax|bienestar|desconexion|yoga|meditacion|hidromasaje|talaso|hammam|zen)/i.test(text)) {
         return 'spa-voucher';
       }
 
-      // 6. Bolera / Arcade / Billar / Minigolf / Recreativos retro
-      if (/(bolera|bolos|strike|arcade|recreativos|billar|dardos|minigolf|air hockey|pinball|futbol[ií]n|gaming|recreativo|lanes)/i.test(text)) {
+      // 7. Bolera / Arcade / Billar / Minigolf / Recreativos
+      if (/(bolera|bolos|strike|arcade|recreativos|billar|dardos|minigolf|air hockey|pinball|futbolin|gaming|recreativo|lanes|partida)/i.test(text)) {
         return 'arcade-scorecard';
       }
 
-      // 7. Vino / Bodega / Cata / Sumiller / Cerveza artesana
-      if (/(vino|bodega|cata|sommelier|sumiller|copa|barrica|degustaci[oó]n|maridaje|quesos|jam[oó]n ib[eé]rico|cerveza artesana|coctel|c[oó]ctel|vermut|ginebra)/i.test(text)) {
+      // 8. Vino / Bodega / Cata / Sumiller / CoctelerÃ­a
+      if (/(vino|bodega|cata|sommelier|sumiller|copa|barrica|degustacion|maridaje|quesos|jamon|cerveza artesana|coctel|vermut|ginebra)/i.test(text)) {
         return 'wine-reserve';
       }
 
-      // 8. Pelicula o Serie en sofa / Streaming en casa (modo movies o referencias a ver en casa)
-      if (mode === 'movies' || /(pel[ií]cula|peli|serie|estreno|filmaffinity|netflix|hbo|max|prime video|disney\+|movistar\+|filmin|sofa|maraton de series)/i.test(text)) {
+      // 9. PelÃ­cula o Serie en casa / Streaming en sofÃ¡
+      if (mode === 'movies' || /(pelicula|peli|serie|estreno|filmaffinity|netflix|hbo|max|prime video|disney\+|movistar\+|filmin|sofa|maraton de series)/i.test(text)) {
         return 'streaming-ticket';
       }
 
-      // 9. Vuelos / Viajes / Escapadas / Aeropuertos
-      if (/(vuelo|viaje|escapada|avi[oó]n|aeropuerto|hotel|resort|tren|ave|maleta|par[ií]s|roma|londres|crucero|billete|embarque)/i.test(text)) {
+      // 10. Vuelos / Viajes / Escapadas / Aeropuertos
+      if (/(vuelo|viaje|escapada|avion|aeropuerto|hotel|resort|tren|ave|maleta|paris|roma|londres|crucero|billete|embarque)/i.test(text)) {
         return 'boarding-pass';
       }
 
-      // 10. Naturaleza / Senderismo / Aire libre / Mirador
-      if (/(senderismo|ruta|monta[nñ]a|playa|cala|picnic|parque|naturaleza|bosque|mirador|bici|kayak|paddle|surf|acampada|trekking|camping)/i.test(text)) {
+      // 11. Naturaleza / Senderismo / Aire libre / Mirador
+      if (/(senderismo|ruta|montana|playa|cala|picnic|parque|naturaleza|bosque|mirador|bici|kayak|paddle|surf|acampada|trekking|camping)/i.test(text)) {
         return 'nature-permit';
       }
 
-      // 11. Atardecer / Romantico / Helado al paseo
-      if (/(atardecer|puesta de sol|puesta del sol|golden hour|estrellas|constelaciones|paseo rom[aá]ntico|helado|velas|rom[aá]ntico)/i.test(text)) {
+      // 12. Atardecer / RomÃ¡ntico / Puesta de Sol
+      if (/(atardecer|puesta de sol|puesta del sol|golden hour|estrellas|constelaciones|paseo romantico|helado|velas|romantico)/i.test(text)) {
         return 'sunset-postcard';
       }
 
-      // 12. Arte / Museos / Exposiciones culturales
-      if (/(museo|exposici[oó]n|galer[ií]a|arte|escultura|cuadros|cer[aá]mica|alfarer[ií]a|pintura|taller creativo|historia|exhibici[oó]n)/i.test(text)) {
+      // 13. Arte / Museos / Exposiciones culturales
+      if (/(museo|exposicion|galeria|arte|escultura|cuadros|ceramica|alfareria|pintura|taller creativo|historia|exhibicion)/i.test(text)) {
         return 'gallery-pass';
       }
 
-      // 13. Cocinar en casa / Atelier
-      if (/(cocinar|receta|sushi en casa|pasta casera|reposter[ií]a|tarta casera|chef|masterchef|cocinillas|hornear)/i.test(text)) {
+      // 14. Cocinar en casa / Atelier
+      if (/(cocinar|receta|sushi en casa|pasta casera|reposteria|tarta casera|chef|masterchef|cocinillas|hornear)/i.test(text)) {
         return 'chef-recipe';
       }
 
-      // 14. Comida / Restaurantes (Modo food o cualquier indicio gastronomico)
-      if (mode === 'food' || /(cena|comida|comer|almuerzo|desayuno|merienda|restaurante|pizza|burger|hamburguesa|popeyes|kfc|mcdonald|burger king|unica|goiko|tacos|mexicano|sushi|asi[aá]tico|italiano|chiringuito|asador|bar|tapas|poke|ramen|kebab|pollo|patatas|postre|brunch|cafeter[ií]a|marisquer[ií]a|churros|buffet)/i.test(text)) {
+      // 15. Comida / Restaurantes / GastronomÃ­a
+      if (mode === 'food' || /(cena|comida|comer|almuerzo|desayuno|merienda|restaurante|pizza|burger|hamburguesa|popeyes|kfc|mcdonald|burger king|unica|goiko|tacos|mexicano|sushi|asiatico|italiano|chiringuito|asador|bar|tapas|poke|ramen|kebab|pollo|patatas|postre|brunch|cafeteria|marisqueria|churros|buffet)/i.test(text)) {
         return 'thermal-receipt';
       }
 
-      // 15. Por defecto: Pasaporte oficial de la pareja
+      // 16. Por defecto: Pasaporte oficial de la pareja
       return 'custom-visa';
     },
 
@@ -8578,6 +8602,9 @@
       } else if (lowerId === 'plan-cine' || /cinesa|neocine|cine\b/i.test(name)) {
         archetype = 'cinema-ticket';
         venueAddress = 'Neocine Mandarache - Sala 04 IMAX 3D';
+      } else if (archetype === 'karting-pass' || lowerId.includes('kart') || lowerName.includes('kart')) {
+        archetype = 'karting-pass';
+        venueAddress = 'Speedway Karting Circuit - Paddock Duo';
       } else if (archetype === 'aquarium-pass' || lowerId.includes('acuario') || lowerName.includes('acuario')) {
         archetype = 'aquarium-pass';
         venueAddress = 'Oceanic Marine Expedition - Tunel de Cristal';
@@ -9520,6 +9547,52 @@
         // ----------------------------------------------------
         // 15. PASAPORTE OFICIAL PRESTIGE DUO (DEFAULT LIFESTYLE)
         // ----------------------------------------------------
+        // ----------------------------------------------------
+        // KARTING GRAND PRIX & PADDOCK SUPERLICENCIA
+        // ----------------------------------------------------
+        case 'karting-pass':
+          frontHtml = `
+            <div class="card-face relative w-full rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-[#18181b] via-[#09090b] to-[#1c1917] border-2 border-amber-500/60 p-5 text-white text-left select-none">
+              <div class="flex items-center justify-between pb-2 border-b border-amber-500/40 font-mono text-[10px]">
+                <div class="flex items-center gap-1.5 font-black text-amber-400 tracking-wider">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+                  <span>DUO GRAND PRIX // RACING PADDOCK</span>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/50 font-black">SUPERLICENCIA</span>
+              </div>
+
+              <div class="my-4 text-center">
+                <p class="font-mono text-[9px] text-amber-400 uppercase tracking-[0.25em]">DUO MOTOR RACING CIRCUIT</p>
+                <h3 class="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-orange-500 uppercase tracking-tight mt-0.5">${escapeHtml(pass.name)}</h3>
+                <p class="text-xs text-neutral-300 mt-1 font-sans">Pilotos Oficiales: <strong class="text-amber-300">${escapeHtml(pass.coupleNames)}</strong></p>
+              </div>
+
+              <div class="p-2.5 bg-black/60 rounded-xl border border-amber-500/30 font-mono text-[10px] grid grid-cols-3 gap-1 text-center">
+                <div class="border-r border-amber-500/20">
+                  <span class="text-amber-400/80 text-[8px] block uppercase">PARRILLA</span>
+                  <strong class="text-white">POLE POS.</strong>
+                </div>
+                <div class="border-r border-amber-500/20">
+                  <span class="text-amber-400/80 text-[8px] block uppercase">TANDA</span>
+                  <strong class="text-yellow-400">2x DUO GP</strong>
+                </div>
+                <div>
+                  <span class="text-amber-400/80 text-[8px] block uppercase">VUELTA RAPIDA</span>
+                  <strong class="text-emerald-400">REKORD</strong>
+                </div>
+              </div>
+
+              <div class="mt-3.5 pt-2 border-t border-dashed border-amber-500/30 flex items-center justify-between">
+                <div class="w-32">
+                  ${this.getBarcodeSvg('#f59e0b')}
+                </div>
+                <div class="stamp-circle-seal w-12 h-12 text-amber-400 text-[8px] font-bold tracking-tighter">
+                  KARTING<br>VERIFICADO
+                </div>
+              </div>
+            </div>
+          `;
+          break;
         case 'custom-visa':
         default:
           frontHtml = `
@@ -9718,6 +9791,33 @@
 
             <div class="text-center font-arcade text-[9px] text-green-400 p-2 bg-green-950/30 rounded border border-green-800">
               PRESS START TO PLAY WITH LOVE
+            </div>
+          </div>
+        `;
+      } else if (arc === 'karting-pass') {
+        backHtml = `
+          <div class="card-face card-back relative w-full rounded-2xl overflow-hidden shadow-2xl bg-[#09090b] border-2 border-amber-500/50 p-5 text-white flex flex-col justify-between text-left select-none">
+            <div>
+              <div class="border-b border-amber-500/40 pb-2 flex justify-between items-center font-mono">
+                <span class="text-xs font-black text-amber-400">HOJA DE TELEMETRIA DUO</span>
+                <span class="text-[10px] text-neutral-400">PADDOCK CONTROL</span>
+              </div>
+
+              <div class="my-3 space-y-2 font-mono text-xs">
+                <div class="p-2.5 rounded-xl bg-black/60 border border-neutral-800">
+                  <div class="text-amber-400 font-bold mb-0.5 text-[11px]">DUELO DE VELOCIDAD:</div>
+                  <div class="text-neutral-300 text-[11px] leading-relaxed">"${escapeHtml(pass.note || 'Tanda de karts a maxima velocidad. Piques limpios en las curvas y podio asegurado.')}"</div>
+                </div>
+                ${pass.photo ? `
+                  <div class="w-full h-24 rounded-lg overflow-hidden border border-amber-500/30 shadow-sm">
+                    <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo">
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+
+            <div class="text-center font-mono text-[10px] text-amber-400 p-2 bg-amber-950/30 rounded border border-amber-800 font-bold">
+              BANDERA A CUADROS - TIEMPOS HOMOLOGADOS
             </div>
           </div>
         `;
@@ -9949,11 +10049,12 @@
     let currentRating = 5;
     let currentPhotoBase64 = null;
     let isFormOpen = !!prefillName;
+    let currentPreviewPass = null;
 
     function renderModalContent() {
       const currentVisits = getFoodDiary();
       modalContainer.innerHTML = `
-        <div id="diary-modal-backdrop" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4 animate-ios-slide">
+        <div id="diary-modal-backdrop" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4">
           <div class="bg-neutral-950 border-t sm:border border-white/[0.12] w-full max-w-md rounded-t-[32px] sm:rounded-[32px] max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
             <div class="w-10 h-1 bg-white/25 rounded-full mx-auto my-3 sm:hidden"></div>
 
@@ -9969,54 +10070,56 @@
                   <h3 class="font-bold text-sm sm:text-base text-white flex items-center gap-1.5">
                     <span>Diario de Citas & Recuerdos</span>
                   </h3>
-                  <div class="text-[10px] text-neutral-400">Vuestros momentos, fotos y notas compartidas</div>
+                  <div class="text-[10px] text-neutral-400">Vuestros momentos, fotos y pases coleccionables</div>
                 </div>
               </div>
-              <button id="btn-close-diary" class="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-neutral-300 hover:text-white flex items-center justify-center font-bold text-xs transition">✕</button>
+              <button id="btn-close-diary" class="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-neutral-300 hover:text-white flex items-center justify-center font-bold text-xs transition">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
             </div>
 
             <!-- Scrollable Body -->
             <div class="p-4 sm:p-5 overflow-y-auto no-scrollbar space-y-4 flex-1">
-              <!-- Botón desplegar formulario de nuevo recuerdo -->
+              <!-- Boton desplegar formulario de nuevo recuerdo -->
               ${!isFormOpen ? `
                 <button 
                   id="btn-toggle-add-memory" 
                   class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-indigo-500/20 via-rose-500/20 to-amber-500/20 border border-indigo-500/30 hover:border-indigo-500/50 text-xs font-bold text-white flex items-center justify-center gap-2 active:scale-98 transition shadow-sm"
                 >
                   <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                  <span>Añadir nuevo recuerdo de cita</span>
+                  <span>AÃ±adir nuevo recuerdo de cita</span>
                 </button>
               ` : `
-                <!-- Formulario Añadir Recuerdo (Apple visionOS Card) -->
-                <div class="ios-glass p-4 rounded-2xl border border-indigo-500/30 bg-indigo-500/5 space-y-3 animate-ios-slide">
+                <!-- Formulario AÃ±adir Recuerdo (Apple visionOS Card) -->
+                <div class="ios-glass p-4 rounded-2xl border border-indigo-500/30 bg-indigo-500/5 space-y-3">
                   <div class="flex items-center justify-between pb-1 border-b border-white/10">
                     <span class="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
                       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                      <span>Registrar Recuerdo</span>
+                      <span>Registrar Recuerdo & Generar Pase</span>
                     </span>
                     <button id="btn-cancel-add-memory" class="text-[11px] text-neutral-400 hover:text-neutral-200">Cancelar</button>
                   </div>
 
                   <div>
-                    <label class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">Sitio, Película o Plan</label>
+                    <label class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">TÃ­tulo del Sitio o Plan</label>
                     <input 
                       id="diary-input-name" 
                       type="text" 
-                      value="${prefillName || ''}" 
-                      placeholder="Ej: Goiko Grill, La La Land, Escapada..." 
+                      value="${escapeHtml(prefillName || '')}" 
+                      placeholder="Ej: Karts, Goiko Grill, Acuario, Cine..." 
                       class="w-full bg-white/[0.06] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-indigo-500/60"
                     />
                   </div>
 
                   <!-- Selector de Estrellas 1-5 -->
                   <div>
-                    <label class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">Valoración en pareja</label>
+                    <label class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">ValoraciÃ³n en pareja</label>
                     <div class="flex items-center gap-2" id="diary-star-picker">
                       ${[1, 2, 3, 4, 5].map(function (s) {
                         const isFilled = s <= currentRating;
                         return `
-                          <button type="button" data-star="${s}" class="btn-star-pick p-1 text-lg transition transform hover:scale-125 active:scale-95 ${isFilled ? 'text-amber-400' : 'text-neutral-600'}">
-                            ★
+                          <button type="button" data-star="${s}" class="btn-star-pick p-1 text-sm font-bold transition transform hover:scale-125 active:scale-95 ${isFilled ? 'text-amber-400' : 'text-neutral-600'}">
+                            â˜…
                           </button>
                         `;
                       }).join('')}
@@ -10026,11 +10129,11 @@
 
                   <!-- Nota / Experiencia -->
                   <div>
-                    <label class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">Nota o anécdota especial</label>
+                    <label class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">DescripciÃ³n o anÃ©cdota del plan</label>
                     <textarea 
                       id="diary-input-note" 
                       rows="2" 
-                      placeholder="Ej: La pizza buenísima, nos reímos un montón con el camarero..." 
+                      placeholder="Ej: Nos picamos en las curvas y casi hacemos trompo..." 
                       class="w-full bg-white/[0.06] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-indigo-500/60 resize-none"
                     ></textarea>
                   </div>
@@ -10058,18 +10161,29 @@
                     `}
                   </div>
 
-                  <!-- Vista Previa en Vivo del Pase Único Generado -->
-                  <div class="pt-2 border-t border-white/10">
-                    <div class="flex items-center justify-between mb-1.5">
-                      <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        <span>Pase Único (Vista Previa en Vivo)</span>
-                      </span>
-                      <span id="live-archetype-badge" class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                        Pase Único
-                      </span>
+                  <!-- Boton de Generacion Bajo Demanda de Pase Unico -->
+                  <div class="pt-2 border-t border-white/10 space-y-2">
+                    <button 
+                      type="button" 
+                      id="btn-generate-diary-pass" 
+                      class="w-full py-2.5 px-3 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-xs font-bold text-indigo-200 flex items-center justify-center gap-2 active:scale-98 transition"
+                    >
+                      <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                      <span>Generar y Previsualizar Pase Ãšnico</span>
+                    </button>
+
+                    <div id="diary-preview-container" class="${currentPreviewPass ? '' : 'hidden'} transition-all duration-300">
+                      <div class="flex items-center justify-between mb-1.5 px-0.5">
+                        <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-1.5">
+                          <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                          <span>Pase Generado</span>
+                        </span>
+                        <span id="live-archetype-badge" class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                          ${currentPreviewPass ? currentPreviewPass.archetypeLabel : 'Pase Ãšnico'}
+                        </span>
+                      </div>
+                      <div id="diary-live-pass-preview"></div>
                     </div>
-                    <div id="diary-live-pass-preview" class="transition-all duration-300"></div>
                   </div>
 
                   <button 
@@ -10096,12 +10210,38 @@
                         <circle cx="12" cy="13" r="4"></circle>
                       </svg>
                     </div>
-                    <div class="text-neutral-300 font-semibold mb-1">Aún no tenéis recuerdos guardados</div>
-                    <div>Añadid vuestro primer momento arriba o guardadlo automáticamente al finalizar una votación.</div>
+                    <div class="text-neutral-300 font-semibold mb-1">AÃºn no tenÃ©is recuerdos guardados</div>
+                    <div>AÃ±adid vuestro primer momento arriba o guardadlo automÃ¡ticamente al finalizar una votaciÃ³n.</div>
                   </div>
                 ` : `
                   <div class="space-y-4">
-                    ${currentVisits.map(function (v, idx) { const pass = v.passData || DuoPassEngine.generatePassData(v); return DuoPassEngine.renderPassCard(pass, { compact: true, id: v.id, idx: idx }); }).join('')}
+                    ${currentVisits.map(function (v, idx) {
+                      const pass = v.passData || DuoPassEngine.generatePassData(v);
+                      return `
+                        <div class="ios-glass p-3.5 rounded-2xl border border-white/10 space-y-2">
+                          <div class="flex items-center justify-between gap-2 pb-1.5 border-b border-white/[0.08]">
+                            <div class="min-w-0">
+                              <h4 class="font-extrabold text-white text-sm sm:text-base truncate">${escapeHtml(v.restaurantName || v.name || 'Plan de Pareja')}</h4>
+                              <div class="flex items-center gap-2 text-[10px] text-neutral-400 mt-0.5">
+                                <span>${v.date || 'Reciente'}</span>
+                                <span>â€¢</span>
+                                <span class="text-amber-400 font-semibold">${v.rating || 5}/5 â˜…</span>
+                              </div>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                              <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                                ${pass.archetypeLabel}
+                              </span>
+                              <button data-id="${v.id}" class="btn-delete-visit p-1 rounded-lg text-neutral-500 hover:text-rose-400 transition" title="Eliminar">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                              </button>
+                            </div>
+                          </div>
+                          <!-- Pase 3D Coleccionable debajo del tÃ­tulo -->
+                          ${DuoPassEngine.renderPassCard(pass, { compact: true, id: v.id, idx: idx })}
+                        </div>
+                      `;
+                    }).join('')}
                   </div>
                 `}
               </div>
@@ -10130,6 +10270,7 @@
           sound.playPop();
           isFormOpen = false;
           currentPhotoBase64 = null;
+          currentPreviewPass = null;
           renderModalContent();
         });
       }
@@ -10142,14 +10283,13 @@
           document.querySelectorAll('.btn-star-pick').forEach(function (b) {
             const s = parseInt(b.dataset.star, 10);
             if (s <= currentRating) {
-              b.className = 'btn-star-pick p-1 text-lg transition transform hover:scale-125 active:scale-95 text-amber-400';
+              b.className = 'btn-star-pick p-1 text-sm font-bold transition transform hover:scale-125 active:scale-95 text-amber-400';
             } else {
-              b.className = 'btn-star-pick p-1 text-lg transition transform hover:scale-125 active:scale-95 text-neutral-600';
+              b.className = 'btn-star-pick p-1 text-sm font-bold transition transform hover:scale-125 active:scale-95 text-neutral-600';
             }
           });
           const lbl = document.getElementById('star-rating-label');
           if (lbl) lbl.textContent = currentRating + '/5';
-          if (typeof updateLivePreview === 'function') updateLivePreview();
         });
       });
 
@@ -10182,6 +10322,61 @@
         });
       }
 
+      // BotÃ³n Generar y Previsualizar Pase Ãšnico Bajo Demanda
+      const btnGenPass = document.getElementById('btn-generate-diary-pass');
+      if (btnGenPass) {
+        btnGenPass.addEventListener('click', function () {
+          const inputName = document.getElementById('diary-input-name');
+          const inputNote = document.getElementById('diary-input-note');
+          const previewContainer = document.getElementById('diary-live-pass-preview');
+          const previewWrap = document.getElementById('diary-preview-container');
+          const badge = document.getElementById('live-archetype-badge');
+          const nameVal = inputName ? inputName.value.trim() : '';
+          const noteVal = inputNote ? inputNote.value.trim() : '';
+
+          if (!nameVal) {
+            sound.vibrate([50, 50]);
+            showToast('Escribe primero el tÃ­tulo o plan para analizarlo');
+            if (inputName) inputName.focus();
+            return;
+          }
+
+          sound.playPop();
+          sound.vibrate([30]);
+
+          currentPreviewPass = DuoPassEngine.generatePassData({
+            id: prefillId || ('item-' + Date.now()),
+            name: nameVal,
+            note: noteVal,
+            rating: currentRating,
+            photo: currentPhotoBase64,
+            mode: state.activeMode,
+            p1Name: state.player1Name,
+            p2Name: state.player2Name,
+            date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
+          });
+
+          if (previewWrap) previewWrap.classList.remove('hidden');
+          if (badge) badge.innerText = currentPreviewPass.archetypeLabel || 'Pase Ãšnico';
+          if (previewContainer) {
+            previewContainer.innerHTML = DuoPassEngine.renderPassCard(currentPreviewPass, { compact: true, isPreview: true });
+            DuoPassEngine.bindCardInteractions(previewContainer);
+          }
+          showToast('Pase ' + currentPreviewPass.archetypeLabel + ' generado');
+        });
+      }
+
+      // Si ya existÃ­a un pase previsualizado, renderizarlo
+      if (currentPreviewPass) {
+        const previewWrap = document.getElementById('diary-preview-container');
+        const previewContainer = document.getElementById('diary-live-pass-preview');
+        if (previewWrap) previewWrap.classList.remove('hidden');
+        if (previewContainer) {
+          previewContainer.innerHTML = DuoPassEngine.renderPassCard(currentPreviewPass, { compact: true, isPreview: true });
+          DuoPassEngine.bindCardInteractions(previewContainer);
+        }
+      }
+
       const btnSaveMemory = document.getElementById('btn-save-memory');
       if (btnSaveMemory) {
         btnSaveMemory.addEventListener('click', function () {
@@ -10196,7 +10391,7 @@
             return;
           }
 
-          const generated = DuoPassEngine.generatePassData({
+          const generated = currentPreviewPass || DuoPassEngine.generatePassData({
             id: prefillId || ('item-' + Date.now()),
             name: nameVal,
             note: noteVal,
@@ -10207,53 +10402,20 @@
             p2Name: state.player2Name,
             date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
           });
+
           addFoodVisit(prefillId || ('item-' + Date.now()), nameVal, currentRating, noteVal, currentPhotoBase64, prefillSessionId, generated);
           sound.playFanfare();
           sound.vibrate([40, 40]);
-          showToast('¡Recuerdo guardado en el Diario!');
+          showToast('Â¡Recuerdo guardado en el Diario!');
           isFormOpen = false;
           currentPhotoBase64 = null;
+          currentPreviewPass = null;
           renderModalContent();
         });
       }
 
-      // Vincular interacciones 3D (voltear, ampliar) en todas las tarjetas de pase
+      // Vincular interacciones 3D en el timeline y resto de tarjetas
       DuoPassEngine.bindCardInteractions(modalContainer);
-
-      function updateLivePreview() {
-        const inputName = document.getElementById('diary-input-name');
-        const inputNote = document.getElementById('diary-input-note');
-        const previewContainer = document.getElementById('diary-live-pass-preview');
-        const badge = document.getElementById('live-archetype-badge');
-        if (!previewContainer) return;
-
-        const nameVal = inputName ? (inputName.value.trim() || 'Nuevo Plan') : 'Nuevo Plan';
-        const noteVal = inputNote ? inputNote.value.trim() : '';
-
-        const generated = DuoPassEngine.generatePassData({
-          id: prefillId || ('item-' + Date.now()),
-          name: nameVal,
-          note: noteVal,
-          rating: currentRating,
-          photo: currentPhotoBase64,
-          mode: state.activeMode,
-          p1Name: state.player1Name,
-          p2Name: state.player2Name,
-          date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
-        });
-
-        previewContainer.innerHTML = DuoPassEngine.renderPassCard(generated, { compact: true, isPreview: true });
-        if (badge) badge.innerText = generated.archetypeLabel || 'Pase Único';
-        DuoPassEngine.bindCardInteractions(previewContainer);
-      }
-
-      if (isFormOpen) {
-        updateLivePreview();
-        const inputName = document.getElementById('diary-input-name');
-        const inputNote = document.getElementById('diary-input-note');
-        if (inputName) inputName.addEventListener('input', updateLivePreview);
-        if (inputNote) inputNote.addEventListener('input', updateLivePreview);
-      }
 
       document.querySelectorAll('.btn-delete-visit').forEach(function (btn) {
         btn.addEventListener('click', function () {
