@@ -1,4 +1,4 @@
-/* ==========================================================================
+﻿/* ==========================================================================
    ¿Dónde comemos? - Apple HIG & visionOS Liquid Glass Style System
    Optimizada para experiencia 100% nativa de iOS 17/18 y visionOS.
    ========================================================================== */
@@ -527,3 +527,55 @@ button,
 
 
 
+
+
+/* 3D Wax Seal para Ficha de Bodega */
+.wax-seal {
+  background: radial-gradient(circle at 35% 35%, #b91c1c 0%, #7f1d1d 60%, #450a0a 100%);
+  box-shadow: 
+    0 8px 20px -3px rgba(0, 0, 0, 0.8),
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    inset 0 2px 3px rgba(255, 255, 255, 0.3),
+    inset 0 -3px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* CRT Phosphor Scanlines para Arcade 1984 */
+.arcade-scanlines {
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0),
+    rgba(255,255,255,0) 50%,
+    rgba(0, 0, 0, 0.35) 50%,
+    rgba(0, 0, 0, 0.35)
+  );
+  background-size: 100% 4px;
+}
+
+.glow-neon-cyan {
+  text-shadow: 0 0 8px #00f0ff, 0 0 20px rgba(0, 240, 255, 0.6);
+}
+.glow-neon-pink {
+  text-shadow: 0 0 8px #ff007f, 0 0 20px rgba(255, 0, 127, 0.6);
+}
+
+/* Debossed Water Ripple para Zen Spa */
+.zen-ripple {
+  box-shadow: 
+    inset 0 2px 4px rgba(255, 255, 255, 0.8),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Lineas Perforadas de Tarjeta de Embarque */
+.perforated-v {
+  background-image: linear-gradient(to bottom, rgba(255,255,255,0.4) 40%, rgba(255,255,255,0) 0%);
+  background-position: left;
+  background-size: 1px 10px;
+  background-repeat: repeat-y;
+}
+.perforated-h {
+  background-image: linear-gradient(to right, rgba(255,255,255,0.4) 40%, rgba(255,255,255,0) 0%);
+  background-position: top;
+  background-size: 10px 1px;
+  background-repeat: repeat-x;
+}

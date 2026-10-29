@@ -16,6 +16,11 @@
   <link rel="icon" type="image/svg+xml" href="./duo_icon.svg">
   <link rel="apple-touch-icon" href="./duo_icon.svg">
 
+  <!-- Google Fonts: Luxury Typography Suite for Bespoke Duo Passes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Great+Vibes&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&family=Montserrat:wght@400;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&family=Press+Start+2P&family=Space+Grotesk:wght@500;700;800&family=Syne:wght@700;800;900&family=VT323&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -36,6 +41,18 @@
               light: '#e0e7ff',
               dark: '#3730a3'
             }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter', 'sans-serif'],
+            cinzel: ['Cinzel', 'serif'],
+            playfair: ['Playfair Display', 'serif'],
+            cormorant: ['Cormorant Garamond', 'serif'],
+            syne: ['Syne', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Courier Prime', 'monospace'],
+            courier: ['Courier Prime', 'monospace'],
+            arcade: ['Press Start 2P', 'monospace'],
+            vt: ['VT323', 'monospace'],
+            script: ['Great Vibes', 'cursive']
           }
         }
       }
@@ -46,7 +63,7 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
   <!-- Custom styles Apple HIG & visionOS Liquid Glass -->
-  <link rel="stylesheet" href="./style.css?v=55">
+  <link rel="stylesheet" href="./style.css?v=56">
 </head>
 <body class="bg-black text-slate-100 antialiased selection:bg-rose-500 selection:text-white min-h-screen relative overflow-x-hidden">
 
@@ -87,7 +104,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
   <!-- App logic (compatible con doble clic file:// y web/PWA) -->
-  <script src="./bundle.js?v=55"></script>
+  <script src="./bundle.js?v=56"></script>
   
   <!-- Registrar Service Worker y forzar actualización activa en PWAs instaladas -->
   <script>
