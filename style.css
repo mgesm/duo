@@ -784,3 +784,58 @@ button,
     inset 0 1px 1px rgba(255, 255, 255, 0.25),
     inset 0 0 25px rgba(0, 0, 0, 0.9);
 }
+
+/* ==========================================================================
+   Siluetas Físicas Radicais (Clip-Paths & Formas Troqueladas Únicas)
+   ========================================================================== */
+
+/* 1. Entrada de Estadio con Talón Desprendible Perforado */
+.stadium-ticket-silhouette {
+  border-radius: 12px;
+}
+
+/* 2. Tablilla Oficial de Club con Ranura y Bordes Reforzados */
+.racket-tab-silhouette {
+  border-radius: 18px 18px 10px 10px;
+}
+
+/* 4. Cartucho de Consola con Bisel Superior Troquelado */
+.gamer-cartridge-silhouette {
+  clip-path: polygon(
+    10% 0%, 90% 0%, 
+    100% 5%, 100% 100%, 
+    0% 100%, 0% 5%
+  );
+  border-radius: 0 0 6px 6px;
+}
+
+/* 5. Carta TCG Mítica Alargada con Esquinas Biseladas / Chamfer */
+.tcg-card-silhouette {
+  clip-path: polygon(
+    16px 0%, calc(100% - 16px) 0%,
+    100% 16px, 100% calc(100% - 16px),
+    calc(100% - 16px) 100%, 16px 100%,
+    0% calc(100% - 16px), 0% 16px
+  );
+}
+
+/* 6. Pase de Cuello Lanyard con Solapa Troquelada Superior y Muescas Laterales */
+.lanyard-badge-silhouette {
+  clip-path: polygon(
+    0% 0%, 100% 0%,
+    100% 35%, 96% 38%, 100% 41%,
+    100% 100%, 0% 100%,
+    0% 41%, 4% 38%, 0% 35%
+  );
+  border-radius: 16px;
+}
+
+/* 9. Etiqueta Artesanal Hangtag con Esquinas Superiores Cortadas en Bisel Diagonal */
+.hangtag-silhouette {
+  clip-path: polygon(
+    28px 0%, calc(100% - 28px) 0%,
+    100% 28px, 100% 100%,
+    0% 100%, 0% 28px
+  );
+  border-radius: 0 0 14px 14px;
+}
