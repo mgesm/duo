@@ -1,6 +1,16 @@
   // ==========================================
   // DUO PASS ENGINE: GENERADOR Y RENDERIZADOR DE PASES UNICOS (REALIA & BESPOKE LUXURY)
   // ==========================================
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   const DuoPassEngine = {
     ARCHETYPES: {
       THERMAL_RECEIPT: 'thermal-receipt',
@@ -77,14 +87,14 @@
       // Normalizar texto eliminando tildes y diacriticos
       const text = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-      // 1. Futbol / Estadio / Baloncesto / Rugby / Grada / Match Day
-      if (/(futbol|partido|estadio|bernabeu|camp nou|metropolitano|mestalla|champions|la liga|liga\b|soccer|baloncesto|basket|nba|acb|rugby|balonmano|voleibol|derbi|tribuna|grada|fondo norte|palco|marcador|aficion|tifo)/i.test(text)) {
-        return 'stadium-ticket';
-      }
-
-      // 2. Padel / Tenis / Raqueta / Torneo de Raqueta
+      // 1. Padel / Tenis / Raqueta / Torneo de Raqueta
       if (/(padel|tenis|tennis|raqueta|pala\b|peloteo|partidillo|tie break|deuce|match point|wimbledon|roland garros|us open|wpt|premier padel|pista de padel|saque y volea|smash)/i.test(text)) {
         return 'racket-club';
+      }
+
+      // 2. Futbol / Estadio / Baloncesto / Rugby / Grada / Match Day
+      if (/(futbol|partido|estadio|bernabeu|camp nou|metropolitano|mestalla|champions|la liga|liga\b|soccer|baloncesto|basket|nba|acb|rugby|balonmano|voleibol|derbi|tribuna|grada|fondo norte|palco|marcador|aficion|tifo)/i.test(text)) {
+        return 'stadium-ticket';
       }
 
       // 3. Gym / Fitness / Running / Maraton / Entrenamiento / Pesas
@@ -918,69 +928,153 @@
                 // ----------------------------------------------------
         // STADIUM MATCH TICKET (FUTBOL / BASKET / MATCH DAY)
         // ----------------------------------------------------
+// ----------------------------------------------------
+        // STADIUM MATCH TICKET (FUTBOL / BASKET / MATCH DAY)
+        // ----------------------------------------------------
         case 'stadium-ticket':
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden stadium-grass text-white p-5 border-2 border-emerald-500/50 text-left select-none">
-              <!-- Muesca de Entrada Troquelada -->
+            <div class="card-face relative w-full rounded-2xl overflow-hidden stadium-grass text-white p-5 border border-emerald-400/40 text-left select-none shadow-2xl">
+              <!-- Muescas circulares de entrada troquelada en ambos laterales -->
+              <div class="absolute -left-3 bottom-[92px] w-6 h-6 rounded-full bg-[#050507] border border-emerald-500/40 z-20"></div>
+              <div class="absolute -right-3 bottom-[92px] w-6 h-6 rounded-full bg-[#050507] border border-emerald-500/40 z-20"></div>
+              <div class="absolute left-3 right-3 bottom-[104px] border-b-2 border-dashed border-emerald-400/40 z-10 pointer-events-none"></div>
+
+              <!-- Cabecera de Seguridad y Torniquete -->
               <div class="flex items-center justify-between pb-2 border-b border-emerald-500/40 text-[9px] font-mono">
-                <div class="flex items-center gap-1.5 font-bold text-emerald-400">
+                <div class="flex items-center gap-1.5 font-bold text-emerald-300">
                   <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                   <span>LIGA DUO MATCH DAY // ENTRADA OFICIAL</span>
                 </div>
-                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">ACCESO TORNICUETE</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold uppercase tracking-wider">ACCESO TORNICUETE</span>
               </div>
 
-              <!-- Balon de Futbol 3D Vectorial y Reflectores SVG -->
-              <div class="my-3 text-center">
-                <svg viewBox="0 0 100 80" class="w-16 h-12 mx-auto drop-shadow-[0_0_12px_rgba(34,197,94,0.4)]" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="50" cy="40" r="28" fill="#f8fafc" stroke="#22c55e" stroke-width="2"/>
-                  <polygon points="50,28 58,34 55,44 45,44 42,34" fill="#0f172a"/>
-                  <line x1="50" y1="28" x2="50" y2="14" stroke="#0f172a" stroke-width="1.8"/>
-                  <line x1="58" y1="34" x2="71" y2="27" stroke="#0f172a" stroke-width="1.8"/>
-                  <line x1="55" y1="44" x2="68" y2="53" stroke="#0f172a" stroke-width="1.8"/>
-                  <line x1="45" y1="44" x2="32" y2="53" stroke="#0f172a" stroke-width="1.8"/>
-                  <line x1="42" y1="34" x2="29" y2="27" stroke="#0f172a" stroke-width="1.8"/>
-                  <path d="M15 72 C30 58, 70 58, 85 72" stroke="#4ade80" stroke-width="2" stroke-dasharray="3 3"/>
+              <!-- Ilustracion Vectorial Rica: Estadio Isometrico 3D & Balon con Sombras -->
+              <div class="my-2.5 text-center relative">
+                <svg viewBox="0 0 320 130" class="w-full h-28 mx-auto drop-shadow-[0_8px_16px_rgba(0,0,0,0.6)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="stadiumLightL" x1="0%" y1="0%" x2="50%" y2="100%">
+                      <stop offset="0%" stop-color="#34d399" stop-opacity="0.35"/>
+                      <stop offset="100%" stop-color="#34d399" stop-opacity="0"/>
+                    </linearGradient>
+                    <linearGradient id="stadiumLightR" x1="100%" y1="0%" x2="50%" y2="100%">
+                      <stop offset="0%" stop-color="#34d399" stop-opacity="0.35"/>
+                      <stop offset="100%" stop-color="#34d399" stop-opacity="0"/>
+                    </linearGradient>
+                    <radialGradient id="ballShine" cx="35%" cy="30%" r="65%">
+                      <stop offset="0%" stop-color="#ffffff"/>
+                      <stop offset="55%" stop-color="#e2e8f0"/>
+                      <stop offset="100%" stop-color="#64748b"/>
+                    </radialGradient>
+                    <radialGradient id="ballShadow" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#000000" stop-opacity="0.6"/>
+                      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+                    </radialGradient>
+                  </defs>
+
+                  <!-- Focos Reflectores y Haces de Luz -->
+                  <polygon points="15,5 95,95 35,95" fill="url(#stadiumLightL)"/>
+                  <polygon points="305,5 225,95 285,95" fill="url(#stadiumLightR)"/>
+                  <circle cx="15" cy="5" r="4" fill="#6ee7b7"/>
+                  <circle cx="305" cy="5" r="4" fill="#6ee7b7"/>
+
+                  <!-- Grada del Estadio en Perspectiva -->
+                  <path d="M40 85 L280 85 L310 115 L10 115 Z" fill="#064e3b" stroke="#047857" stroke-width="1.2"/>
+                  <!-- Lineas de Asientos de Grada -->
+                  <line x1="32" y1="92" x2="288" y2="92" stroke="#059669" stroke-width="1" stroke-dasharray="3 2"/>
+                  <line x1="24" y1="100" x2="296" y2="100" stroke="#059669" stroke-width="1" stroke-dasharray="4 2"/>
+                  <line x1="15" y1="108" x2="305" y2="108" stroke="#059669" stroke-width="1" stroke-dasharray="4 2"/>
+
+                  <!-- Campo de Futbol Central en Perspectiva Isometrica -->
+                  <polygon points="70,55 250,55 275,92 45,92" fill="#047857" stroke="#10b981" stroke-width="1.5"/>
+                  <!-- Franjas de Cesped Segado -->
+                  <polygon points="100,55 130,55 138,92 108,92" fill="#065f46"/>
+                  <polygon points="160,55 190,55 198,92 168,92" fill="#065f46"/>
+                  <polygon points="220,55 250,55 258,92 228,92" fill="#065f46"/>
+                  <!-- Lineas del Campo: Centro y Areas -->
+                  <line x1="160" y1="55" x2="160" y2="92" stroke="#ffffff" stroke-width="1.2" stroke-opacity="0.8"/>
+                  <ellipse cx="160" cy="73" rx="22" ry="9" stroke="#ffffff" stroke-width="1.2" stroke-opacity="0.8" fill="none"/>
+                  <circle cx="160" cy="73" r="1.5" fill="#ffffff"/>
+                  <!-- Area Porteria Izq y Der -->
+                  <polygon points="70,64 90,64 94,83 74,83" stroke="#ffffff" stroke-width="1" stroke-opacity="0.7" fill="none"/>
+                  <polygon points="250,64 230,64 226,83 246,83" stroke="#ffffff" stroke-width="1" stroke-opacity="0.7" fill="none"/>
+
+                  <!-- Sombra Proyectada del Balon 3D -->
+                  <ellipse cx="160" cy="50" rx="22" ry="5" fill="url(#ballShadow)"/>
+
+                  <!-- Balon de Futbol 3D Hiperdetallado con Textura y Paneles Cosidos -->
+                  <g transform="translate(160, 32)">
+                    <!-- Esfera Base con Luz Especular -->
+                    <circle cx="0" cy="0" r="18" fill="url(#ballShine)" stroke="#064e3b" stroke-width="1.2"/>
+                    <!-- Pentagono Central Negro con Brillo -->
+                    <polygon points="0,-4 5,0 3,6 -3,6 -5,0" fill="#0f172a" stroke="#334155" stroke-width="0.8"/>
+                    <!-- Costuras y Pentagonos Circundantes -->
+                    <line x1="0" y1="-4" x2="0" y2="-12" stroke="#1e293b" stroke-width="0.9"/>
+                    <line x1="5" y1="0" x2="13" y2="-2" stroke="#1e293b" stroke-width="0.9"/>
+                    <line x1="3" y1="6" x2="9" y2="13" stroke="#1e293b" stroke-width="0.9"/>
+                    <line x1="-3" y1="6" x2="-9" y2="13" stroke="#1e293b" stroke-width="0.9"/>
+                    <line x1="-5" y1="0" x2="-13" y2="-2" stroke="#1e293b" stroke-width="0.9"/>
+                    <!-- Pentagonos de Borde Curvos -->
+                    <polygon points="0,-12 6,-15 11,-10 8,-5 0,-10" fill="#1e293b" opacity="0.9"/>
+                    <polygon points="13,-2 17,2 15,8 10,7 10,1" fill="#1e293b" opacity="0.9"/>
+                    <polygon points="-13,-2 -17,2 -15,8 -10,7 -10,1" fill="#1e293b" opacity="0.9"/>
+                    <polygon points="-9,13 -5,17 0,16 1,12 -5,10" fill="#1e293b" opacity="0.9"/>
+                    <polygon points="9,13 5,17 0,16 -1,12 5,10" fill="#1e293b" opacity="0.9"/>
+                    <!-- Brillo Especular Superior Blanco -->
+                    <ellipse cx="-5" cy="-7" rx="5" ry="2.5" fill="#ffffff" opacity="0.75" transform="rotate(-25 -5 -7)"/>
+                  </g>
+
+                  <!-- Banderines de Corner -->
+                  <line x1="45" y1="92" x2="45" y2="82" stroke="#facc15" stroke-width="1"/>
+                  <polygon points="45,82 51,85 45,88" fill="#ef4444"/>
+                  <line x1="275" y1="92" x2="275" y2="82" stroke="#facc15" stroke-width="1"/>
+                  <polygon points="275,82 281,85 275,88" fill="#ef4444"/>
                 </svg>
 
-                <p class="font-mono text-[8px] text-emerald-400 tracking-[0.25em] uppercase mt-1">DERBI OFICIAL DE PAREJA</p>
-                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 via-white to-green-300 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
-                
-                <div class="inline-flex items-center gap-2 mt-1.5 px-3 py-1 rounded-full bg-black/60 border border-emerald-500/40 text-xs font-black">
-                  <span class="text-white">DUO FC</span>
-                  <span class="text-amber-400 font-mono text-[10px] bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/30">3 - 0</span>
-                  <span class="text-white">LOVE UNITED</span>
+                <p class="font-mono text-[8px] text-emerald-300 tracking-[0.3em] uppercase mt-0.5">DERBI OFICIAL DE PAREJA // COPA DUO</p>
+                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-100 via-white to-green-200 uppercase tracking-tight truncate max-w-[290px] mx-auto">${escapeHtml(pass.name)}</h3>
+
+                <!-- Marcador Digital LED Estilo Estadio -->
+                <div class="inline-flex items-center gap-2.5 mt-1.5 px-3.5 py-1 rounded-full bg-black/80 border border-emerald-500/50 text-xs shadow-inner">
+                  <div class="flex items-center gap-1 font-black text-emerald-300">
+                    <svg class="w-3 h-3 text-emerald-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+                    <span>DUO FC</span>
+                  </div>
+                  <span class="font-mono text-[11px] font-black text-amber-300 bg-emerald-950/90 px-2.5 py-0.5 rounded border border-emerald-500/40 tracking-widest">3 - 0</span>
+                  <div class="flex items-center gap-1 font-black text-emerald-300">
+                    <span>LOVE UTD</span>
+                    <svg class="w-3 h-3 text-emerald-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+                  </div>
                 </div>
               </div>
 
               <!-- Grid de Grada / Fila / Asiento -->
-              <div class="p-2.5 bg-black/70 rounded-xl border border-emerald-500/30 font-mono text-[9px] grid grid-cols-3 gap-1 text-center my-3">
-                <div class="border-r border-emerald-500/20">
-                  <span class="text-emerald-400/80 text-[7.5px] block uppercase">SECTOR</span>
-                  <strong class="text-white text-xs">TRIBUNA</strong>
+              <div class="p-2.5 bg-black/75 rounded-xl border border-emerald-500/35 font-mono text-[9px] grid grid-cols-3 gap-1 text-center my-2.5 shadow-inner">
+                <div class="border-r border-emerald-500/25">
+                  <span class="text-emerald-400/80 text-[7px] block uppercase tracking-wider">SECTOR</span>
+                  <strong class="text-white text-xs">TRIBUNA OESTE</strong>
                 </div>
-                <div class="border-r border-emerald-500/20">
-                  <span class="text-emerald-400/80 text-[7.5px] block uppercase">FILA</span>
+                <div class="border-r border-emerald-500/25">
+                  <span class="text-emerald-400/80 text-[7px] block uppercase tracking-wider">FILA</span>
                   <strong class="text-emerald-300 text-xs">FILA 04</strong>
                 </div>
                 <div>
-                  <span class="text-emerald-400/80 text-[7.5px] block uppercase">ASIENTOS</span>
-                  <strong class="text-amber-300 text-xs">18 &amp; 19 VIP</strong>
+                  <span class="text-emerald-400/80 text-[7px] block uppercase tracking-wider">ASIENTOS</span>
+                  <strong class="text-amber-300 text-xs">18 &amp; 19 VIP LOVE</strong>
                 </div>
               </div>
 
-              <div class="flex justify-between items-center px-1 font-mono text-[10px] text-neutral-300 mb-2">
-                <span>AFICIONADOS: <strong class="text-emerald-200">${escapeHtml(pass.coupleNames)}</strong></span>
-                <span class="text-emerald-400 font-bold">ABONO DUO</span>
+              <div class="flex justify-between items-center px-1 font-mono text-[9.5px] text-neutral-300 mb-2">
+                <span class="truncate max-w-[210px]">AFICIONADOS: <strong class="text-emerald-200">${escapeHtml(pass.coupleNames)}</strong></span>
+                <span class="text-emerald-400 font-bold px-1.5 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/30">ABONO GOLD</span>
               </div>
 
-              <!-- Footer Codigo de Barras Torniquete -->
+              <!-- Footer Codigo de Barras de Torniquete y Sello de Entrada -->
               <div class="pt-2 border-t border-dashed border-emerald-500/40 flex items-center justify-between">
-                <div class="w-28 opacity-85">
-                  ${this.getBarcodeSvg('#22c55e')}
+                <div class="w-28 opacity-90">
+                  ${this.getBarcodeSvg('#10b981')}
                 </div>
-                <div class="px-2 py-1 rounded border border-emerald-500/50 bg-emerald-500/10 text-emerald-300 text-[7.5px] font-mono font-bold leading-tight text-center">
-                  VALID ENTRY<br>GATE 07 PASS
+                <div class="px-2.5 py-1 rounded border border-emerald-500/50 bg-emerald-500/15 text-emerald-300 text-[8px] font-mono font-bold leading-tight text-center">
+                  VALID ENTRY // GATE 07<br>TORNICUETE OK
                 </div>
               </div>
             </div>
@@ -992,61 +1086,149 @@
         // ----------------------------------------------------
         case 'racket-club':
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden court-blue text-white p-5 border-2 border-sky-400/50 text-left select-none">
-              <div class="flex items-center justify-between pb-2 border-b border-sky-400/30 text-[9px] font-mono">
-                <span class="font-bold text-sky-300 flex items-center gap-1.5">
+            <div class="card-face relative w-full rounded-2xl overflow-hidden court-blue text-white p-5 border border-sky-400/50 text-left select-none shadow-2xl">
+              <!-- Remaches metalicos de torneo en las 4 esquinas -->
+              <div class="absolute top-2.5 left-2.5 w-2 h-2 rounded-full bg-slate-300 border border-slate-500 shadow-sm"></div>
+              <div class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-slate-300 border border-slate-500 shadow-sm"></div>
+              <div class="absolute bottom-2.5 left-2.5 w-2 h-2 rounded-full bg-slate-300 border border-slate-500 shadow-sm"></div>
+              <div class="absolute bottom-2.5 right-2.5 w-2 h-2 rounded-full bg-slate-300 border border-slate-500 shadow-sm"></div>
+
+              <!-- Ranura superior troquelada para cordon de torneo -->
+              <div class="w-16 h-1.5 mx-auto -mt-2 mb-2 rounded-full bg-black/60 border border-sky-400/40"></div>
+
+              <div class="flex items-center justify-between pb-2 border-b border-sky-400/35 text-[9px] font-mono">
+                <span class="font-bold text-sky-200 flex items-center gap-1.5">
                   <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
-                  WORLD DUO TOUR // PADEL &amp; TENNIS
+                  WORLD DUO TOUR // PREMIER PADEL &amp; TENNIS
                 </span>
-                <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-200 border border-sky-400/40 font-bold">PISTA CENTRAL</span>
+                <span class="px-2 py-0.5 rounded bg-sky-500/25 text-sky-200 border border-sky-400/40 font-bold uppercase tracking-wider">PISTA CENTRAL</span>
               </div>
 
-              <!-- Palas y Pelota Vectorial SVG -->
-              <div class="my-2.5 text-center">
-                <svg viewBox="0 0 100 70" class="w-16 h-12 mx-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <!-- Pala Padel -->
-                  <line x1="25" y1="62" x2="52" y2="28" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
-                  <ellipse cx="58" cy="22" rx="13" ry="16" fill="#0284c7" stroke="#38bdf8" stroke-width="1.5" transform="rotate(35 58 22)"/>
-                  <circle cx="56" cy="20" r="1" fill="#fff"/>
-                  <circle cx="60" cy="24" r="1" fill="#fff"/>
-                  <circle cx="55" cy="25" r="1" fill="#fff"/>
-                  <!-- Raqueta Tenis -->
-                  <line x1="75" y1="62" x2="48" y2="28" stroke="#facc15" stroke-width="3" stroke-linecap="round"/>
-                  <ellipse cx="42" cy="22" rx="13" ry="16" fill="#854d0e" stroke="#facc15" stroke-width="1.5" transform="rotate(-35 42 22)"/>
-                  <path d="M36 14 L48 30 M36 30 L48 14" stroke="#fef08a" stroke-width="0.8"/>
-                  <!-- Pelota Tenis -->
-                  <circle cx="50" cy="44" r="7" fill="#ccff00" stroke="#84cc16" stroke-width="1"/>
-                  <path d="M45 40 C48 44, 52 44, 55 40" stroke="#fff" stroke-width="0.8" fill="none"/>
+              <!-- Ilustracion Vectorial Rica: Palas de Carbono Cruzadas, Pelota de Tenis 3D con Fieltro y Pista Azul -->
+              <div class="my-2 text-center relative">
+                <svg viewBox="0 0 320 135" class="w-full h-28 mx-auto drop-shadow-[0_8px_16px_rgba(0,0,0,0.6)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <radialGradient id="feltBall" cx="35%" cy="30%" r="65%">
+                      <stop offset="0%" stop-color="#facc15"/>
+                      <stop offset="35%" stop-color="#ccff00"/>
+                      <stop offset="85%" stop-color="#84cc16"/>
+                      <stop offset="100%" stop-color="#4d7c0f"/>
+                    </radialGradient>
+                    <linearGradient id="padelCarbon" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#334155"/>
+                      <stop offset="50%" stop-color="#0f172a"/>
+                      <stop offset="100%" stop-color="#1e293b"/>
+                    </linearGradient>
+                    <linearGradient id="tennisGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#fbbf24"/>
+                      <stop offset="50%" stop-color="#d97706"/>
+                      <stop offset="100%" stop-color="#78350f"/>
+                    </linearGradient>
+                  </defs>
+
+                  <!-- Fondo de Pista Azul Cristal en Perspectiva -->
+                  <polygon points="55,100 265,100 295,130 25,130" fill="#0284c7" stroke="#38bdf8" stroke-width="1.2"/>
+                  <!-- Lineas Blancas de Pista -->
+                  <line x1="160" y1="100" x2="160" y2="130" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.85"/>
+                  <line x1="45" y1="115" x2="275" y2="115" stroke="#ffffff" stroke-width="1.2" stroke-opacity="0.85"/>
+                  <line x1="75" y1="100" x2="50" y2="130" stroke="#ffffff" stroke-width="1.2" stroke-opacity="0.85"/>
+                  <line x1="245" y1="100" x2="270" y2="130" stroke="#ffffff" stroke-width="1.2" stroke-opacity="0.85"/>
+                  <!-- Red Central con Malla Cuadriculada -->
+                  <line x1="55" y1="100" x2="265" y2="100" stroke="#f8fafc" stroke-width="2"/>
+                  <path d="M55 100 L265 100 M60 96 L260 96" stroke="#94a3b8" stroke-width="0.8" stroke-dasharray="2 2"/>
+
+                  <!-- PALA DE PADEL DE CARBONO (IZQUIERDA) -->
+                  <g transform="translate(115, 52) rotate(-22)">
+                    <!-- Empuñadura con Overgrip Blanco Texturizado -->
+                    <rect x="-4" y="24" width="8" height="34" rx="2" fill="#f8fafc" stroke="#94a3b8" stroke-width="0.8"/>
+                    <line x1="-4" y1="30" x2="4" y2="33" stroke="#cbd5e1" stroke-width="0.8"/>
+                    <line x1="-4" y1="38" x2="4" y2="41" stroke="#cbd5e1" stroke-width="0.8"/>
+                    <line x1="-4" y1="46" x2="4" y2="49" stroke="#cbd5e1" stroke-width="0.8"/>
+                    <!-- Tapon y Cordon de Seguridad -->
+                    <rect x="-5" y="56" width="10" height="4" rx="1" fill="#0284c7"/>
+                    <path d="M0 60 C-3 66, 3 70, 0 74" stroke="#38bdf8" stroke-width="1.2" fill="none"/>
+                    <!-- Corazon / Puente Aerodinamico -->
+                    <path d="M-6 24 C-10 16, -18 8, -20 -4 C-20 -28, 20 -28, 20 -4 C18 8, 10 16, 6 24 Z" fill="url(#padelCarbon)" stroke="#38bdf8" stroke-width="1.5"/>
+                    <polygon points="-6,10 6,10 0,20" fill="#0369a1" stroke="#38bdf8" stroke-width="0.8"/>
+                    <!-- Matriz de Agujeros de Perforacion con Relieve 3D -->
+                    <g fill="#0284c7" stroke="#0c4a6e" stroke-width="0.6">
+                      <circle cx="-10" cy="-14" r="1.8"/> <circle cx="-4" cy="-14" r="1.8"/> <circle cx="4" cy="-14" r="1.8"/> <circle cx="10" cy="-14" r="1.8"/>
+                      <circle cx="-13" cy="-7" r="1.8"/> <circle cx="-7" cy="-7" r="1.8"/> <circle cx="0" cy="-7" r="1.8"/> <circle cx="7" cy="-7" r="1.8"/> <circle cx="13" cy="-7" r="1.8"/>
+                      <circle cx="-13" cy="0" r="1.8"/> <circle cx="-7" cy="0" r="1.8"/> <circle cx="0" cy="0" r="1.8"/> <circle cx="7" cy="0" r="1.8"/> <circle cx="13" cy="0" r="1.8"/>
+                      <circle cx="-10" cy="7" r="1.8"/> <circle cx="-4" cy="7" r="1.8"/> <circle cx="4" cy="7" r="1.8"/> <circle cx="10" cy="7" r="1.8"/>
+                    </g>
+                    <!-- Logotipo Central Duo en la Pala -->
+                    <circle cx="0" cy="-4" r="5" fill="#38bdf8" opacity="0.3"/>
+                  </g>
+
+                  <!-- RAQUETA DE TENIS CON CORDAJE DETALLADO (DERECHA) -->
+                  <g transform="translate(205, 52) rotate(22)">
+                    <!-- Mango de Cuero -->
+                    <rect x="-4" y="24" width="8" height="34" rx="2" fill="#78350f" stroke="#451a03" stroke-width="0.8"/>
+                    <line x1="-4" y1="30" x2="4" y2="33" stroke="#b45309" stroke-width="0.8"/>
+                    <line x1="-4" y1="38" x2="4" y2="41" stroke="#b45309" stroke-width="0.8"/>
+                    <line x1="-4" y1="46" x2="4" y2="49" stroke="#b45309" stroke-width="0.8"/>
+                    <!-- Marco Dorado y Garganta Abierta -->
+                    <path d="M-5 24 C-8 14, -14 6, -18 -4 C-18 -28, 18 -28, 18 -4 C14 6, 8 14, 5 24 Z" fill="none" stroke="url(#tennisGold)" stroke-width="2.5"/>
+                    <!-- Cordaje Cruzado en Malla Fina -->
+                    <g stroke="#fef08a" stroke-width="0.6" stroke-opacity="0.85">
+                      <line x1="-12" y1="-22" x2="-12" y2="10"/>
+                      <line x1="-6" y1="-26" x2="-6" y2="16"/>
+                      <line x1="0" y1="-27" x2="0" y2="18"/>
+                      <line x1="6" y1="-26" x2="6" y2="16"/>
+                      <line x1="12" y1="-22" x2="12" y2="10"/>
+                      <line x1="-15" y1="-18" x2="15" y2="-18"/>
+                      <line x1="-17" y1="-11" x2="17" y2="-11"/>
+                      <line x1="-18" y1="-4" x2="18" y2="-4"/>
+                      <line x1="-17" y1="3" x2="17" y2="3"/>
+                      <line x1="-14" y1="10" x2="14" y2="10"/>
+                    </g>
+                  </g>
+
+                  <!-- PELOTA DE TENIS 3D CON FIELTRO Y COSTURA CURVA EN RELIEVE -->
+                  <g transform="translate(160, 48)">
+                    <!-- Sombra de la Pelota -->
+                    <ellipse cx="2" cy="18" rx="14" ry="4" fill="#000000" opacity="0.45"/>
+                    <!-- Cuerpo con Fieltro Amarillo Optico -->
+                    <circle cx="0" cy="0" r="14" fill="url(#feltBall)" stroke="#4d7c0f" stroke-width="1"/>
+                    <!-- Costura Blanca de Caucho Curva Caracteristica -->
+                    <path d="M-10 -7 C-4 -4, -4 4, -10 7" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+                    <path d="M10 -7 C4 -4, 4 4, 10 7" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+                    <!-- Brillo Especular Suave -->
+                    <circle cx="-4" cy="-5" r="3" fill="#ffffff" opacity="0.6"/>
+                    <!-- Estela de Impacto Dinamica -->
+                    <path d="M-16 0 C-24 -4, -28 -10, -32 -14" stroke="#facc15" stroke-width="1.5" stroke-dasharray="2 3" opacity="0.8"/>
+                  </g>
                 </svg>
 
-                <p class="font-mono text-[8px] text-sky-300 tracking-[0.25em] uppercase mt-1">MASTER FINAL EN DIRECTO</p>
-                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-white to-blue-300 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
-                <p class="font-mono text-[10px] text-sky-200 mt-0.5">Pareja: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+                <p class="font-mono text-[8px] text-sky-200 tracking-[0.28em] uppercase mt-0.5">MASTER FINAL // CLUB OFICIAL DE RAQUETA</p>
+                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-100 via-white to-cyan-200 uppercase tracking-tight truncate max-w-[290px] mx-auto">${escapeHtml(pass.name)}</h3>
+                <p class="font-mono text-[9.5px] text-sky-200 mt-0.5">Pareja Titular: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
               </div>
 
               <!-- Marcador de Sets en Directo -->
-              <div class="my-2.5 p-2 bg-black/60 rounded-xl border border-sky-400/30 font-mono text-[9px] grid grid-cols-3 gap-1 text-center">
-                <div class="border-r border-sky-400/20">
-                  <span class="text-sky-300/80 text-[7.5px] block uppercase">SET 1</span>
+              <div class="my-2.5 p-2 bg-black/75 rounded-xl border border-sky-400/35 font-mono text-[9px] grid grid-cols-3 gap-1 text-center shadow-inner">
+                <div class="border-r border-sky-400/25">
+                  <span class="text-sky-300/80 text-[7px] block uppercase tracking-wider">SET 1</span>
                   <strong class="text-white text-xs">6 - 4</strong>
                 </div>
-                <div class="border-r border-sky-400/20">
-                  <span class="text-sky-300/80 text-[7.5px] block uppercase">SET 2</span>
+                <div class="border-r border-sky-400/25">
+                  <span class="text-sky-300/80 text-[7px] block uppercase tracking-wider">SET 2</span>
                   <strong class="text-amber-300 text-xs">7 - 5 (TB)</strong>
                 </div>
                 <div>
-                  <span class="text-sky-300/80 text-[7.5px] block uppercase">ESTADO</span>
-                  <strong class="text-emerald-400 text-xs">VICTORIA</strong>
+                  <span class="text-sky-300/80 text-[7px] block uppercase tracking-wider">RESULTADO</span>
+                  <strong class="text-emerald-400 text-xs">MATCH POINT OK</strong>
                 </div>
               </div>
 
-              <!-- Footer Codigo de Barras -->
-              <div class="pt-2 border-t border-dashed border-sky-400/30 flex items-center justify-between">
-                <div class="w-28 opacity-85">
+              <!-- Footer Codigo de Barras de Pista -->
+              <div class="pt-2 border-t border-dashed border-sky-400/35 flex items-center justify-between">
+                <div class="w-28 opacity-90">
                   ${this.getBarcodeSvg('#38bdf8')}
                 </div>
-                <div class="px-2 py-1 rounded border border-sky-400/50 bg-sky-500/10 text-sky-200 text-[7.5px] font-mono font-bold leading-tight text-center">
-                  MATCH POINT OK<br>PISTA AZUL DUO
+                <div class="px-2.5 py-1 rounded border border-sky-400/50 bg-sky-500/15 text-sky-200 text-[8px] font-mono font-bold leading-tight text-center">
+                  PISTA AZUL CRISTAL<br>MASTER DUO COURT
                 </div>
               </div>
             </div>
@@ -1054,53 +1236,118 @@
           break;
 
         // ----------------------------------------------------
-        // FITNESS PASS (DORSAL OFICIAL & RUNNING / GYM VIP)
+        // FITNESS PASS (DORSAL OFICIAL DE MARATON & GYM VIP)
         // ----------------------------------------------------
         case 'fitness-pass':
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden bib-fiber text-slate-900 p-5 border-2 border-slate-300 text-left select-none">
-              <!-- Imperdibles en las 4 esquinas SVG -->
-              <div class="flex items-center justify-between pb-1.5 border-b border-slate-300 text-[9px] font-mono text-slate-600">
-                <div class="flex items-center gap-1 font-bold text-red-600">
-                  <span class="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
-                  <span>DUO PERFORMANCE // RUN &amp; FITNESS</span>
-                </div>
-                <span class="px-1.5 py-0.5 rounded bg-slate-200 font-bold text-slate-700">DORSAL OFICIAL</span>
+            <div class="card-face relative w-full rounded-2xl overflow-hidden bib-fiber text-slate-900 p-5 border-2 border-slate-300/90 text-left select-none shadow-2xl">
+              <!-- 4 IMPERDIBLES METALICOS 3D SVG EN LAS ESQUINAS CON SOMBRA -->
+              <div class="absolute top-2 left-2 z-20 pointer-events-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
+                <svg width="34" height="20" viewBox="0 0 34 20" fill="none">
+                  <ellipse cx="6" cy="10" rx="3" ry="3" fill="#64748b"/>
+                  <path d="M6 10 C14 3, 26 3, 30 7 C32 9, 32 11, 30 13 C26 17, 14 17, 6 10 Z" stroke="#94a3b8" stroke-width="1.8" fill="none"/>
+                  <rect x="24" y="6" width="8" height="8" rx="2" fill="#cbd5e1" stroke="#475569" stroke-width="1"/>
+                  <circle cx="6" cy="10" r="2" fill="#cbd5e1"/>
+                </svg>
+              </div>
+              <div class="absolute top-2 right-2 z-20 pointer-events-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
+                <svg width="34" height="20" viewBox="0 0 34 20" fill="none" class="transform -scale-x-100">
+                  <ellipse cx="6" cy="10" rx="3" ry="3" fill="#64748b"/>
+                  <path d="M6 10 C14 3, 26 3, 30 7 C32 9, 32 11, 30 13 C26 17, 14 17, 6 10 Z" stroke="#94a3b8" stroke-width="1.8" fill="none"/>
+                  <rect x="24" y="6" width="8" height="8" rx="2" fill="#cbd5e1" stroke="#475569" stroke-width="1"/>
+                  <circle cx="6" cy="10" r="2" fill="#cbd5e1"/>
+                </svg>
+              </div>
+              <div class="absolute bottom-2 left-2 z-20 pointer-events-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
+                <svg width="34" height="20" viewBox="0 0 34 20" fill="none">
+                  <ellipse cx="6" cy="10" rx="3" ry="3" fill="#64748b"/>
+                  <path d="M6 10 C14 3, 26 3, 30 7 C32 9, 32 11, 30 13 C26 17, 14 17, 6 10 Z" stroke="#94a3b8" stroke-width="1.8" fill="none"/>
+                  <rect x="24" y="6" width="8" height="8" rx="2" fill="#cbd5e1" stroke="#475569" stroke-width="1"/>
+                  <circle cx="6" cy="10" r="2" fill="#cbd5e1"/>
+                </svg>
+              </div>
+              <div class="absolute bottom-2 right-2 z-20 pointer-events-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
+                <svg width="34" height="20" viewBox="0 0 34 20" fill="none" class="transform -scale-x-100">
+                  <ellipse cx="6" cy="10" rx="3" ry="3" fill="#64748b"/>
+                  <path d="M6 10 C14 3, 26 3, 30 7 C32 9, 32 11, 30 13 C26 17, 14 17, 6 10 Z" stroke="#94a3b8" stroke-width="1.8" fill="none"/>
+                  <rect x="24" y="6" width="8" height="8" rx="2" fill="#cbd5e1" stroke="#475569" stroke-width="1"/>
+                  <circle cx="6" cy="10" r="2" fill="#cbd5e1"/>
+                </svg>
               </div>
 
-              <!-- Numero de Dorsal Gigante y Titulo -->
-              <div class="my-3 text-center">
-                <p class="font-mono text-[8px] text-slate-500 uppercase tracking-widest">CATEGORIA PAREJA MIXTA</p>
-                <div class="font-black text-4xl sm:text-5xl tracking-tighter text-slate-900 my-0.5 font-mono drop-shadow-sm">
-                  #DUO-01
+              <!-- Franja Superior de Maratón Oficial en Rojo & Azul Marino -->
+              <div class="flex items-center justify-between pb-1.5 border-b-2 border-red-600 text-[9px] font-mono text-slate-800">
+                <div class="flex items-center gap-1.5 font-black text-red-600">
+                  <span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping"></span>
+                  <span>DUO PERFORMANCE // MARATHON &amp; FITNESS VIP</span>
                 </div>
-                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide truncate max-w-[280px] mx-auto">${escapeHtml(pass.name)}</h3>
-                <p class="font-mono text-[10px] text-slate-600 mt-0.5">Corredores: <strong>${escapeHtml(pass.coupleNames)}</strong></p>
+                <span class="px-2 py-0.5 rounded bg-red-600 text-white font-black uppercase tracking-wider text-[8px]">DORSAL OFICIAL</span>
               </div>
 
-              <!-- Chips de Meta y Rendimiento -->
-              <div class="p-2 bg-slate-100 rounded-xl border border-slate-200 font-mono text-[9px] grid grid-cols-3 gap-1 text-center my-2.5">
-                <div class="border-r border-slate-200">
-                  <span class="text-slate-500 text-[7.5px] block uppercase">TIEMPO META</span>
-                  <strong class="text-slate-900 text-xs">48:21</strong>
+              <!-- Numero Gigante de Dorsal con Tipografia Atletica de Competicion -->
+              <div class="my-2 text-center">
+                <p class="font-mono text-[8px] text-slate-500 uppercase tracking-[0.25em]">CATEGORIA OFICIAL: PAREJA MIXTA</p>
+                <div class="font-black text-4xl sm:text-5xl tracking-tighter text-slate-900 my-0 font-mono drop-shadow-sm flex items-center justify-center gap-2">
+                  <span class="text-red-600 text-2xl">#</span>DUO-01
                 </div>
-                <div class="border-r border-slate-200">
-                  <span class="text-slate-500 text-[7.5px] block uppercase">RITMO MEDIO</span>
-                  <strong class="text-red-600 text-xs">4:50/km</strong>
+                <h3 class="text-sm font-black text-slate-900 uppercase tracking-wide truncate max-w-[280px] mx-auto">${escapeHtml(pass.name)}</h3>
+                <p class="font-mono text-[10px] text-slate-600">Corredores: <strong class="text-slate-900">${escapeHtml(pass.coupleNames)}</strong></p>
+              </div>
+
+              <!-- Grafica de Altimetria / Desnivel del Recorrido & Curva ECG de Pulsaciones SVG -->
+              <div class="my-2 p-2 bg-white rounded-xl border border-slate-200/90 shadow-inner">
+                <div class="flex justify-between items-center text-[7.5px] font-mono text-slate-500 mb-1 px-1">
+                  <span>PERFIL DE ALTIMETRIA // +420M DESNIVEL</span>
+                  <span class="text-red-600 font-bold">168 PPM MEDIA</span>
+                </div>
+                <svg viewBox="0 0 300 48" class="w-full h-11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="elevationGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#ef4444" stop-opacity="0.4"/>
+                      <stop offset="100%" stop-color="#ef4444" stop-opacity="0.02"/>
+                    </linearGradient>
+                  </defs>
+                  <!-- Perfil Montañoso de Carrera con Relleno en Degradado -->
+                  <path d="M0 40 L35 38 L70 24 L105 28 L140 10 L175 16 L210 6 L245 22 L275 14 L300 40 Z" fill="url(#elevationGrad)"/>
+                  <path d="M0 40 L35 38 L70 24 L105 28 L140 10 L175 16 L210 6 L245 22 L275 14 L300 40" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+                  <!-- Puntos Kilometricos y Meta -->
+                  <circle cx="70" cy="24" r="2.5" fill="#ef4444"/>
+                  <text x="70" y="20" fill="#64748b" font-size="6" font-family="monospace" text-anchor="middle">KM 3</text>
+                  <circle cx="140" cy="10" r="2.5" fill="#ef4444"/>
+                  <text x="140" y="7" fill="#64748b" font-size="6" font-family="monospace" text-anchor="middle">KM 7</text>
+                  <circle cx="210" cy="6" r="3" fill="#b91c1c"/>
+                  <text x="210" y="4" fill="#b91c1c" font-size="6" font-weight="bold" font-family="monospace" text-anchor="middle">CIMA</text>
+                  <!-- Bandera de Meta -->
+                  <line x1="275" y1="14" x2="275" y2="4" stroke="#0f172a" stroke-width="1"/>
+                  <polygon points="275,4 283,7 275,10" fill="#0f172a"/>
+                  <!-- Curva ECG de Latidos en la Base -->
+                  <path d="M0 45 L50 45 L55 39 L60 48 L65 41 L70 45 L150 45 L155 38 L160 49 L165 40 L170 45 L240 45 L245 36 L250 50 L255 39 L260 45 L300 45" stroke="#3b82f6" stroke-width="1.2" stroke-opacity="0.85"/>
+                </svg>
+              </div>
+
+              <!-- Metricas de Carrera -->
+              <div class="p-2 bg-slate-100/90 rounded-xl border border-slate-200 font-mono text-[9px] grid grid-cols-3 gap-1 text-center my-2 shadow-inner">
+                <div class="border-r border-slate-300">
+                  <span class="text-slate-500 text-[7px] block uppercase">TIEMPO META</span>
+                  <strong class="text-slate-900 text-xs">42:18</strong>
+                </div>
+                <div class="border-r border-slate-300">
+                  <span class="text-slate-500 text-[7px] block uppercase">RITMO MEDIO</span>
+                  <strong class="text-red-600 text-xs">4:14/km</strong>
                 </div>
                 <div>
-                  <span class="text-slate-500 text-[7.5px] block uppercase">CALORIAS</span>
-                  <strong class="text-amber-600 text-xs">740 kcal</strong>
+                  <span class="text-slate-500 text-[7px] block uppercase">CALORIAS</span>
+                  <strong class="text-amber-700 text-xs">850 kcal</strong>
                 </div>
               </div>
 
-              <!-- Footer con QR y Chip RFID -->
-              <div class="pt-2 border-t border-dashed border-slate-300 flex items-center justify-between">
-                <div class="w-28 opacity-75">
+              <!-- Footer con Chip RFID y Codigo de Barras -->
+              <div class="pt-2 border-t-2 border-dashed border-slate-300 flex items-center justify-between">
+                <div class="w-28 opacity-85">
                   ${this.getBarcodeSvg('#0f172a')}
                 </div>
-                <div class="px-2 py-1 rounded bg-amber-500/10 border border-amber-500/40 text-amber-700 text-[7.5px] font-mono font-bold leading-tight text-center">
-                  FINISHER MEDAL<br>DUO FIT CHALLENGE
+                <div class="px-2 py-1 rounded bg-red-100 border border-red-300 text-red-800 text-[7.5px] font-mono font-bold leading-tight text-center">
+                  RFID CHIP TIMING<br>FINISHER DUO MEDAL
                 </div>
               </div>
             </div>
@@ -1112,52 +1359,103 @@
         // ----------------------------------------------------
         case 'gamer-pass':
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden cartridge-gold text-white p-5 border-2 border-amber-400/60 text-left select-none">
-              <!-- Ranura y Header de Consola -->
+            <div class="card-face relative w-full rounded-2xl overflow-hidden cartridge-body text-white p-5 border-2 border-amber-500/50 text-left select-none shadow-2xl">
+              <!-- Ranuras Plasticas Moldeadas de Agarre en el Tope del Cartucho -->
+              <div class="flex items-center justify-center gap-1.5 -mt-2 mb-3">
+                <span class="w-7 h-1.5 rounded-full bg-black/80 border-t border-white/10 shadow-inner"></span>
+                <span class="w-7 h-1.5 rounded-full bg-black/80 border-t border-white/10 shadow-inner"></span>
+                <span class="w-7 h-1.5 rounded-full bg-black/80 border-t border-white/10 shadow-inner"></span>
+                <span class="w-7 h-1.5 rounded-full bg-black/80 border-t border-white/10 shadow-inner"></span>
+                <span class="w-7 h-1.5 rounded-full bg-black/80 border-t border-white/10 shadow-inner"></span>
+                <span class="w-7 h-1.5 rounded-full bg-black/80 border-t border-white/10 shadow-inner"></span>
+              </div>
+
+              <!-- Header de Consola 16-Bit -->
               <div class="flex items-center justify-between pb-2 border-b border-amber-400/30 text-[9px] font-mono">
                 <span class="font-bold text-amber-300 flex items-center gap-1.5">
                   <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
                   16-BIT RETRO SYSTEM // CO-OP CARTRIDGE
                 </span>
-                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-200 border border-amber-400/40 font-bold">2 PLAYERS</span>
+                <span class="px-2 py-0.5 rounded bg-amber-500/25 text-amber-200 border border-amber-400/40 font-bold uppercase tracking-wider">2 PLAYERS CO-OP</span>
               </div>
 
-              <!-- Controles Retro y Barras de Vida SVG -->
-              <div class="my-3 text-center">
-                <div class="inline-block px-3 py-1 rounded-lg bg-black/60 border border-amber-400/40 font-mono text-[9px] space-y-1 mb-2">
-                  <div class="flex justify-between items-center gap-3">
-                    <span class="text-rose-400 font-bold">P1 HP</span>
-                    <div class="w-24 h-2 bg-neutral-800 rounded-full overflow-hidden border border-neutral-700">
+              <!-- Pegatina Metalizada Glossy con Arte Vectorial de Mandos & Barras RPG -->
+              <div class="my-2.5 p-3 rounded-xl bg-gradient-to-b from-[#2a1708] via-[#1a0f05] to-[#0d0702] border-2 border-amber-400/40 shadow-inner relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none"></div>
+
+                <!-- HUD Estilo RPG: Barras de Vida P1 & P2 con Gemas de Corazon 3D -->
+                <div class="grid grid-cols-2 gap-2 mb-2 font-mono text-[8.5px]">
+                  <div class="p-1.5 rounded bg-black/70 border border-rose-500/40">
+                    <div class="flex justify-between items-center mb-1">
+                      <span class="text-rose-400 font-bold flex items-center gap-1">
+                        <svg class="w-2.5 h-2.5 fill-rose-500" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        P1 HP
+                      </span>
+                      <span class="text-emerald-400 font-bold">100%</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-neutral-800 rounded-full overflow-hidden">
                       <div class="w-full h-full bg-gradient-to-r from-rose-500 to-emerald-400"></div>
                     </div>
-                    <span class="text-emerald-400 font-bold">100%</span>
                   </div>
-                  <div class="flex justify-between items-center gap-3">
-                    <span class="text-indigo-400 font-bold">P2 HP</span>
-                    <div class="w-24 h-2 bg-neutral-800 rounded-full overflow-hidden border border-neutral-700">
+
+                  <div class="p-1.5 rounded bg-black/70 border border-cyan-500/40">
+                    <div class="flex justify-between items-center mb-1">
+                      <span class="text-cyan-400 font-bold flex items-center gap-1">
+                        <svg class="w-2.5 h-2.5 fill-cyan-400" viewBox="0 0 24 24"><polygon points="12,2 22,12 12,22 2,12"/></svg>
+                        P2 MP
+                      </span>
+                      <span class="text-cyan-300 font-bold">MAX</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-neutral-800 rounded-full overflow-hidden">
                       <div class="w-full h-full bg-gradient-to-r from-indigo-500 to-cyan-400"></div>
                     </div>
-                    <span class="text-cyan-400 font-bold">100%</span>
                   </div>
                 </div>
 
-                <p class="font-mono text-[8px] text-amber-400 tracking-[0.25em] uppercase">LEVEL 99 DUO LEGENDS</p>
-                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-300 to-orange-400 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
-                <p class="font-mono text-[10px] text-neutral-300 mt-1">Jugadores: <strong class="text-amber-300">${escapeHtml(pass.coupleNames)}</strong></p>
+                <!-- Mando Retro Vectorial SVG con Botones y D-Pad 3D -->
+                <svg viewBox="0 0 200 55" class="w-36 h-10 mx-auto drop-shadow-md" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Carcasa del mando SNES gris/dorado -->
+                  <rect x="20" y="8" width="160" height="40" rx="20" fill="#292524" stroke="#f59e0b" stroke-width="1.5"/>
+                  <!-- D-Pad Cruceta Izquierda -->
+                  <g fill="#0f172a" stroke="#475569" stroke-width="0.8">
+                    <rect x="42" y="23" width="10" height="10" rx="1"/>
+                    <rect x="42" y="15" width="10" height="8" rx="1"/>
+                    <rect x="42" y="33" width="10" height="8" rx="1"/>
+                    <rect x="34" y="23" width="8" height="10" rx="1"/>
+                    <rect x="52" y="23" width="8" height="10" rx="1"/>
+                  </g>
+                  <!-- Botones Select y Start -->
+                  <rect x="88" y="28" width="10" height="3" rx="1.5" fill="#64748b" transform="rotate(-25 88 28)"/>
+                  <rect x="104" y="28" width="10" height="3" rx="1.5" fill="#64748b" transform="rotate(-25 104 28)"/>
+                  <!-- Botones de Accion ABXY Coloridos -->
+                  <circle cx="140" cy="22" r="3.5" fill="#3b82f6"/>
+                  <circle cx="150" cy="16" r="3.5" fill="#ef4444"/>
+                  <circle cx="160" cy="22" r="3.5" fill="#eab308"/>
+                  <circle cx="150" cy="28" r="3.5" fill="#22c55e"/>
+                </svg>
+
+                <div class="text-center mt-1">
+                  <p class="font-mono text-[7.5px] text-amber-400 tracking-[0.25em] uppercase">LEVEL 99 // CO-OP GUILD</p>
+                  <h3 class="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-200 to-orange-400 uppercase tracking-tight truncate max-w-[260px] mx-auto">${escapeHtml(pass.name)}</h3>
+                  <p class="font-mono text-[9px] text-amber-200/90">Jugadores: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+                </div>
               </div>
 
-              <!-- Pines de Conexion PCB Dorado en la Base -->
-              <div class="mt-3 pt-2 border-t border-amber-400/40 flex items-center justify-between">
+              <!-- PINES DORADOS DE CONTACTO PCB EN LA BASE DEL CARTUCHO -->
+              <div class="mt-2.5 pt-2 border-t border-amber-400/40 flex items-center justify-between">
                 <div class="w-28 opacity-85">
                   ${this.getBarcodeSvg('#f59e0b')}
                 </div>
-                <div class="flex items-center gap-1">
-                  <span class="w-2 h-4 rounded-sm bg-yellow-400/80"></span>
-                  <span class="w-2 h-4 rounded-sm bg-yellow-400/80"></span>
-                  <span class="w-2 h-4 rounded-sm bg-yellow-400/80"></span>
-                  <span class="w-2 h-4 rounded-sm bg-yellow-400/80"></span>
-                  <span class="w-2 h-4 rounded-sm bg-yellow-400/80"></span>
-                  <span class="w-2 h-4 rounded-sm bg-yellow-400/80"></span>
+                <!-- 10 Pines Dorados de Cobre con Relieve -->
+                <div class="flex items-center gap-1 p-1 bg-black/90 rounded border border-amber-500/40">
+                  <span class="w-1.5 h-4 rounded-xs bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 shadow-sm"></span>
+                  <span class="w-1.5 h-4 rounded-xs bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 shadow-sm"></span>
+                  <span class="w-1.5 h-4 rounded-xs bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 shadow-sm"></span>
+                  <span class="w-1.5 h-4 rounded-xs bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 shadow-sm"></span>
+                  <span class="w-1.5 h-4 rounded-xs bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 shadow-sm"></span>
+                  <span class="w-1.5 h-4 rounded-xs bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 shadow-sm"></span>
+                  <span class="w-1.5 h-4 rounded-xs bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 shadow-sm"></span>
+                  <span class="w-1.5 h-4 rounded-xs bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 shadow-sm"></span>
                 </div>
               </div>
             </div>
@@ -1165,45 +1463,121 @@
           break;
 
         // ----------------------------------------------------
-        // BOARDGAME CARD (CARTA MITICA DE TABLERO & QUEST)
+        // BOARDGAME CARD (CARTA MITICA TCG & QUEST DE TABLERO)
         // ----------------------------------------------------
         case 'boardgame-card':
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden boardgame-parchment text-amber-100 p-5 border-2 border-amber-500/60 text-left select-none">
-              <div class="flex items-center justify-between pb-1.5 border-b border-amber-500/30 text-[9px] font-mono">
+            <div class="card-face relative w-full rounded-2xl overflow-hidden boardgame-parchment text-amber-100 p-5 border-2 border-amber-500/70 text-left select-none shadow-2xl">
+              <!-- 4 GEMAS ENGARZADAS EN LAS ESQUINAS SVG CON DESTELLOS -->
+              <div class="absolute top-2 left-2 z-20 pointer-events-none">
+                <svg width="18" height="18" viewBox="0 0 18 18">
+                  <polygon points="9,1 17,9 9,17 1,9" fill="#dc2626" stroke="#fbbf24" stroke-width="1.2"/>
+                  <polygon points="9,4 14,9 9,14 4,9" fill="#ef4444"/>
+                  <circle cx="7" cy="7" r="1.5" fill="#ffffff" opacity="0.8"/>
+                </svg>
+              </div>
+              <div class="absolute top-2 right-2 z-20 pointer-events-none">
+                <svg width="18" height="18" viewBox="0 0 18 18">
+                  <polygon points="9,1 17,9 9,17 1,9" fill="#dc2626" stroke="#fbbf24" stroke-width="1.2"/>
+                  <polygon points="9,4 14,9 9,14 4,9" fill="#ef4444"/>
+                  <circle cx="7" cy="7" r="1.5" fill="#ffffff" opacity="0.8"/>
+                </svg>
+              </div>
+              <div class="absolute bottom-2 left-2 z-20 pointer-events-none">
+                <svg width="18" height="18" viewBox="0 0 18 18">
+                  <polygon points="9,1 17,9 9,17 1,9" fill="#dc2626" stroke="#fbbf24" stroke-width="1.2"/>
+                  <polygon points="9,4 14,9 9,14 4,9" fill="#ef4444"/>
+                  <circle cx="7" cy="7" r="1.5" fill="#ffffff" opacity="0.8"/>
+                </svg>
+              </div>
+              <div class="absolute bottom-2 right-2 z-20 pointer-events-none">
+                <svg width="18" height="18" viewBox="0 0 18 18">
+                  <polygon points="9,1 17,9 9,17 1,9" fill="#dc2626" stroke="#fbbf24" stroke-width="1.2"/>
+                  <polygon points="9,4 14,9 9,14 4,9" fill="#ef4444"/>
+                  <circle cx="7" cy="7" r="1.5" fill="#ffffff" opacity="0.8"/>
+                </svg>
+              </div>
+
+              <!-- Marco Labrado Dorado Superior y Coste de Puntos de Victoria -->
+              <div class="flex items-center justify-between pb-1.5 border-b border-amber-500/40 text-[9px] font-mono">
                 <span class="font-bold text-amber-300 flex items-center gap-1.5">
                   <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                  CARTA LEGENDARIA // DUO QUEST
+                  CARTA LEGENDARIA TCG // DUO QUEST
                 </span>
-                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">10 VP</span>
+                <div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-950/90 border border-amber-400 text-amber-200 font-bold text-[9px]">
+                  <svg class="w-3 h-3 text-amber-400" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg>
+                  <span>10 VP</span>
+                </div>
               </div>
 
-              <!-- D20 y Meeple Vectorial SVG -->
-              <div class="my-3 text-center">
-                <svg viewBox="0 0 80 70" class="w-14 h-12 mx-auto drop-shadow-[0_0_10px_rgba(245,158,11,0.4)]" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <!-- D20 -->
-                  <polygon points="40,8 65,22 65,52 40,66 15,52 15,22" stroke="#f59e0b" stroke-width="2" fill="#78350f"/>
-                  <polygon points="40,24 56,48 24,48" stroke="#fef08a" stroke-width="1.5" fill="#b45309"/>
-                  <text x="40" y="42" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle" font-family="monospace">20</text>
+              <!-- Ilustracion Vectorial: Dado D20 Poliedrico Sombreado con Runas y Meeple de Madera -->
+              <div class="my-2.5 text-center relative">
+                <svg viewBox="0 0 320 130" class="w-full h-28 mx-auto drop-shadow-[0_8px_16px_rgba(0,0,0,0.6)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Tablero Modular de Losetas Hexagonales de Fondo -->
+                  <polygon points="80,75 110,60 140,75 140,105 110,120 80,105" fill="#14532d" stroke="#22c55e" stroke-width="1" opacity="0.6"/>
+                  <polygon points="140,75 170,60 200,75 200,105 170,120 140,105" fill="#78350f" stroke="#f59e0b" stroke-width="1" opacity="0.6"/>
+                  <polygon points="200,75 230,60 260,75 260,105 230,120 200,105" fill="#1e3a8a" stroke="#3b82f6" stroke-width="1" opacity="0.6"/>
+
+                  <!-- MEEPLE DE MADERA TALLADA CON RELIEVE Y SOMBRA (IZQUIERDA) -->
+                  <g transform="translate(100, 50)">
+                    <!-- Sombra del Meeple -->
+                    <ellipse cx="2" cy="48" rx="14" ry="4" fill="#000000" opacity="0.5"/>
+                    <!-- Cuerpo del Meeple (Forma Clasica de Carcassonne) -->
+                    <path d="M0 6 C-4 6, -7 3, -7 -1 C-7 -5, -4 -8, 0 -8 C4 -8, 7 -5, 7 -1 C7 3, 4 6, 0 6 Z
+                             M0 6 C-4 8, -12 12, -18 16 C-20 17, -20 21, -17 21 C-13 21, -8 18, -6 18 L-8 44 C-8 46, -4 46, -2 46 L-1 26 L1 26 L2 46 C4 46, 8 46, 8 44 L6 18 C8 18, 13 21, 17 21 C20 21, 20 17, 18 16 C12 12, 4 8, 0 6 Z"
+                          fill="#d97706" stroke="#fbbf24" stroke-width="1.2"/>
+                    <!-- Vetas de Madera Lineales -->
+                    <path d="M-4 12 C-4 22, -2 34, -2 42" stroke="#92400e" stroke-width="0.8" fill="none"/>
+                    <path d="M2 12 C2 24, 0 32, 0 42" stroke="#92400e" stroke-width="0.8" fill="none"/>
+                  </g>
+
+                  <!-- DADO D20 POLIEDRICO 3D SOMBREADO EN PERSPECTIVA CON RUNAS (CENTRO) -->
+                  <g transform="translate(195, 52)">
+                    <!-- Resplandor Magico Celestial de Critico -->
+                    <circle cx="0" cy="0" r="32" fill="#f59e0b" opacity="0.2"/>
+                    <circle cx="0" cy="0" r="24" fill="#fbbf24" opacity="0.25"/>
+
+                    <!-- Facetas del D20 Icosaedro con Luces y Sombras -->
+                    <!-- Faceta Central Superior con el "20" Critico -->
+                    <polygon points="0,-22 19,-8 -19,-8" fill="#b45309" stroke="#fef08a" stroke-width="1.2"/>
+                    <!-- Faceta Central Invertida Frontal -->
+                    <polygon points="-19,-8 19,-8 0,16" fill="#78350f" stroke="#fef08a" stroke-width="1.2"/>
+                    <text x="0" y="7" fill="#ffffff" font-size="14" font-weight="900" font-family="monospace" text-anchor="middle" drop-shadow="0 1px 2px #000">20</text>
+                    <!-- Facetas Laterales Superiores -->
+                    <polygon points="0,-22 19,-8 28,-18" fill="#d97706" stroke="#fef08a" stroke-width="1"/>
+                    <polygon points="0,-22 -19,-8 -28,-18" fill="#92400e" stroke="#fef08a" stroke-width="1"/>
+                    <!-- Facetas Laterales Medias -->
+                    <polygon points="19,-8 28,-18 28,6 19,16" fill="#b45309" stroke="#fef08a" stroke-width="1"/>
+                    <polygon points="-19,-8 -28,-18 -28,6 -19,16" fill="#451a03" stroke="#fef08a" stroke-width="1"/>
+                    <polygon points="19,-8 0,16 19,16" fill="#92400e" stroke="#fef08a" stroke-width="1"/>
+                    <polygon points="-19,-8 0,16 -19,16" fill="#451a03" stroke="#fef08a" stroke-width="1"/>
+                    <!-- Faceta Inferior Apuntada -->
+                    <polygon points="0,16 -19,16 0,26" fill="#451a03" stroke="#fef08a" stroke-width="1"/>
+                    <polygon points="0,16 19,16 0,26" fill="#78350f" stroke="#fef08a" stroke-width="1"/>
+
+                    <!-- Destellos de Exito Critico Natural 20 -->
+                    <path d="M-28 -24 L-24 -28 M28 -24 L24 -28" stroke="#fde047" stroke-width="1.5" stroke-linecap="round"/>
+                    <circle cx="0" cy="-22" r="2" fill="#ffffff"/>
+                  </g>
                 </svg>
 
-                <p class="font-mono text-[8px] text-amber-400 tracking-[0.25em] uppercase mt-1">TABLERO &amp; ESTRATEGIA</p>
-                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
-                <p class="font-mono text-[10px] text-amber-200/90 mt-0.5">Aventureros: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+                <p class="font-mono text-[8px] text-amber-300 tracking-[0.28em] uppercase mt-0.5">ARTEFACTO LEGENDARIO // ALIANZA ETERNA</p>
+                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-yellow-200 to-amber-300 uppercase tracking-tight truncate max-w-[290px] mx-auto">${escapeHtml(pass.name)}</h3>
+                <p class="font-mono text-[9.5px] text-amber-200/90 mt-0.5">Aventureros: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
               </div>
 
-              <!-- Habilidad Especial de Pareja -->
-              <div class="p-2.5 bg-black/60 rounded-xl border border-amber-500/30 text-[10px] leading-relaxed italic text-amber-100 my-2">
-                "Habilidad Pasiva: Complicidad Estrategica. El mejor equipo en la mesa de juego siempre comparte risas y la victoria final."
+              <!-- Habilidad Especial Pasiva en Pergamino Desplegado -->
+              <div class="p-2.5 bg-black/75 rounded-xl border border-amber-500/40 text-[9.5px] leading-relaxed italic text-amber-200 my-2 shadow-inner">
+                "Habilidad Pasiva: Sincronia Estrategica. Cualquier decision tomada en equipo suma +10 a diversion y asegura la victoria definitiva en la partida."
               </div>
 
-              <!-- Footer Runico -->
-              <div class="pt-2 border-t border-dashed border-amber-500/30 flex items-center justify-between">
-                <div class="w-28 opacity-80">
+              <!-- Footer Runico con Sello Mitico -->
+              <div class="pt-2 border-t border-dashed border-amber-500/40 flex items-center justify-between">
+                <div class="w-28 opacity-85">
                   ${this.getBarcodeSvg('#f59e0b')}
                 </div>
-                <div class="px-2 py-1 rounded border border-amber-500/40 bg-amber-500/10 text-amber-300 text-[7.5px] font-mono font-bold leading-tight text-center">
-                  VICTORY POINT<br>MYTHIC EDITION
+                <div class="px-2.5 py-1 rounded border border-amber-400/60 bg-amber-500/15 text-amber-300 text-[8px] font-mono font-bold leading-tight text-center">
+                  NATURAL 20 // CRITICAL WIN<br>MYTHIC QUEST OK
                 </div>
               </div>
             </div>
@@ -1211,48 +1585,123 @@
           break;
 
         // ----------------------------------------------------
-        // THEME PARK (FAST PASS PARQUE DE ATRACCIONES)
+        // THEME PARK (GOLDEN FAST PASS PARQUE DE ATRACCIONES)
         // ----------------------------------------------------
         case 'theme-park':
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden theme-park-glow text-white p-5 border-2 border-pink-500/50 text-left select-none">
-              <div class="flex items-center justify-between pb-2 border-b border-pink-500/30 text-[9px] font-mono">
-                <span class="font-bold text-pink-300 flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-pink-400 animate-pulse"></span>
-                  GOLDEN FAST PASS // ALL RIDES
-                </span>
-                <span class="px-2 py-0.5 rounded bg-pink-500/20 text-pink-200 border border-pink-400/40 font-bold">ACCESO PRIORITARIO</span>
+            <div class="card-face relative w-full rounded-2xl overflow-hidden theme-park-glow text-white p-5 border-2 border-pink-500/50 text-left select-none shadow-2xl">
+              <!-- Orificio Ovalado Troquelado para Cordon/Lanyard de Cuello -->
+              <div class="w-14 h-2.5 mx-auto -mt-2 mb-2 rounded-full bg-black/80 border-2 border-pink-400/50 shadow-inner flex items-center justify-center">
+                <div class="w-10 h-0.5 bg-pink-500/30 rounded-full"></div>
               </div>
 
-              <!-- Montana Rusa Vectorial SVG -->
-              <div class="my-2.5 text-center">
-                <svg viewBox="0 0 100 65" class="w-16 h-11 mx-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10 55 C30 55, 35 15, 55 15 C75 15, 80 55, 95 55" stroke="#ec4899" stroke-width="2.5" stroke-linecap="round"/>
-                  <path d="M10 58 C30 58, 35 18, 55 18 C75 18, 80 58, 95 58" stroke="#f472b6" stroke-width="1" stroke-dasharray="2 2"/>
-                  <!-- Vagon -->
-                  <rect x="50" y="8" width="12" height="7" rx="2" fill="#fbbf24" stroke="#d97706" stroke-width="1"/>
-                  <circle cx="53" cy="16" r="1.5" fill="#f8fafc"/>
-                  <circle cx="59" cy="16" r="1.5" fill="#f8fafc"/>
+              <!-- Muescas troqueladas de entrada en los bordes -->
+              <div class="absolute -left-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#050507] border border-pink-500/40 z-20"></div>
+              <div class="absolute -right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#050507] border border-pink-500/40 z-20"></div>
+
+              <div class="flex items-center justify-between pb-2 border-b border-pink-500/35 text-[9px] font-mono">
+                <span class="font-bold text-pink-200 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-pink-400 animate-pulse"></span>
+                  GOLDEN FAST PASS // ALL RIDES ACCESS
+                </span>
+                <span class="px-2 py-0.5 rounded bg-pink-500/25 text-pink-200 border border-pink-400/40 font-bold uppercase tracking-wider">EXPRESS VIP</span>
+              </div>
+
+              <!-- Ilustracion Vectorial: Skyline Panoramico, Noria, Celosias de Montana Rusa y Fuegos Artificiales -->
+              <div class="my-2 text-center relative">
+                <svg viewBox="0 0 320 135" class="w-full h-28 mx-auto drop-shadow-[0_8px_16px_rgba(0,0,0,0.6)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Fuegos Artificiales Multicolores con Destellos -->
+                  <g opacity="0.85">
+                    <!-- Fuego Artificial Izquierdo (Cian/Dorado) -->
+                    <circle cx="55" cy="25" r="1.5" fill="#facc15"/>
+                    <path d="M55 25 L45 15 M55 25 L65 15 M55 25 L40 25 M55 25 L70 25 M55 25 L47 35 M55 25 L63 35 M55 25 L55 10 M55 25 L55 40" stroke="#38bdf8" stroke-width="0.9" stroke-linecap="round" stroke-dasharray="2 2"/>
+                    <!-- Fuego Artificial Derecho (Rosa/Oro) -->
+                    <circle cx="265" cy="22" r="1.5" fill="#f43f5e"/>
+                    <path d="M265 22 L255 12 M265 22 L275 12 M265 22 L250 22 M265 22 L280 22 M265 22 L257 32 M265 22 L273 32 M265 22 L265 8 M265 22 L265 36" stroke="#f472b6" stroke-width="0.9" stroke-linecap="round" stroke-dasharray="2 2"/>
+                    <!-- Estrellas Centelleantes en el Cielo -->
+                    <circle cx="110" cy="12" r="1" fill="#ffffff"/>
+                    <circle cx="160" cy="8" r="1.5" fill="#fef08a"/>
+                    <circle cx="210" cy="16" r="1" fill="#ffffff"/>
+                  </g>
+
+                  <!-- Castillo Magico con Agujas Silueteado al Fondo -->
+                  <path d="M140 100 L140 70 L148 55 L156 70 L156 100 Z" fill="#3b0764" stroke="#7e22ce" stroke-width="0.8"/>
+                  <path d="M164 100 L164 70 L172 55 L180 70 L180 100 Z" fill="#3b0764" stroke="#7e22ce" stroke-width="0.8"/>
+                  <path d="M152 100 L152 60 L160 45 L168 60 L168 100 Z" fill="#581c87" stroke="#a855f7" stroke-width="1"/>
+                  <circle cx="160" cy="45" r="1.5" fill="#facc15"/>
+
+                  <!-- GRAN NORIA PANORAMICA ILUMINADA (DERECHA) -->
+                  <g transform="translate(250, 78)">
+                    <!-- Estructura Soporte en A -->
+                    <line x1="0" y1="0" x2="-18" y2="35" stroke="#ec4899" stroke-width="1.8"/>
+                    <line x1="0" y1="0" x2="18" y2="35" stroke="#ec4899" stroke-width="1.8"/>
+                    <!-- Circunferencia de la Rueda -->
+                    <circle cx="0" cy="0" r="28" stroke="#f472b6" stroke-width="1.5" fill="none"/>
+                    <circle cx="0" cy="0" r="20" stroke="#f472b6" stroke-width="0.8" stroke-dasharray="2 2" fill="none"/>
+                    <!-- Radios y Eje Central -->
+                    <circle cx="0" cy="0" r="3" fill="#facc15"/>
+                    <line x1="-28" y1="0" x2="28" y2="0" stroke="#f472b6" stroke-width="0.8"/>
+                    <line x1="0" y1="-28" x2="0" y2="28" stroke="#f472b6" stroke-width="0.8"/>
+                    <line x1="-20" y1="-20" x2="20" y2="20" stroke="#f472b6" stroke-width="0.8"/>
+                    <line x1="-20" y1="20" x2="20" y2="-20" stroke="#f472b6" stroke-width="0.8"/>
+                    <!-- Cabinas de Pasajeros Iluminadas -->
+                    <circle cx="0" cy="-28" r="2.5" fill="#fbbf24"/>
+                    <circle cx="28" cy="0" r="2.5" fill="#fbbf24"/>
+                    <circle cx="0" cy="28" r="2.5" fill="#fbbf24"/>
+                    <circle cx="-28" cy="0" r="2.5" fill="#fbbf24"/>
+                    <circle cx="20" cy="20" r="2.5" fill="#fbbf24"/>
+                    <circle cx="-20" cy="-20" r="2.5" fill="#fbbf24"/>
+                  </g>
+
+                  <!-- MONTANA RUSA CON CELOSIA TUBULAR Y VAGON EN LA CIMA (IZQUIERDA / CENTRO) -->
+                  <g>
+                    <!-- Columnas de Celosia Estructural / Pilares -->
+                    <line x1="30" y1="115" x2="30" y2="70" stroke="#f43f5e" stroke-width="1.2"/>
+                    <line x1="60" y1="115" x2="60" y2="40" stroke="#f43f5e" stroke-width="1.2"/>
+                    <line x1="90" y1="115" x2="90" y2="60" stroke="#f43f5e" stroke-width="1.2"/>
+                    <line x1="120" y1="115" x2="120" y2="85" stroke="#f43f5e" stroke-width="1.2"/>
+                    <!-- Travesaños en Cruz de la Celosia -->
+                    <line x1="30" y1="70" x2="60" y2="90" stroke="#be123c" stroke-width="0.7"/>
+                    <line x1="30" y1="90" x2="60" y2="70" stroke="#be123c" stroke-width="0.7"/>
+                    <line x1="60" y1="40" x2="90" y2="65" stroke="#be123c" stroke-width="0.7"/>
+                    <line x1="60" y1="65" x2="90" y2="40" stroke="#be123c" stroke-width="0.7"/>
+
+                    <!-- Doble Rail Tubular de Acero en Curva y Looping -->
+                    <path d="M10 95 C30 85, 45 35, 65 35 C85 35, 95 85, 120 85 C145 85, 160 50, 185 50 C210 50, 225 105, 250 105"
+                          stroke="#ec4899" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                    <path d="M10 98 C30 88, 45 38, 65 38 C85 38, 95 88, 120 88 C145 88, 160 53, 185 53 C210 53, 225 108, 250 108"
+                          stroke="#fb7185" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+
+                    <!-- Vagon Aerodinamico Plongeando en la Caida -->
+                    <g transform="translate(65, 30) rotate(15)">
+                      <rect x="-8" y="-4" width="16" height="8" rx="2" fill="#facc15" stroke="#d97706" stroke-width="1"/>
+                      <circle cx="-5" cy="5" r="2" fill="#f8fafc"/>
+                      <circle cx="5" cy="5" r="2" fill="#f8fafc"/>
+                      <!-- Silueta de la Pareja con Brazos en Alto -->
+                      <circle cx="-3" cy="-7" r="1.8" fill="#f43f5e"/>
+                      <circle cx="3" cy="-7" r="1.8" fill="#38bdf8"/>
+                    </g>
+                  </g>
                 </svg>
 
-                <p class="font-mono text-[8px] text-pink-300 tracking-[0.25em] uppercase mt-1">ADRENALINA &amp; EMOCIONES</p>
-                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-200 via-rose-100 to-amber-300 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
-                <p class="font-mono text-[10px] text-pink-200 mt-0.5">Pasajeros VIP: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+                <p class="font-mono text-[8px] text-pink-300 tracking-[0.28em] uppercase mt-0.5">ADRENALINA &amp; EMOCIONES SIN COLAS</p>
+                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-100 via-rose-100 to-amber-200 uppercase tracking-tight truncate max-w-[290px] mx-auto">${escapeHtml(pass.name)}</h3>
+                <p class="font-mono text-[9.5px] text-pink-200 mt-0.5">Pasajeros VIP: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
               </div>
 
-              <!-- Privilegio Express -->
-              <div class="p-2.5 bg-black/60 rounded-xl border border-pink-500/30 text-center font-mono text-[9px] my-2">
-                <span class="text-amber-300 font-bold block mb-0.5">PULSERA EXPRESS UNLIMITED</span>
-                <span class="text-neutral-300">Sin esperas en las mejores montanas rusas y atracciones</span>
+              <!-- Privilegio Express Sin Esperas -->
+              <div class="p-2.5 bg-black/75 rounded-xl border border-pink-500/35 text-center font-mono text-[9.5px] my-2 shadow-inner">
+                <span class="text-amber-300 font-bold block mb-0.5 tracking-wider">PULSERA FAST TRACK UNLIMITED</span>
+                <span class="text-neutral-300">Acceso prioritario directo a primera fila en todas las atracciones y montana rusa</span>
               </div>
 
-              <!-- Footer Codigo de Barras -->
-              <div class="pt-2 border-t border-dashed border-pink-500/30 flex items-center justify-between">
-                <div class="w-28 opacity-85">
+              <!-- Footer Codigo de Barras de Acceso Expres -->
+              <div class="pt-2 border-t border-dashed border-pink-500/35 flex items-center justify-between">
+                <div class="w-28 opacity-90">
                   ${this.getBarcodeSvg('#ec4899')}
                 </div>
-                <div class="px-2 py-1 rounded border border-pink-400/50 bg-pink-500/10 text-pink-200 text-[7.5px] font-mono font-bold leading-tight text-center">
-                  FAST TRACK OK<br>EXPRESS ENTRY
+                <div class="px-2.5 py-1 rounded border border-pink-400/50 bg-pink-500/15 text-pink-200 text-[8px] font-mono font-bold leading-tight text-center">
+                  FAST TRACK OK<br>EXPRESS ALL GATES
                 </div>
               </div>
             </div>
@@ -1260,58 +1709,112 @@
           break;
 
         // ----------------------------------------------------
-        // BEACH CLUB (DAY PASS PLAYA, SOL & CALA)
+        // BEACH CLUB (DAY PASS EXCLUSIVO PLAYA, SOL & CALA)
         // ----------------------------------------------------
         case 'beach-club':
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden beach-club-azure text-white p-5 border-2 border-cyan-400/50 text-left select-none">
-              <div class="flex items-center justify-between pb-2 border-b border-cyan-400/30 text-[9px] font-mono">
-                <span class="font-bold text-cyan-300 flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                  MEDITERRANEAN DAY PASS // BEACH CLUB
+            <div class="card-face relative w-full rounded-2xl overflow-hidden beach-club-azure text-white p-5 border-2 border-cyan-400/50 text-left select-none shadow-2xl">
+              <!-- Franja de Pulsera Textil de Resort en el lateral con cierre metalico -->
+              <div class="absolute right-0 top-0 bottom-0 w-3 bg-gradient-to-b from-cyan-400 via-amber-300 to-cyan-500 opacity-80 border-l border-white/20"></div>
+
+              <div class="flex items-center justify-between pb-2 border-b border-cyan-400/35 text-[9px] font-mono pr-2">
+                <span class="font-bold text-cyan-200 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-cyan-300 animate-pulse"></span>
+                  MEDITERRANEAN DAY PASS // BEACH CLUB &amp; CALA
                 </span>
-                <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-200 border border-cyan-400/40 font-bold">RESERVA VIP</span>
+                <span class="px-2 py-0.5 rounded bg-cyan-500/25 text-cyan-100 border border-cyan-400/40 font-bold uppercase tracking-wider">RESERVA VIP</span>
               </div>
 
-              <!-- Sol y Palmera Vectorial SVG -->
-              <div class="my-2.5 text-center">
-                <svg viewBox="0 0 90 65" class="w-16 h-11 mx-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <!-- Sol Radiante -->
-                  <circle cx="45" cy="30" r="14" fill="#facc15" stroke="#fef08a" stroke-width="1.5"/>
-                  <line x1="45" y1="10" x2="45" y2="4" stroke="#facc15" stroke-width="2" stroke-linecap="round"/>
-                  <line x1="45" y1="56" x2="45" y2="50" stroke="#facc15" stroke-width="2" stroke-linecap="round"/>
-                  <line x1="25" y1="30" x2="19" y2="30" stroke="#facc15" stroke-width="2" stroke-linecap="round"/>
-                  <line x1="71" y1="30" x2="65" y2="30" stroke="#facc15" stroke-width="2" stroke-linecap="round"/>
-                  <!-- Palmera -->
-                  <path d="M68 55 C65 40, 58 35, 52 35" stroke="#a16207" stroke-width="2.5" stroke-linecap="round"/>
-                  <path d="M52 35 C42 30, 38 22, 40 18" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M52 35 C58 26, 68 24, 72 26" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
+              <!-- Ilustracion Vectorial: Sol Naciente Art Deco, Olas Estilizadas, Sombrilla & Coctel -->
+              <div class="my-2.5 text-center relative pr-2">
+                <svg viewBox="0 0 320 135" class="w-full h-28 mx-auto drop-shadow-[0_8px_16px_rgba(0,0,0,0.6)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="sunGold" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#fef08a"/>
+                      <stop offset="60%" stop-color="#facc15"/>
+                      <stop offset="100%" stop-color="#f97316"/>
+                    </linearGradient>
+                    <linearGradient id="seaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.8"/>
+                      <stop offset="100%" stop-color="#0e7490" stop-opacity="0.95"/>
+                    </linearGradient>
+                  </defs>
+
+                  <!-- SOL NACIENTE ART DECO CON RAYOS GEOMETRICOS RADIALES -->
+                  <g transform="translate(160, 48)">
+                    <!-- Rayos Solares Geometricos Alternos -->
+                    <line x1="0" y1="-44" x2="0" y2="-28" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="-31" y1="-31" x2="-20" y2="-20" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="31" y1="-31" x2="20" y2="20" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="-44" y1="0" x2="-28" y2="0" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="44" y1="0" x2="28" y2="0" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- Rayos Finos Intermedios -->
+                    <line x1="-18" y1="-38" x2="-12" y2="-24" stroke="#fde047" stroke-width="1.2"/>
+                    <line x1="18" y1="-38" x2="12" y2="-24" stroke="#fde047" stroke-width="1.2"/>
+                    <line x1="-38" y1="-18" x2="-24" y2="-12" stroke="#fde047" stroke-width="1.2"/>
+                    <line x1="38" y1="-18" x2="24" y2="-12" stroke="#fde047" stroke-width="1.2"/>
+                    <!-- Disco Solar Radiante con Aro Dorado -->
+                    <circle cx="0" cy="0" r="22" fill="url(#sunGold)" stroke="#fef08a" stroke-width="2"/>
+                    <circle cx="0" cy="0" r="16" fill="#fef08a" opacity="0.4"/>
+                  </g>
+
+                  <!-- OLAS ESTILIZADAS FLUIDAS EN CAPAS VECTORIALES CON ESPUMA BLANCA -->
+                  <path d="M0 68 C40 60, 80 75, 120 68 C160 60, 200 75, 240 68 C280 60, 300 72, 320 68 L320 135 L0 135 Z" fill="url(#seaGrad)"/>
+                  <path d="M0 68 C40 60, 80 75, 120 68 C160 60, 200 75, 240 68 C280 60, 300 72, 320 68" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+
+                  <path d="M0 88 C45 80, 85 94, 135 88 C185 82, 225 94, 275 88 C295 85, 310 90, 320 88 L320 135 L0 135 Z" fill="#0891b2" opacity="0.9"/>
+                  <path d="M0 88 C45 80, 85 94, 135 88 C185 82, 225 94, 275 88 C295 85, 310 90, 320 88" stroke="#a5f3fc" stroke-width="1.5" stroke-linecap="round"/>
+
+                  <path d="M0 108 C50 102, 95 114, 150 108 C205 102, 250 114, 300 108 L320 110 L320 135 L0 135 Z" fill="#0e7490"/>
+
+                  <!-- PALMERA MEDITERRANEA Y CAMA BALINESA EN LA ORILLA (IZQUIERDA) -->
+                  <g transform="translate(45, 60)">
+                    <!-- Tronco Esbelto Curvo -->
+                    <path d="M15 55 C12 35, 6 20, 0 10" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- Hojas de Palmera Exuberantes -->
+                    <path d="M0 10 C-15 4, -22 -6, -24 -14" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M0 10 C-8 -4, -4 -16, 2 -22" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M0 10 C12 -2, 20 -10, 24 -18" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M0 10 C18 10, 26 6, 30 0" stroke="#16a34a" stroke-width="2" stroke-linecap="round"/>
+                  </g>
+
+                  <!-- DOS COPAS DE COCTEL DE CRISTAL TALLADO CON RODAJAS DE CITRICO (DERECHA) -->
+                  <g transform="translate(265, 88)">
+                    <!-- Copa 1 -->
+                    <path d="M-12 -12 L0 0 L12 -12 Z" fill="#fef08a" stroke="#ffffff" stroke-width="1" opacity="0.85"/>
+                    <line x1="0" y1="0" x2="0" y2="16" stroke="#ffffff" stroke-width="1.2"/>
+                    <ellipse cx="0" cy="16" rx="7" ry="2" fill="#ffffff" opacity="0.8"/>
+                    <!-- Rodaja de Lima/Naranja -->
+                    <circle cx="10" cy="-14" r="4" fill="#facc15" stroke="#ffffff" stroke-width="0.8"/>
+                    <line x1="6" y1="-14" x2="14" y2="-14" stroke="#ffffff" stroke-width="0.6"/>
+                    <line x1="10" y1="-18" x2="10" y2="-10" stroke="#ffffff" stroke-width="0.6"/>
+                  </g>
                 </svg>
 
-                <p class="font-mono text-[8px] text-cyan-300 tracking-[0.25em] uppercase mt-1">BRISA MARINA &amp; SOL</p>
-                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-white to-amber-200 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
-                <p class="font-mono text-[10px] text-cyan-200 mt-0.5">Huespedes: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+                <p class="font-mono text-[8px] text-cyan-200 tracking-[0.28em] uppercase mt-0.5">BRISA MARINA &amp; DESCONEXION TOTAL</p>
+                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-100 via-white to-amber-200 uppercase tracking-tight truncate max-w-[290px] mx-auto">${escapeHtml(pass.name)}</h3>
+                <p class="font-mono text-[9.5px] text-cyan-200 mt-0.5">Huespedes VIP: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
               </div>
 
-              <!-- Reserva Balinesa -->
-              <div class="p-2.5 bg-black/60 rounded-xl border border-cyan-400/30 font-mono text-[9px] grid grid-cols-2 gap-2 text-center my-2">
-                <div>
-                  <span class="text-cyan-300/80 text-[7.5px] block uppercase">UBICACION</span>
+              <!-- Reserva Balinesa y Amenidades Exclusivas -->
+              <div class="p-2.5 bg-black/75 rounded-xl border border-cyan-400/35 font-mono text-[9px] grid grid-cols-2 gap-2 text-center my-2 shadow-inner pr-2">
+                <div class="border-r border-cyan-400/25">
+                  <span class="text-cyan-300/80 text-[7px] block uppercase tracking-wider">UBICACION</span>
                   <strong class="text-white text-xs">CAMA BALINESA 07</strong>
                 </div>
                 <div>
-                  <span class="text-cyan-300/80 text-[7.5px] block uppercase">SERVICIO</span>
-                  <strong class="text-amber-300 text-xs">TOALLAS &amp; BOTELLA</strong>
+                  <span class="text-cyan-300/80 text-[7px] block uppercase tracking-wider">SERVICIO</span>
+                  <strong class="text-amber-300 text-xs">TOALLAS &amp; CHAMPAGNE</strong>
                 </div>
               </div>
 
-              <!-- Footer Codigo de Barras -->
-              <div class="pt-2 border-t border-dashed border-cyan-400/30 flex items-center justify-between">
-                <div class="w-28 opacity-85">
+              <!-- Footer Codigo de Barras de Acceso Marino -->
+              <div class="pt-2 border-t border-dashed border-cyan-400/35 flex items-center justify-between pr-2">
+                <div class="w-28 opacity-90">
                   ${this.getBarcodeSvg('#22d3ee')}
                 </div>
-                <div class="px-2 py-1 rounded border border-cyan-400/50 bg-cyan-500/10 text-cyan-200 text-[7.5px] font-mono font-bold leading-tight text-center">
-                  BEACH DAY OK<br>FIRST ROW SEA
+                <div class="px-2.5 py-1 rounded border border-cyan-400/50 bg-cyan-500/15 text-cyan-100 text-[8px] font-mono font-bold leading-tight text-center">
+                  BEACH DAY VALID<br>FIRST ROW SEA ACCESS
                 </div>
               </div>
             </div>
@@ -1319,49 +1822,128 @@
           break;
 
         // ----------------------------------------------------
-        // KARAOKE LOUNGE (PASE VIP CABINA PRIVADA)
+        // KARAOKE LOUNGE (INSIGNIA NEON SYNTHWAVE & CABINA VIP)
         // ----------------------------------------------------
         case 'karaoke-lounge':
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden karaoke-neon text-white p-5 border-2 border-pink-500/60 text-left select-none">
+            <div class="card-face relative w-full rounded-2xl overflow-hidden karaoke-neon text-white p-5 border-2 border-pink-500/60 text-left select-none shadow-2xl">
+              <!-- Surcos Concentricos de Disco de Vinilo en la Esquina Superior Derecha -->
+              <div class="absolute -top-10 -right-10 w-28 h-28 rounded-full border border-pink-500/20 pointer-events-none"></div>
+              <div class="absolute -top-6 -right-6 w-20 h-20 rounded-full border border-pink-500/30 pointer-events-none"></div>
+              <div class="absolute -top-2 -right-2 w-12 h-12 rounded-full border border-pink-500/40 pointer-events-none"></div>
+
               <div class="flex items-center justify-between pb-2 border-b border-pink-500/40 text-[9px] font-mono">
                 <span class="font-bold text-pink-300 flex items-center gap-1.5">
                   <span class="w-2 h-2 rounded-full bg-pink-400 animate-pulse"></span>
-                  NEON STAR KARAOKE // PRIVATE SUITE
+                  NEON STAR KARAOKE // PRIVATE SUITE LOUNGE
                 </span>
-                <span class="px-2 py-0.5 rounded bg-pink-500/20 text-pink-200 border border-pink-400/40 font-bold">CABINA VIP 04</span>
+                <span class="px-2 py-0.5 rounded bg-pink-500/25 text-pink-200 border border-pink-400/40 font-bold uppercase tracking-wider">CABINA VIP 04</span>
               </div>
 
-              <!-- Microfono Vintage SVG -->
-              <div class="my-2 text-center">
-                <svg viewBox="0 0 80 65" class="w-14 h-11 mx-auto drop-shadow-[0_0_12px_rgba(236,72,153,0.5)]" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <!-- Microfono Shure 55 -->
-                  <rect x="32" y="10" width="16" height="24" rx="8" fill="#d4af37" stroke="#fef08a" stroke-width="1.2"/>
-                  <line x1="32" y1="18" x2="48" y2="18" stroke="#78350f" stroke-width="1"/>
-                  <line x1="32" y1="24" x2="48" y2="24" stroke="#78350f" stroke-width="1"/>
-                  <path d="M28 22 C28 34, 52 34, 52 22" stroke="#fef08a" stroke-width="2" fill="none"/>
-                  <line x1="40" y1="34" x2="40" y2="48" stroke="#fef08a" stroke-width="2"/>
-                  <line x1="30" y1="48" x2="50" y2="48" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round"/>
+              <!-- Ilustracion Vectorial: Microfono Shure 55 Vintage Cromado 3D, Vumetro Audio & Ondas Neon -->
+              <div class="my-2 text-center relative">
+                <svg viewBox="0 0 320 135" class="w-full h-28 mx-auto drop-shadow-[0_8px_16px_rgba(0,0,0,0.6)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="shureChrome" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#94a3b8"/>
+                      <stop offset="30%" stop-color="#f8fafc"/>
+                      <stop offset="60%" stop-color="#cbd5e1"/>
+                      <stop offset="100%" stop-color="#475569"/>
+                    </linearGradient>
+                    <linearGradient id="neonGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#ec4899"/>
+                      <stop offset="50%" stop-color="#a855f7"/>
+                      <stop offset="100%" stop-color="#06b6d4"/>
+                    </linearGradient>
+                  </defs>
+
+                  <!-- Rejilla de Perspectiva Synthwave Ochentera en el Suelo -->
+                  <line x1="20" y1="125" x2="300" y2="125" stroke="#ec4899" stroke-width="1.2" stroke-opacity="0.7"/>
+                  <line x1="40" y1="110" x2="280" y2="110" stroke="#ec4899" stroke-width="0.8" stroke-opacity="0.5"/>
+                  <line x1="60" y1="100" x2="260" y2="100" stroke="#ec4899" stroke-width="0.6" stroke-opacity="0.3"/>
+                  <line x1="160" y1="95" x2="20" y2="125" stroke="#a855f7" stroke-width="0.8" stroke-opacity="0.5"/>
+                  <line x1="160" y1="95" x2="80" y2="125" stroke="#a855f7" stroke-width="0.8" stroke-opacity="0.5"/>
+                  <line x1="160" y1="95" x2="240" y2="125" stroke="#a855f7" stroke-width="0.8" stroke-opacity="0.5"/>
+                  <line x1="160" y1="95" x2="300" y2="125" stroke="#a855f7" stroke-width="0.8" stroke-opacity="0.5"/>
+
+                  <!-- VUMETRO ESTEREO DE BARRAS LED DE AUDIO (IZQUIERDA Y DERECHA) -->
+                  <!-- Canal Izquierdo -->
+                  <g transform="translate(45, 45)">
+                    <rect x="0" y="40" width="8" height="6" rx="1" fill="#22c55e"/>
+                    <rect x="0" y="32" width="8" height="6" rx="1" fill="#22c55e"/>
+                    <rect x="0" y="24" width="8" height="6" rx="1" fill="#22c55e"/>
+                    <rect x="0" y="16" width="8" height="6" rx="1" fill="#eab308"/>
+                    <rect x="0" y="8" width="8" height="6" rx="1" fill="#eab308"/>
+                    <rect x="0" y="0" width="8" height="6" rx="1" fill="#ef4444"/>
+                    <text x="4" y="54" fill="#94a3b8" font-size="6" font-family="monospace" text-anchor="middle">L</text>
+                  </g>
+                  <g transform="translate(56, 45)">
+                    <rect x="0" y="40" width="8" height="6" rx="1" fill="#22c55e"/>
+                    <rect x="0" y="32" width="8" height="6" rx="1" fill="#22c55e"/>
+                    <rect x="0" y="24" width="8" height="6" rx="1" fill="#22c55e"/>
+                    <rect x="0" y="16" width="8" height="6" rx="1" fill="#eab308"/>
+                    <rect x="0" y="8" width="8" height="6" rx="1" fill="#ef4444"/>
+                    <text x="4" y="54" fill="#94a3b8" font-size="6" font-family="monospace" text-anchor="middle">R</text>
+                  </g>
+
+                  <!-- MICROFONO SHURE 55 VINTAGE EN 3D VECTORIAL CROMADO (CENTRO) -->
+                  <g transform="translate(160, 48)">
+                    <!-- Resplandor Neon Posterior -->
+                    <circle cx="0" cy="0" r="30" fill="#ec4899" opacity="0.25"/>
+
+                    <!-- Brazo Soporte Mecanico y Rótula con Rosca Cromada -->
+                    <path d="M-18 16 C-18 30, 18 30, 18 16" stroke="url(#shureChrome)" stroke-width="3" fill="none"/>
+                    <rect x="-4" y="28" width="8" height="24" rx="2" fill="url(#shureChrome)"/>
+                    <circle cx="-18" cy="16" r="3.5" fill="#f8fafc" stroke="#475569" stroke-width="1"/>
+                    <circle cx="18" cy="16" r="3.5" fill="#f8fafc" stroke="#475569" stroke-width="1"/>
+                    <line x1="-12" y1="46" x2="12" y2="46" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+
+                    <!-- Cabeza Ovalada Cromada con Nervaduras y Filtro Azul Acustico Interior -->
+                    <rect x="-15" y="-22" width="30" height="38" rx="12" fill="#1e1b4b" stroke="url(#shureChrome)" stroke-width="2.5"/>
+                    <!-- Nervaduras Horizontales de la Rejilla -->
+                    <line x1="-13" y1="-14" x2="13" y2="-14" stroke="url(#shureChrome)" stroke-width="1.2"/>
+                    <line x1="-14" y1="-8" x2="14" y2="-8" stroke="url(#shureChrome)" stroke-width="1.2"/>
+                    <line x1="-15" y1="-2" x2="15" y2="-2" stroke="url(#shureChrome)" stroke-width="1.4"/>
+                    <line x1="-15" y1="4" x2="15" y2="4" stroke="url(#shureChrome)" stroke-width="1.2"/>
+                    <line x1="-14" y1="10" x2="14" y2="10" stroke="url(#shureChrome)" stroke-width="1.2"/>
+                    <!-- Nervadura Vertical Central de Refuerzo -->
+                    <line x1="0" y1="-22" x2="0" y2="16" stroke="#ffffff" stroke-width="2.2"/>
+                    <!-- Destello de Luz Especular Cromado -->
+                    <ellipse cx="-7" cy="-12" rx="3" ry="6" fill="#ffffff" opacity="0.6"/>
+                  </g>
+
+                  <!-- NOTAS MUSICALES VECTORIALES FLOTANTES CON RESPLANDOR (DERECHA) -->
+                  <g transform="translate(245, 45)" stroke="#06b6d4" stroke-width="1.5" fill="#06b6d4">
+                    <!-- Nota Doble Corchea -->
+                    <circle cx="0" cy="16" r="3"/>
+                    <circle cx="16" cy="12" r="3"/>
+                    <line x1="3" y1="16" x2="3" y2="2"/>
+                    <line x1="19" y1="12" x2="19" y2="-2"/>
+                    <line x1="3" y1="2" x2="19" y2="-2" stroke-width="2.5"/>
+                    <!-- Ondas Sonoras Radiales -->
+                    <path d="M26 4 C30 8, 30 16, 26 20" stroke="#f472b6" stroke-width="1.2" fill="none"/>
+                    <path d="M31 0 C38 6, 38 24, 31 30" stroke="#f472b6" stroke-width="1.2" fill="none"/>
+                  </g>
                 </svg>
 
-                <p class="font-mono text-[8px] text-pink-300 tracking-[0.25em] uppercase mt-1">DUETOS &amp; BALADAS</p>
-                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-200 via-white to-purple-300 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
-                <p class="font-mono text-[10px] text-pink-200 mt-0.5">Duo Solista: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+                <p class="font-mono text-[8px] text-pink-300 tracking-[0.28em] uppercase mt-0.5">DUETOS ESTELARES &amp; TEMAZOS DE EPOCA</p>
+                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-100 via-white to-purple-200 uppercase tracking-tight truncate max-w-[290px] mx-auto">${escapeHtml(pass.name)}</h3>
+                <p class="font-mono text-[9.5px] text-pink-200 mt-0.5">Duo Cantante: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
               </div>
 
-              <!-- Ecualizador y Sistema de Sonido -->
-              <div class="p-2 bg-black/60 rounded-xl border border-pink-500/30 text-center font-mono text-[9px] my-2">
-                <span class="text-amber-300 font-bold block mb-0.5">100 PUNTOS // PERFECT PITCH</span>
-                <span class="text-neutral-300">Microfonos inalambricos y repertorio sin limites</span>
+              <!-- Puntuacion Maxima del Afinador -->
+              <div class="p-2.5 bg-black/75 rounded-xl border border-pink-500/35 text-center font-mono text-[9.5px] my-2 shadow-inner">
+                <span class="text-amber-300 font-bold block mb-0.5 tracking-wider">100 PUNTOS // PERFECT PITCH RECORD</span>
+                <span class="text-neutral-300">Microfonos sincronizados, ecualizacion master y ovacion en la cabina</span>
               </div>
 
-              <!-- Footer Codigo de Barras -->
-              <div class="pt-2 border-t border-dashed border-pink-500/30 flex items-center justify-between">
-                <div class="w-28 opacity-85">
+              <!-- Footer Codigo de Barras Neon -->
+              <div class="pt-2 border-t border-dashed border-pink-500/40 flex items-center justify-between">
+                <div class="w-28 opacity-90">
                   ${this.getBarcodeSvg('#f43f5e')}
                 </div>
-                <div class="px-2 py-1 rounded border border-pink-400/50 bg-pink-500/10 text-pink-200 text-[7.5px] font-mono font-bold leading-tight text-center">
-                  VOICE MASTER<br>VIP DUET PASS
+                <div class="px-2.5 py-1 rounded border border-pink-400/50 bg-pink-500/15 text-pink-200 text-[8px] font-mono font-bold leading-tight text-center">
+                  VOICE MASTER PASS<br>VIP HIT DUET RECORDED
                 </div>
               </div>
             </div>
@@ -1369,59 +1951,114 @@
           break;
 
         // ----------------------------------------------------
-        // BRUNCH & CAFE (COMANDA ATELIER & LOYALTY PASS)
+        // BRUNCH & CAFE (ETIQUETA KRAFT ARTESANAL & ATELIER)
         // ----------------------------------------------------
         case 'brunch-cafe':
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden kraft-paper text-amber-100 p-5 border-2 border-amber-600/40 text-left select-none">
-              <div class="flex items-center justify-between pb-2 border-b border-amber-600/30 text-[9px] font-mono">
+            <div class="card-face relative w-full rounded-2xl overflow-hidden kraft-paper text-amber-100 p-5 border-2 border-amber-600/50 text-left select-none shadow-2xl">
+              <!-- Esquinas Superiores Biseladas Estilo Etiqueta Colgante (Chamfered Hangtag) -->
+              <div class="absolute -top-4 -left-4 w-8 h-8 bg-[#050507] rotate-45 border-b-2 border-amber-600/50 z-20"></div>
+              <div class="absolute -top-4 -right-4 w-8 h-8 bg-[#050507] rotate-45 border-b-2 border-amber-600/50 z-20"></div>
+
+              <!-- Ojal Metalico de Laton en la Cabecera con Cordon de Yute -->
+              <div class="flex flex-col items-center -mt-2 mb-2 z-10 relative">
+                <!-- Cordon de Yute Anudado que asoma -->
+                <path d="M0 0" />
+                <div class="w-1 h-3 bg-amber-700/80 -mb-1"></div>
+                <!-- Arandela / Ojal de Laton 3D -->
+                <div class="w-5 h-5 rounded-full bg-gradient-to-br from-amber-300 via-amber-500 to-amber-800 p-1 shadow-md flex items-center justify-center">
+                  <div class="w-2.5 h-2.5 rounded-full bg-[#050507] shadow-inner"></div>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between pb-2 border-b border-amber-600/35 text-[9px] font-mono">
                 <span class="font-bold text-amber-300 flex items-center gap-1.5">
                   <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                  SPECIALTY COFFEE // ATELIER ROASTERY
+                  SPECIALTY COFFEE ROASTERY // ATELIER DUO
                 </span>
-                <span class="px-2 py-0.5 rounded bg-amber-600/20 text-amber-200 border border-amber-500/40 font-bold">MESA RESERVADA</span>
+                <span class="px-2 py-0.5 rounded bg-amber-600/25 text-amber-200 border border-amber-500/40 font-bold uppercase tracking-wider">MESA RESERVADA</span>
               </div>
 
-              <!-- Taza con Latte Art Corazon SVG -->
-              <div class="my-2.5 text-center">
-                <svg viewBox="0 0 80 65" class="w-14 h-11 mx-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <!-- Taza -->
-                  <path d="M15 20 L20 48 C22 54, 46 54, 48 48 L53 20 Z" fill="#451a03" stroke="#d97706" stroke-width="1.5"/>
-                  <path d="M48 24 C58 24, 58 38, 48 40" stroke="#d97706" stroke-width="2" fill="none"/>
-                  <!-- Latte Art Corazon -->
-                  <path d="M34 26 C30 22, 26 25, 34 33 C42 25, 38 22, 34 26 Z" fill="#fef3c7"/>
-                  <!-- Plato -->
-                  <ellipse cx="34" cy="54" rx="26" ry="4" stroke="#d97706" stroke-width="1.5" fill="#291307"/>
+              <!-- Ilustracion Vectorial: Rama Botanica de Cafeto, Cafetera Chemex/V60 y Taza con Latte Art Rosetta -->
+              <div class="my-2 text-center relative">
+                <svg viewBox="0 0 320 135" class="w-full h-28 mx-auto drop-shadow-[0_8px_16px_rgba(0,0,0,0.6)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- RAMA BOTANICA DE CAFETO CON HOJAS, FLORES Y CEREZAS (IZQUIERDA) -->
+                  <g transform="translate(65, 65)">
+                    <!-- Rama de Madera -->
+                    <path d="M-40 40 C-20 20, -5 0, 10 -25" stroke="#92400e" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- Hojas Lanceoladas con Nervaduras Finas -->
+                    <path d="M-20 20 C-35 15, -45 5, -45 -10 C-30 -10, -20 0, -20 20 Z" fill="#14532d" stroke="#22c55e" stroke-width="1"/>
+                    <line x1="-20" y1="20" x2="-45" y2="-10" stroke="#16a34a" stroke-width="0.7"/>
+                    <path d="M-5 0 C10 -5, 25 -15, 25 -30 C10 -30, 0 -15, -5 0 Z" fill="#14532d" stroke="#22c55e" stroke-width="1"/>
+                    <!-- Racimo de Cerezas de Cafe Maduras (Cerezas Rojas) -->
+                    <circle cx="-18" cy="14" r="4.5" fill="#dc2626" stroke="#991b1b" stroke-width="0.8"/>
+                    <circle cx="-12" cy="18" r="4" fill="#b91c1c" stroke="#991b1b" stroke-width="0.8"/>
+                    <circle cx="-7" cy="8" r="4" fill="#ef4444" stroke="#991b1b" stroke-width="0.8"/>
+                    <circle cx="2" cy="-6" r="4.5" fill="#dc2626" stroke="#991b1b" stroke-width="0.8"/>
+                  </g>
+
+                  <!-- CAFETERA ARTESANAL CHEMEX CON FILTRO Y CINTA DE MADERA (CENTRO-DERECHA) -->
+                  <g transform="translate(160, 68)">
+                    <!-- Jarra de Cristal Reluciente con Forma de Reloj de Arena -->
+                    <path d="M-18 -32 L18 -32 L6 -8 C4 -4, 4 4, 6 8 L22 36 C24 42, -24 42, -22 36 L-6 8 C-4 4, -4 -4, -6 -8 Z"
+                          fill="#451a03" stroke="#f59e0b" stroke-width="1.4" opacity="0.85"/>
+                    <!-- Cafe Filtrado Caliente en el Fondo -->
+                    <path d="M-18 28 C-10 26, 10 26, 18 28 L22 36 C24 42, -24 42, -22 36 Z" fill="#78350f"/>
+                    <!-- Cuello de Madera Pulida y Cordon de Cuero -->
+                    <rect x="-8" y="-6" width="16" height="12" rx="2" fill="#d97706" stroke="#92400e" stroke-width="1"/>
+                    <line x1="-8" y1="0" x2="8" y2="0" stroke="#451a03" stroke-width="1.5"/>
+                    <circle cx="0" cy="5" r="2" fill="#92400e"/>
+                    <!-- Vapor Caliente Ascendente -->
+                    <path d="M-4 -36 C-8 -42, -4 -46, -6 -50" stroke="#fef3c7" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+                    <path d="M4 -36 C0 -42, 4 -46, 2 -50" stroke="#fef3c7" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+                  </g>
+
+                  <!-- TAZA DE CERAMICA ARTESANAL CON LATTE ART ROSETTA (DERECHA) -->
+                  <g transform="translate(245, 78)">
+                    <!-- Sombra del Plato -->
+                    <ellipse cx="0" cy="24" rx="28" ry="5" fill="#000000" opacity="0.4"/>
+                    <!-- Plato de Ceramica -->
+                    <ellipse cx="0" cy="20" rx="26" ry="6" fill="#2e1a0f" stroke="#d97706" stroke-width="1.2"/>
+                    <!-- Cuerpo de la Taza -->
+                    <path d="M-18 0 C-18 18, 18 18, 18 0 Z" fill="#451a03" stroke="#d97706" stroke-width="1.4"/>
+                    <path d="M18 2 C25 2, 25 12, 18 12" stroke="#d97706" stroke-width="1.5" fill="none"/>
+                    <!-- Superficie de Cafe con Crema Sedosa -->
+                    <ellipse cx="0" cy="0" rx="18" ry="6" fill="#78350f" stroke="#d97706" stroke-width="1"/>
+                    <!-- Latte Art Rosetta de 5 Hojas -->
+                    <path d="M0 -3 C-3 -4, -6 -2, 0 3 C6 -2, 3 -4, 0 -3 Z" fill="#fef3c7"/>
+                    <path d="M0 -1 C-5 -2, -8 1, 0 5 C8 1, 5 -2, 0 -1 Z" fill="#fef3c7" opacity="0.9"/>
+                    <line x1="0" y1="-4" x2="0" y2="4" stroke="#78350f" stroke-width="0.8"/>
+                  </g>
                 </svg>
 
-                <p class="font-mono text-[8px] text-amber-400 tracking-[0.25em] uppercase mt-1">BRUNCH &amp; SOBREMESA</p>
-                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
-                <p class="font-mono text-[10px] text-amber-200/90 mt-0.5">Degustadores: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
+                <p class="font-mono text-[8px] text-amber-400 tracking-[0.28em] uppercase mt-0.5">BRUNCH &amp; CAFES DE ESPECIALIDAD</p>
+                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-yellow-100 to-amber-300 uppercase tracking-tight truncate max-w-[290px] mx-auto">${escapeHtml(pass.name)}</h3>
+                <p class="font-mono text-[9.5px] text-amber-200/90 mt-0.5">Degustadores: <strong class="text-white">${escapeHtml(pass.coupleNames)}</strong></p>
               </div>
 
-              <!-- Comanda Artesanal -->
-              <div class="p-2.5 bg-black/60 rounded-xl border border-amber-600/30 font-mono text-[9px] space-y-1 my-2">
+              <!-- Comanda Artesanal de Cafe y Tostadas -->
+              <div class="p-2.5 bg-black/75 rounded-xl border border-amber-600/35 font-mono text-[9px] space-y-1 my-2 shadow-inner">
                 <div class="flex justify-between text-neutral-300">
                   <span>2x Flat White Etiopia Yirgacheffe</span>
-                  <span class="text-amber-300">6.40 EUR</span>
+                  <span class="text-amber-300 font-bold">6.40 EUR</span>
                 </div>
                 <div class="flex justify-between text-neutral-300">
-                  <span>1x Tostada Aguacate &amp; Huevo Poche</span>
-                  <span class="text-amber-300">7.50 EUR</span>
+                  <span>1x Tostada Aguacate &amp; Huevo Poche Bio</span>
+                  <span class="text-amber-300 font-bold">7.50 EUR</span>
                 </div>
                 <div class="flex justify-between text-neutral-300">
-                  <span>1x Tarta Casera de Pistacho &amp; Frambuesa</span>
-                  <span class="text-amber-300">5.80 EUR</span>
+                  <span>1x Tarta Casera Pistacho &amp; Frambuesas</span>
+                  <span class="text-amber-300 font-bold">5.80 EUR</span>
                 </div>
               </div>
 
-              <!-- Footer Codigo de Barras -->
-              <div class="pt-2 border-t border-dashed border-amber-600/30 flex items-center justify-between">
-                <div class="w-28 opacity-80">
+              <!-- Footer Codigo de Barras de Comanda -->
+              <div class="pt-2 border-t border-dashed border-amber-600/35 flex items-center justify-between">
+                <div class="w-28 opacity-85">
                   ${this.getBarcodeSvg('#d97706')}
                 </div>
-                <div class="px-2 py-1 rounded border border-amber-500/40 bg-amber-600/10 text-amber-300 text-[7.5px] font-mono font-bold leading-tight text-center">
-                  BARISTA APPROVED<br>ROASTERY DUO
+                <div class="px-2.5 py-1 rounded border border-amber-500/40 bg-amber-600/15 text-amber-300 text-[8px] font-mono font-bold leading-tight text-center">
+                  BARISTA GUILD APPROVED<br>100% ARABICA SPECIALTY
                 </div>
               </div>
             </div>
@@ -1429,57 +2066,104 @@
           break;
 
         // ----------------------------------------------------
-        // BESPOKE SIGNATURE (MOTOR PROCEDURAL PARA PLANES LIBRES)
+        // BESPOKE SIGNATURE (BLACK OBSIDIAN CARD & GUILLOCHE)
         // ----------------------------------------------------
         case 'bespoke-signature':
           frontHtml = `
-            <div class="card-face relative w-full rounded-2xl overflow-hidden text-white p-5 border-2 border-amber-400/50 text-left select-none shadow-2xl bg-gradient-to-b from-[#181124] via-[#0d0915] to-[#050408]">
-              <!-- Sello Holografico Superior -->
-              <div class="flex items-center justify-between pb-2 border-b border-amber-400/30 text-[9px] font-mono">
-                <div class="flex items-center gap-1.5 font-bold text-amber-300">
+            <div class="card-face relative w-full rounded-2xl overflow-hidden obsidian-card text-white p-5 border border-amber-400/50 text-left select-none shadow-2xl">
+              <!-- Microtexto Perimetral de Seguridad Bancaria y Alta Orfebreria -->
+              <div class="flex items-center justify-between pb-2 border-b border-amber-400/35 text-[8.5px] font-mono">
+                <div class="flex items-center gap-1.5 font-bold text-amber-300 tracking-wider">
                   <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                  <span>DUO BESPOKE SIGNATURE // LIMITED PASS</span>
+                  <span>DUO PRESTIGE MEMORY VAULT // BESPOKE SIGNATURE</span>
                 </div>
-                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-400/40 font-bold">UNICO &amp; EXCLUSIVO</span>
+                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-400/40 font-bold uppercase tracking-widest text-[7.5px]">BLACK OBSIDIAN</span>
               </div>
 
-              <!-- Blason Heraldico Procedural SVG -->
-              <div class="my-3 text-center">
-                <svg viewBox="0 0 100 80" class="w-16 h-12 mx-auto drop-shadow-[0_0_12px_rgba(245,158,11,0.5)]" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <!-- Laureles -->
-                  <path d="M22 55 C16 42 20 28 32 20 C33 24 32 28 28 32 C35 25 41 25 44 30 C39 33 36 37 37 43 C32 38 26 41 24 48 Z" fill="#d4af37" opacity="0.8"/>
-                  <path d="M78 55 C84 42 80 28 68 20 C67 24 68 28 72 32 C65 25 59 25 56 30 C61 33 64 37 63 43 C68 38 74 41 76 48 Z" fill="#d4af37" opacity="0.8"/>
-                  <!-- Corona Real y Monograma -->
-                  <path d="M38 18 L43 23 L50 16 L57 23 L62 18 L60 25 L40 25 Z" fill="#facc15" stroke="#fef08a" stroke-width="0.8"/>
-                  <circle cx="50" cy="46" r="16" fill="#1e1430" stroke="#f59e0b" stroke-width="1.8"/>
-                  <!-- Simbolo de Infinito Duo -->
-                  <path d="M43 46 C43 43, 47 43, 50 46 C53 49, 57 49, 57 46 C57 43, 53 43, 50 46 C47 49, 43 49, 43 46 Z" stroke="#fde047" stroke-width="2" fill="none"/>
+              <!-- Chip EMV 3D Metalico Tallado en Oro en la Esquina Superior Izquierda -->
+              <div class="my-1 flex items-center justify-between">
+                <div class="w-11 h-8 rounded-md bg-gradient-to-br from-amber-200 via-yellow-400 to-amber-600 p-0.5 shadow-md border border-amber-300/80">
+                  <div class="w-full h-full rounded-sm bg-gradient-to-tr from-amber-300 to-yellow-500 grid grid-cols-3 gap-0.5 p-0.5">
+                    <div class="border-r border-b border-amber-800/40"></div>
+                    <div class="border-b border-amber-800/40"></div>
+                    <div class="border-l border-b border-amber-800/40"></div>
+                    <div class="border-r border-amber-800/40"></div>
+                    <div class="rounded-full bg-amber-600/30"></div>
+                    <div class="border-l border-amber-800/40"></div>
+                  </div>
+                </div>
+
+                <div class="text-right font-mono text-[8px] text-amber-400/80 tracking-widest">
+                  EDICION LIMITADA // PIEZA UNICA
+                </div>
+              </div>
+
+              <!-- Ilustracion Vectorial: Roseta Guilloche Matematica de Seguridad, Blason Heraldico & Corona Ducal -->
+              <div class="my-1.5 text-center relative">
+                <svg viewBox="0 0 320 135" class="w-full h-28 mx-auto drop-shadow-[0_8px_16px_rgba(0,0,0,0.6)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- ROSETA GUILLOCHE MATEMATICA DE SEGURIDAD EN FILIGRANA DE ORO (0.6px) -->
+                  <g transform="translate(160, 58)">
+                    <!-- Circulos Entrelazados Concentricos Spirograficos -->
+                    <circle cx="0" cy="0" r="48" stroke="#d4af37" stroke-width="0.5" stroke-opacity="0.4" stroke-dasharray="1 1"/>
+                    <circle cx="0" cy="0" r="40" stroke="#fef08a" stroke-width="0.5" stroke-opacity="0.5"/>
+                    <circle cx="0" cy="0" r="32" stroke="#d4af37" stroke-width="0.6" stroke-opacity="0.6"/>
+
+                    <!-- Curvas Hipocicloides Interconectadas Guilloché -->
+                    <path d="M0 -42 C15 -42, 30 -30, 42 0 C30 30, 15 42, 0 42 C-15 42, -30 30, -42 0 C-30 -30, -15 -42, 0 -42 Z"
+                          stroke="#fbbf24" stroke-width="0.6" stroke-opacity="0.7" fill="none"/>
+                    <path d="M-30 -30 C-30 -15, -42 0, -42 15 C-30 30, 0 42, 30 30 C42 15, 42 -15, 30 -30 C15 -42, -15 -42, -30 -30 Z"
+                          stroke="#fbbf24" stroke-width="0.6" stroke-opacity="0.7" fill="none"/>
+
+                    <!-- Rosetón de 12 Pétalos Geométricos Finos -->
+                    <g stroke="#fef08a" stroke-width="0.5" stroke-opacity="0.6" fill="none">
+                      <ellipse cx="0" cy="0" rx="38" ry="12"/>
+                      <ellipse cx="0" cy="0" rx="38" ry="12" transform="rotate(30)"/>
+                      <ellipse cx="0" cy="0" rx="38" ry="12" transform="rotate(60)"/>
+                      <ellipse cx="0" cy="0" rx="38" ry="12" transform="rotate(90)"/>
+                      <ellipse cx="0" cy="0" rx="38" ry="12" transform="rotate(120)"/>
+                      <ellipse cx="0" cy="0" rx="38" ry="12" transform="rotate(150)"/>
+                    </g>
+
+                    <!-- BLASON HERALDICO CENTRAL CON CORONA DUCAL & INFINITO DUO -->
+                    <!-- Corona Ducal Imperial -->
+                    <path d="M-14 -16 L-10 -10 L0 -20 L10 -10 L14 -16 L12 -6 L-12 -6 Z" fill="#facc15" stroke="#fef08a" stroke-width="0.8"/>
+                    <circle cx="0" cy="-20" r="1.5" fill="#ef4444"/>
+                    <circle cx="-14" cy="-16" r="1" fill="#3b82f6"/>
+                    <circle cx="14" cy="-16" r="1" fill="#3b82f6"/>
+
+                    <!-- Escudo de Fondo en Azul Obsidiana -->
+                    <path d="M-18 -4 C-18 16, 0 24, 0 28 C0 24, 18 16, 18 -4 Z" fill="#181124" stroke="#d4af37" stroke-width="1.5"/>
+
+                    <!-- Simbolo Infinito Tallado en Oro Vinculando a la Pareja -->
+                    <path d="M-8 8 C-12 4, -12 12, -8 16 C-4 16, 0 8, 4 8 C8 8, 12 12, 8 16 C4 16, 0 8, -4 8"
+                          stroke="#fde047" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+                  </g>
                 </svg>
 
-                <p class="font-mono text-[8px] text-amber-300 tracking-[0.25em] uppercase mt-1">PLAN ESPECIAL DE PAREJA</p>
-                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 uppercase tracking-tight">${escapeHtml(pass.name)}</h3>
-                <p class="font-mono text-[10px] text-neutral-300 mt-1">Titulares: <strong class="text-amber-200">${escapeHtml(pass.coupleNames)}</strong></p>
+                <p class="font-mono text-[8px] text-amber-300 tracking-[0.3em] uppercase mt-0.5">TITULARES HONORIFICOS // PRESTIGE CARD</p>
+                <h3 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-yellow-100 to-amber-300 uppercase tracking-tight truncate max-w-[290px] mx-auto">${escapeHtml(pass.name)}</h3>
+                <p class="font-mono text-[9.5px] text-neutral-300 mt-0.5">Miembros: <strong class="text-amber-200">${escapeHtml(pass.coupleNames)}</strong></p>
               </div>
 
-              <!-- Metadatos del Plan Personalizado -->
-              <div class="p-2.5 bg-black/60 rounded-xl border border-amber-400/30 font-mono text-[9px] grid grid-cols-2 gap-2 text-center my-2.5">
-                <div>
-                  <span class="text-amber-400/80 text-[7.5px] block uppercase">MEMORIA COMPARTIDA</span>
+              <!-- Metadatos de Autenticidad de la Tarjeta de Lujo -->
+              <div class="p-2.5 bg-black/80 rounded-xl border border-amber-400/35 font-mono text-[9px] grid grid-cols-2 gap-2 text-center my-2 shadow-inner">
+                <div class="border-r border-amber-400/25">
+                  <span class="text-amber-400/80 text-[7px] block uppercase tracking-wider">NUMERO DE MEMORIA</span>
                   <strong class="text-white text-xs">${pass.ticketNum}</strong>
                 </div>
                 <div>
-                  <span class="text-amber-400/80 text-[7.5px] block uppercase">CALIFICACION</span>
+                  <span class="text-amber-400/80 text-[7px] block uppercase tracking-wider">VALORACION</span>
                   <strong class="text-yellow-300 text-xs">${pass.rating || 5}/5 ESTRELLAS</strong>
                 </div>
               </div>
 
-              <!-- Footer Codigo de Barras de Lujo -->
-              <div class="pt-2 border-t border-dashed border-amber-400/30 flex items-center justify-between">
-                <div class="w-28 opacity-85">
+              <!-- Footer Codigo de Barras de Lujo y Sello Holografico -->
+              <div class="pt-2 border-t border-dashed border-amber-400/35 flex items-center justify-between">
+                <div class="w-28 opacity-90">
                   ${this.getBarcodeSvg('#f59e0b')}
                 </div>
-                <div class="px-2 py-1 rounded border border-amber-400/50 bg-amber-500/10 text-amber-300 text-[7.5px] font-mono font-bold leading-tight text-center">
-                  BESPOKE GOLD<br>DUO EXCLUSIVE
+                <div class="px-2.5 py-1 rounded border border-amber-400/50 bg-amber-500/15 text-amber-300 text-[8px] font-mono font-bold leading-tight text-center">
+                  BLACK OBSIDIAN // BESPOKE<br>CERTIFIED FOREVER DUO
                 </div>
               </div>
             </div>
@@ -2597,38 +3281,70 @@
         `;
             } else if (arc === 'stadium-ticket') {
         backHtml = `
-          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden stadium-grass text-white p-5 border-2 border-emerald-500/50 flex flex-col justify-between text-left select-none">
+          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden stadium-grass text-white p-5 border border-emerald-400/40 flex flex-col justify-between text-left select-none">
             <div>
               <div class="border-b border-emerald-500/40 pb-2 flex justify-between items-center font-mono">
-                <span class="text-xs font-black text-emerald-400">ACTA DEL PARTIDO &amp; AFICION</span>
-                <span class="text-[9px] text-neutral-400">ESTADIO MATCH DAY</span>
+                <span class="text-xs font-black text-emerald-300">PIZARRA TACTICA &amp; ACTA OFICIAL</span>
+                <span class="text-[9px] text-emerald-400/80">MATCH DAY DERBI</span>
               </div>
 
-              <div class="my-3 grid grid-cols-2 gap-2 font-mono text-[10px]">
-                <div class="p-2 rounded-lg bg-black/60 border border-emerald-500/30">
-                  <div class="text-[8px] text-emerald-400/80 uppercase">POSESION DE BALON</div>
-                  <div class="text-sm font-bold text-white mt-0.5">68% <span class="text-[9px] text-emerald-400">(Control Total)</span></div>
+              <!-- Pizarra Tactica de Entrenador SVG con Jugada Ensayada y Flechas de Tiza -->
+              <div class="my-2 p-2 rounded-xl bg-black/80 border border-emerald-500/40 shadow-inner">
+                <div class="text-[7.5px] font-mono text-emerald-400/90 mb-1 flex justify-between">
+                  <span>JUGADA COMBINADA DUO // GOLAZO POR LA ESCUADRA</span>
+                  <span class="text-amber-300 font-bold">MINUTO 90'+3'</span>
                 </div>
-                <div class="p-2 rounded-lg bg-black/60 border border-emerald-500/30">
-                  <div class="text-[8px] text-emerald-400/80 uppercase">DISPAROS A PUERTA</div>
-                  <div class="text-sm font-bold text-white mt-0.5">14 <span class="text-[9px] text-amber-300">(3 Golazos)</span></div>
+                <svg viewBox="0 0 280 65" class="w-full h-14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Pizarra Verde Oscura con Lineas Blancas de Campo -->
+                  <rect x="0" y="0" width="280" height="65" rx="6" fill="#062817" stroke="#047857" stroke-width="1"/>
+                  <line x1="140" y1="0" x2="140" y2="65" stroke="#ffffff" stroke-width="1" stroke-dasharray="3 3" opacity="0.6"/>
+                  <circle cx="140" cy="32" r="16" stroke="#ffffff" stroke-width="1" stroke-dasharray="3 3" opacity="0.6"/>
+                  <!-- Area de Ataque -->
+                  <polygon points="230,12 280,12 280,52 230,52" stroke="#ffffff" stroke-width="1" stroke-dasharray="3 3" opacity="0.6"/>
+
+                  <!-- Nodos de Jugadores P1 y P2 con Numeros -->
+                  <circle cx="50" cy="32" r="7" fill="#10b981" stroke="#ffffff" stroke-width="1.2"/>
+                  <text x="50" y="35" fill="#ffffff" font-size="7" font-weight="bold" font-family="monospace" text-anchor="middle">P1</text>
+                  <circle cx="120" cy="18" r="7" fill="#10b981" stroke="#ffffff" stroke-width="1.2"/>
+                  <text x="120" y="21" fill="#ffffff" font-size="7" font-weight="bold" font-family="monospace" text-anchor="middle">P2</text>
+                  <circle cx="210" cy="30" r="8" fill="#facc15" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="210" y="33" fill="#000000" font-size="8" font-weight="bold" font-family="monospace" text-anchor="middle">GOL</text>
+
+                  <!-- Flechas Tacticas de Tiza Curvas -->
+                  <path d="M57 32 C80 20, 100 20, 113 19" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="3 2"/>
+                  <path d="M127 18 C155 18, 185 24, 202 29" stroke="#facc15" stroke-width="1.8"/>
+                  <polygon points="202,26 208,30 202,33" fill="#facc15"/>
+                  <path d="M218 30 L275 18" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+                  <polygon points="275,15 280,17 276,21" fill="#ef4444"/>
+                </svg>
+              </div>
+
+              <!-- Estadisticas Oficiales del Partido -->
+              <div class="my-2 grid grid-cols-2 gap-2 font-mono text-[9px]">
+                <div class="p-2 rounded-lg bg-black/70 border border-emerald-500/30">
+                  <div class="text-[7.5px] text-emerald-400/80 uppercase">POSESION TOTAL</div>
+                  <div class="text-sm font-bold text-white mt-0.5">68% <span class="text-[8px] text-emerald-400">(Control Absoluto)</span></div>
                 </div>
-                <div class="p-2 rounded-lg bg-black/60 border border-emerald-500/30">
-                  <div class="text-[8px] text-emerald-400/80 uppercase">GOLEADORES DE ORO</div>
-                  <div class="text-xs font-bold text-emerald-300 mt-0.5 truncate">${escapeHtml(pass.coupleNames)}</div>
+                <div class="p-2 rounded-lg bg-black/70 border border-emerald-500/30">
+                  <div class="text-[7.5px] text-emerald-400/80 uppercase">DISPAROS A PUERTA</div>
+                  <div class="text-sm font-bold text-white mt-0.5">14 <span class="text-[8px] text-amber-300">(3 Golazos)</span></div>
                 </div>
-                <div class="p-2 rounded-lg bg-black/60 border border-emerald-500/30">
-                  <div class="text-[8px] text-emerald-400/80 uppercase">AMBIENTE EN GRADA</div>
+                <div class="p-2 rounded-lg bg-black/70 border border-emerald-500/30">
+                  <div class="text-[7.5px] text-emerald-400/80 uppercase">PRECISION PASES</div>
+                  <div class="text-sm font-bold text-emerald-300 mt-0.5">94% Conectados</div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/70 border border-emerald-500/30">
+                  <div class="text-[7.5px] text-emerald-400/80 uppercase">AMBIENTE EN GRADA</div>
                   <div class="text-sm font-bold text-emerald-400 mt-0.5">100% Inolvidable</div>
                 </div>
               </div>
 
-              <div class="p-2.5 rounded-xl bg-black/70 border border-emerald-500/25 font-mono text-[10px] leading-relaxed italic text-emerald-100">
-                "${escapeHtml(pass.note || '90 minutos cantando en la grada. Pase de gol milimetrico y celebracion con abrazo eterno en el descuento.')}"
+              <div class="p-2 rounded-xl bg-black/75 border border-emerald-500/25 font-mono text-[9.5px] leading-relaxed italic text-emerald-100">
+                "${escapeHtml(pass.note || '90 minutos cantando en la grada. Pase milimetrico y abrazo eterno al celebrar la victoria en el descuento.')}"
               </div>
 
               ${pass.photo ? `
-                <div class="mt-2 w-full h-24 rounded-lg overflow-hidden border border-emerald-500/40 shadow-sm">
+                <div class="mt-2 w-full h-20 rounded-lg overflow-hidden border border-emerald-500/40 shadow-sm">
                   <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo de Partido">
                 </div>
               ` : ''}
@@ -2636,49 +3352,78 @@
 
             <div class="pt-2 border-t border-emerald-500/30 flex items-center justify-between">
               <div>
-                <span class="text-[8px] font-mono text-emerald-400/80 block uppercase">ARBITRO PRINCIPAL:</span>
-                <span class="font-mono text-[9px] text-neutral-300">Colegiado Oficial Liga Duo</span>
+                <span class="text-[7.5px] font-mono text-emerald-400/80 block uppercase">ARBITRO PRINCIPAL:</span>
+                <span class="font-mono text-[8.5px] text-neutral-300">Colegiado Oficial Liga Duo</span>
               </div>
-              <div class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[8px] font-bold border border-emerald-500/40">
-                ACTA FIRMADA &bull; 3 PUNTOS
+              <div class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[8px] font-bold border border-emerald-500/40">
+                ACTA CERRADA // 3 PUNTOS DUO
               </div>
             </div>
           </div>
         `;
       } else if (arc === 'racket-club') {
         backHtml = `
-          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden court-blue text-white p-5 border-2 border-sky-400/50 flex flex-col justify-between text-left select-none">
+          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden court-blue text-white p-5 border border-sky-400/50 flex flex-col justify-between text-left select-none">
             <div>
               <div class="border-b border-sky-400/30 pb-2 flex justify-between items-center font-mono">
-                <span class="text-xs font-bold text-sky-300">ESTADISTICAS DE PISTA</span>
-                <span class="text-[9px] text-neutral-400">WORLD DUO TOUR</span>
+                <span class="text-xs font-bold text-sky-200">PLANILLA OFICIAL DE ARBITRAJE</span>
+                <span class="text-[9px] text-neutral-300">WORLD DUO TOUR</span>
               </div>
 
-              <div class="my-3 grid grid-cols-2 gap-2 font-mono text-[10px]">
-                <div class="p-2 rounded-lg bg-black/60 border border-sky-400/30">
-                  <div class="text-[8px] text-sky-300/80 uppercase">ACES DIRECTOS</div>
-                  <div class="text-sm font-bold text-white mt-0.5">7 Aces <span class="text-[9px] text-emerald-400">(Inapelables)</span></div>
+              <!-- Mapa de Calor Cenital de la Pista de Padel SVG -->
+              <div class="my-2 p-2 rounded-xl bg-black/80 border border-sky-400/35 shadow-inner">
+                <div class="text-[7.5px] font-mono text-sky-300/90 mb-1 flex justify-between">
+                  <span>HEATMAP DE PUNTOS GANADORES // REMATE X3</span>
+                  <span class="text-emerald-400 font-bold">MATCH POINT WIN</span>
                 </div>
-                <div class="p-2 rounded-lg bg-black/60 border border-sky-400/30">
-                  <div class="text-[8px] text-sky-300/80 uppercase">REMATES X3 GANADORES</div>
-                  <div class="text-sm font-bold text-amber-300 mt-0.5">4 Por Tres</div>
+                <svg viewBox="0 0 280 65" class="w-full h-14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Pista 20x10 Cenital -->
+                  <rect x="20" y="5" width="240" height="55" rx="3" fill="#0284c7" stroke="#38bdf8" stroke-width="1.2"/>
+                  <line x1="140" y1="5" x2="140" y2="60" stroke="#f8fafc" stroke-width="2"/>
+                  <!-- Lineas de Servicio -->
+                  <line x1="70" y1="5" x2="70" y2="60" stroke="#ffffff" stroke-width="1" stroke-opacity="0.8"/>
+                  <line x1="210" y1="5" x2="210" y2="60" stroke="#ffffff" stroke-width="1" stroke-opacity="0.8"/>
+                  <line x1="70" y1="32" x2="210" y2="32" stroke="#ffffff" stroke-width="1" stroke-opacity="0.8"/>
+
+                  <!-- Manchas de Calor de Voleas Ganadoras -->
+                  <circle cx="125" cy="20" r="10" fill="#22c55e" opacity="0.45"/>
+                  <circle cx="125" cy="20" r="5" fill="#facc15" opacity="0.6"/>
+                  <circle cx="130" cy="45" r="9" fill="#22c55e" opacity="0.45"/>
+                  <circle cx="130" cy="45" r="4" fill="#facc15" opacity="0.6"/>
+
+                  <!-- Trajectory Arrow del Remate x3 que sale de la Pista -->
+                  <path d="M125 32 C170 30, 220 10, 255 -5" stroke="#facc15" stroke-width="2" stroke-linecap="round"/>
+                  <polygon points="255,-5 250,-1 258,2" fill="#facc15"/>
+                  <text x="220" y="24" fill="#fef08a" font-size="7" font-weight="bold" font-family="monospace">X3 SALIDA</text>
+                </svg>
+              </div>
+
+              <!-- Estadisticas de Pista -->
+              <div class="my-2 grid grid-cols-2 gap-2 font-mono text-[9px]">
+                <div class="p-2 rounded-lg bg-black/70 border border-sky-400/30">
+                  <div class="text-[7.5px] text-sky-300/80 uppercase">ACES DIRECTOS</div>
+                  <div class="text-sm font-bold text-white mt-0.5">7 Aces <span class="text-[8px] text-emerald-400">(Inapelables)</span></div>
                 </div>
-                <div class="p-2 rounded-lg bg-black/60 border border-sky-400/30">
-                  <div class="text-[8px] text-sky-300/80 uppercase">PUNTOS DE ORO</div>
+                <div class="p-2 rounded-lg bg-black/70 border border-sky-400/30">
+                  <div class="text-[7.5px] text-sky-300/80 uppercase">REMATES GANADORES</div>
+                  <div class="text-sm font-bold text-amber-300 mt-0.5">18 Winners</div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/70 border border-sky-400/30">
+                  <div class="text-[7.5px] text-sky-300/80 uppercase">PUNTOS DE ORO</div>
                   <div class="text-sm font-bold text-emerald-400 mt-0.5">5/5 Ganados</div>
                 </div>
-                <div class="p-2 rounded-lg bg-black/60 border border-sky-400/30">
-                  <div class="text-[8px] text-sky-300/80 uppercase">COMPLICIDAD EN RED</div>
+                <div class="p-2 rounded-lg bg-black/70 border border-sky-400/30">
+                  <div class="text-[7.5px] text-sky-300/80 uppercase">COMPLICIDAD EN RED</div>
                   <div class="text-sm font-bold text-white mt-0.5">100% Invicto</div>
                 </div>
               </div>
 
-              <div class="p-2.5 rounded-xl bg-black/70 border border-sky-400/25 font-mono text-[10px] leading-relaxed italic text-sky-100">
-                "${escapeHtml(pass.note || 'Defensa increible desde el fondo de pista y volea cruzada ganadora en la red. Partidazo inolvidable.')}"
+              <div class="p-2 rounded-xl bg-black/75 border border-sky-400/25 font-mono text-[9.5px] leading-relaxed italic text-sky-100">
+                "${escapeHtml(pass.note || 'Defensa titanica desde los cristales y volea cruzada ganadora en la red. Partidazo inolvidable.')}"
               </div>
 
               ${pass.photo ? `
-                <div class="mt-2 w-full h-24 rounded-lg overflow-hidden border border-sky-400/40 shadow-sm">
+                <div class="mt-2 w-full h-20 rounded-lg overflow-hidden border border-sky-400/40 shadow-sm">
                   <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo de Pista">
                 </div>
               ` : ''}
@@ -2686,94 +3431,135 @@
 
             <div class="pt-2 border-t border-sky-400/30 flex items-center justify-between">
               <div>
-                <span class="text-[8px] font-mono text-sky-300/80 block uppercase">JUEZ ARBITRO:</span>
-                <span class="font-mono text-[9px] text-neutral-300">Master Referee Racket Tour</span>
+                <span class="text-[7.5px] font-mono text-sky-300/80 block uppercase">JUEZ ARBITRO:</span>
+                <span class="font-mono text-[8.5px] text-neutral-300">Master Referee Racket Tour</span>
               </div>
-              <div class="px-2 py-1 rounded bg-sky-500/20 text-sky-200 font-mono text-[8px] font-bold border border-sky-400/40">
-                CHAMPIONS DUO
+              <div class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-200 font-mono text-[8px] font-bold border border-sky-400/40">
+                CHAMPIONS DUO // WPT
               </div>
             </div>
           </div>
         `;
       } else if (arc === 'fitness-pass') {
         backHtml = `
-          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden bib-fiber text-slate-900 p-5 border-2 border-slate-300 flex flex-col justify-between text-left select-none">
+          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden bib-fiber text-slate-900 p-5 border-2 border-slate-300/90 flex flex-col justify-between text-left select-none">
             <div>
-              <div class="border-b border-slate-300 pb-2 flex justify-between items-center font-mono">
-                <span class="text-xs font-bold text-red-600">TELEMETRIA &amp; PULSACIONES</span>
-                <span class="text-[9px] text-slate-500">CHIP TIMING SYSTEM</span>
+              <div class="border-b-2 border-slate-300 pb-2 flex justify-between items-center font-mono">
+                <span class="text-xs font-black text-red-600">TELEMETRIA OFICIAL // CHIP TIMING</span>
+                <span class="text-[9px] text-slate-600 font-bold">GARMIN &amp; STRAVA SYNC</span>
               </div>
 
-              <!-- Electrocardiograma SVG -->
-              <div class="my-2 p-2 bg-slate-100 rounded-xl border border-slate-200">
-                <svg viewBox="0 0 200 35" class="w-full h-7" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round">
-                  <path d="M0 18 L35 18 L42 6 L50 30 L58 10 L66 24 L74 18 L125 18 L133 4 L141 32 L149 12 L157 18 L200 18"/>
-                </svg>
+              <!-- Tabla de Splits por Kilometro -->
+              <div class="my-2 p-2 bg-white rounded-xl border border-slate-200/90 shadow-inner font-mono text-[8.5px]">
+                <div class="flex justify-between pb-1 border-b border-slate-200 text-slate-500 font-bold">
+                  <span>SEGMENTO</span>
+                  <span>TIEMPO</span>
+                  <span>RITMO</span>
+                  <span>CARDIO</span>
+                </div>
+                <div class="flex justify-between py-0.5 text-slate-800">
+                  <span>KM 1 - 3</span>
+                  <span class="font-bold">12:36</span>
+                  <span class="text-red-600">4:12/km</span>
+                  <span>152 ppm</span>
+                </div>
+                <div class="flex justify-between py-0.5 text-slate-800">
+                  <span>KM 4 - 7</span>
+                  <span class="font-bold">17:12</span>
+                  <span class="text-red-600">4:18/km</span>
+                  <span>164 ppm</span>
+                </div>
+                <div class="flex justify-between py-0.5 text-slate-800">
+                  <span>KM 8 - 10</span>
+                  <span class="font-bold">12:30</span>
+                  <span class="text-red-600">4:10/km</span>
+                  <span class="font-bold text-red-600">174 ppm</span>
+                </div>
               </div>
 
-              <div class="my-2 grid grid-cols-2 gap-2 font-mono text-[10px]">
+              <!-- Distribucion de Frecuencia Cardiaca -->
+              <div class="my-2 grid grid-cols-2 gap-2 font-mono text-[9px]">
                 <div class="p-2 rounded-lg bg-slate-100 border border-slate-200">
-                  <div class="text-[8px] text-slate-500 uppercase">PULSACIONES MEDIAS</div>
-                  <div class="text-sm font-bold text-slate-900 mt-0.5">154 PPM <span class="text-[9px] text-red-600">(Zona Cardio)</span></div>
+                  <div class="text-[7.5px] text-slate-500 uppercase">ZONA UMBRAL (Z4)</div>
+                  <div class="text-xs font-bold text-slate-900 mt-0.5">68% del Tiempo</div>
                 </div>
                 <div class="p-2 rounded-lg bg-slate-100 border border-slate-200">
-                  <div class="text-[8px] text-slate-500 uppercase">ESFUERZO DE PAREJA</div>
-                  <div class="text-sm font-bold text-amber-600 mt-0.5">Maximo Nivel</div>
+                  <div class="text-[7.5px] text-slate-500 uppercase">CADENCIA MEDIA</div>
+                  <div class="text-xs font-bold text-slate-900 mt-0.5">178 spm (Optima)</div>
                 </div>
               </div>
 
-              <div class="p-2.5 rounded-xl bg-slate-100 border border-slate-200 font-mono text-[10px] leading-relaxed italic text-slate-700">
-                "${escapeHtml(pass.note || 'Superando limites juntos en cada serie y kilometro. Victoria compartida al cruzar la meta.')}"
+              <div class="p-2 rounded-xl bg-slate-100 border border-slate-200 font-mono text-[9.5px] leading-relaxed italic text-slate-700">
+                "${escapeHtml(pass.note || 'Superando limites juntos en cada serie y kilometro. Abrazo triunfal al cruzar la pancarta de meta.')}"
               </div>
 
               ${pass.photo ? `
-                <div class="mt-2 w-full h-20 rounded-lg overflow-hidden border border-slate-300 shadow-sm">
+                <div class="mt-2 w-full h-18 rounded-lg overflow-hidden border border-slate-300 shadow-sm">
                   <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo de Meta">
                 </div>
               ` : ''}
             </div>
 
-            <div class="pt-2 border-t border-slate-300 flex items-center justify-between">
+            <div class="pt-2 border-t-2 border-slate-300 flex items-center justify-between">
               <div>
-                <span class="text-[8px] font-mono text-slate-500 block uppercase">REGISTRO OFICIAL:</span>
-                <span class="font-mono text-[9px] text-slate-800">Duo Timing Committee</span>
+                <span class="text-[7.5px] font-mono text-slate-500 block uppercase">CONTROL DE CRONOMETRAJE:</span>
+                <span class="font-mono text-[8.5px] text-slate-800 font-bold">Duo Timing Committee</span>
               </div>
-              <div class="px-2 py-1 rounded bg-red-600 text-white font-mono text-[8px] font-bold">
-                FINISHER OK
+              <div class="px-2 py-0.5 rounded bg-red-600 text-white font-mono text-[8px] font-bold">
+                OFFICIAL FINISHER RECORD
               </div>
             </div>
           </div>
         `;
       } else if (arc === 'gamer-pass') {
         backHtml = `
-          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden cartridge-gold text-white p-5 border-2 border-amber-400/60 flex flex-col justify-between text-left select-none">
+          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden cartridge-body text-white p-5 border-2 border-amber-500/50 flex flex-col justify-between text-left select-none">
             <div>
-              <div class="border-b border-amber-400/30 pb-2 flex justify-between items-center font-mono">
-                <span class="text-xs font-bold text-amber-300">LOGROS &amp; TROFEO PLATINO</span>
-                <span class="text-[9px] text-neutral-400">100% COMPLETE</span>
+              <!-- Tornillos de Carcasa Plastica en las Esquinas -->
+              <div class="flex justify-between items-center pb-2 border-b border-amber-400/30 font-mono">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-3 h-3 rounded-full bg-slate-400 border border-slate-600 flex items-center justify-center text-[7px] text-slate-800 font-bold">+</span>
+                  <span class="text-xs font-bold text-amber-300">MEMORIA ROM &amp; SAVE SLOT</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[9px] text-neutral-400">100% COMPLETE</span>
+                  <span class="w-3 h-3 rounded-full bg-slate-400 border border-slate-600 flex items-center justify-center text-[7px] text-slate-800 font-bold">+</span>
+                </div>
               </div>
 
-              <div class="my-3 space-y-2 font-mono text-[10px]">
-                <div class="p-2 rounded-lg bg-black/60 border border-amber-400/30 flex items-center justify-between">
-                  <span class="text-neutral-200">[OK] JEFE FINAL SUPERADO A LA PRIMERA</span>
+              <!-- Bloque de Ranura de Guardado Slot 1 -->
+              <div class="my-2 p-2.5 rounded-xl bg-black/80 border border-amber-400/30 font-mono text-[9px] space-y-1 shadow-inner">
+                <div class="flex justify-between text-amber-300 font-bold">
+                  <span>[SLOT 1] DUO ADVENTURE (SAVED)</span>
+                  <span class="text-emerald-400">999:59 HRS</span>
+                </div>
+                <div class="text-[8px] text-neutral-400">
+                  COLECCIONABLES: 100/100 &bull; SECRET BOSS DEFEATED &bull; PLATINO
+                </div>
+              </div>
+
+              <!-- Lista de Logros Desbloqueados Co-Op -->
+              <div class="my-2 space-y-1.5 font-mono text-[9px]">
+                <div class="p-1.5 rounded-lg bg-black/60 border border-amber-400/25 flex items-center justify-between">
+                  <span class="text-neutral-200">[OK] JEFE FINAL A LA PRIMERA</span>
                   <span class="text-amber-400 font-bold">+500 XP</span>
                 </div>
-                <div class="p-2 rounded-lg bg-black/60 border border-amber-400/30 flex items-center justify-between">
-                  <span class="text-neutral-200">[OK] COMBO COOPERATIVO PERFECTO</span>
+                <div class="p-1.5 rounded-lg bg-black/60 border border-amber-400/25 flex items-center justify-between">
+                  <span class="text-neutral-200">[OK] COMBO CO-OP SINCRONIZADO</span>
                   <span class="text-amber-400 font-bold">+750 XP</span>
                 </div>
-                <div class="p-2 rounded-lg bg-black/60 border border-amber-400/30 flex items-center justify-between">
-                  <span class="text-neutral-200">[OK] RISAS SIN MIRAR LA GUIA</span>
-                  <span class="text-amber-400 font-bold">PLATINO</span>
+                <div class="p-1.5 rounded-lg bg-black/60 border border-amber-400/25 flex items-center justify-between">
+                  <span class="text-neutral-200">[OK] SIN PELEARSE POR EL MANDO</span>
+                  <span class="text-amber-300 font-bold">TROFEO ORO</span>
                 </div>
               </div>
 
-              <div class="p-2.5 rounded-xl bg-black/70 border border-amber-400/25 font-mono text-[10px] leading-relaxed italic text-amber-100">
-                "${escapeHtml(pass.note || 'Partidaza legendaria en coop. Coordinacion perfecta en los mandos y victoria contra el boss final.')}"
+              <div class="p-2 rounded-xl bg-black/75 border border-amber-400/25 font-mono text-[9.5px] leading-relaxed italic text-amber-100">
+                "${escapeHtml(pass.note || 'Partidaza cooperativa legendaria. Sincronizacion absoluta con los mandos y victoria epica contra el boss final.')}"
               </div>
 
               ${pass.photo ? `
-                <div class="mt-2 w-full h-20 rounded-lg overflow-hidden border border-amber-400/40 shadow-sm">
+                <div class="mt-2 w-full h-18 rounded-lg overflow-hidden border border-amber-400/40 shadow-sm">
                   <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo Gamer">
                 </div>
               ` : ''}
@@ -2781,10 +3567,10 @@
 
             <div class="pt-2 border-t border-amber-400/30 flex items-center justify-between">
               <div>
-                <span class="text-[8px] font-mono text-amber-400/80 block uppercase">CERTIFICADO GAMER:</span>
-                <span class="font-mono text-[9px] text-neutral-200">Player 1 &amp; Player 2 Mastery</span>
+                <span class="text-[7.5px] font-mono text-amber-400/80 block uppercase">CERTIFICADO GAMER:</span>
+                <span class="font-mono text-[8.5px] text-neutral-300">P1 &amp; P2 Legendary Master</span>
               </div>
-              <div class="px-2 py-1 rounded bg-amber-500/20 text-amber-300 font-mono text-[8px] font-bold border border-amber-400/40">
+              <div class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[8px] font-bold border border-amber-400/40">
                 GAME OVER // WINNERS
               </div>
             </div>
@@ -2792,42 +3578,51 @@
         `;
       } else if (arc === 'boardgame-card') {
         backHtml = `
-          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden boardgame-parchment text-amber-100 p-5 border-2 border-amber-500/60 flex flex-col justify-between text-left select-none">
+          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden boardgame-parchment text-amber-100 p-5 border-2 border-amber-500/70 flex flex-col justify-between text-left select-none">
             <div>
-              <div class="border-b border-amber-500/30 pb-2 flex justify-between items-center font-mono">
-                <span class="text-xs font-bold text-amber-300">ACTA DE PARTIDA &amp; PUNTUACION</span>
+              <div class="border-b border-amber-500/40 pb-2 flex justify-between items-center font-mono">
+                <span class="text-xs font-bold text-amber-300">DORSO MITICO TCG // ACTA DE PARTIDA</span>
                 <span class="text-[9px] text-amber-400/70">QUEST ARCHIVE</span>
               </div>
 
-              <div class="my-3 grid grid-cols-2 gap-2 font-mono text-[10px]">
-                <div class="p-2 rounded-lg bg-black/60 border border-amber-500/30">
-                  <div class="text-[8px] text-amber-400/80 uppercase">PUNTOS DE VICTORIA</div>
-                  <div class="text-sm font-bold text-white mt-0.5">142 VP <span class="text-[9px] text-amber-300">(Record)</span></div>
+              <!-- Puntuacion Detallada de Victoria -->
+              <div class="my-2.5 grid grid-cols-2 gap-2 font-mono text-[9px]">
+                <div class="p-2 rounded-lg bg-black/70 border border-amber-500/35">
+                  <div class="text-[7.5px] text-amber-400/80 uppercase">PUNTOS DE TERRITORIO</div>
+                  <div class="text-sm font-bold text-white mt-0.5">48 VP <span class="text-[8px] text-emerald-400">(Dominio)</span></div>
                 </div>
-                <div class="p-2 rounded-lg bg-black/60 border border-amber-500/30">
-                  <div class="text-[8px] text-amber-400/80 uppercase">TIRADA DECISIVA</div>
-                  <div class="text-sm font-bold text-yellow-300 mt-0.5">20 Natural</div>
+                <div class="p-2 rounded-lg bg-black/70 border border-amber-500/35">
+                  <div class="text-[7.5px] text-amber-400/80 uppercase">MISIONES CO-OP</div>
+                  <div class="text-sm font-bold text-amber-300 mt-0.5">60 VP (Cumplidas)</div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/70 border border-amber-500/35">
+                  <div class="text-[7.5px] text-amber-400/80 uppercase">TIRADAS CRITICAS</div>
+                  <div class="text-sm font-bold text-yellow-300 mt-0.5">34 VP (20 Natural)</div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/70 border border-amber-500/35">
+                  <div class="text-[7.5px] text-amber-400/80 uppercase">VICTORIA TOTAL</div>
+                  <div class="text-sm font-bold text-emerald-400 mt-0.5">142 VP (Record)</div>
                 </div>
               </div>
 
-              <div class="p-2.5 rounded-xl bg-black/70 border border-amber-500/25 font-mono text-[10px] leading-relaxed italic text-amber-100">
+              <div class="p-2 rounded-xl bg-black/75 border border-amber-500/30 font-mono text-[9.5px] leading-relaxed italic text-amber-100">
                 "${escapeHtml(pass.note || 'Tarde epica de tablero entre risas, alianzas secretas y un desenlace de partida que se recordara por anos.')}"
               </div>
 
               ${pass.photo ? `
-                <div class="mt-2 w-full h-24 rounded-lg overflow-hidden border border-amber-500/40 shadow-sm">
+                <div class="mt-2 w-full h-20 rounded-lg overflow-hidden border border-amber-500/40 shadow-sm">
                   <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo de Tablero">
                 </div>
               ` : ''}
             </div>
 
-            <div class="pt-2 border-t border-amber-500/30 flex items-center justify-between">
+            <div class="pt-2 border-t border-amber-500/40 flex items-center justify-between">
               <div>
-                <span class="text-[8px] font-mono text-amber-400/80 block uppercase">MASTER DEL JUEGO:</span>
-                <span class="font-mono text-[9px] text-amber-200">Gran Canciller de los Dados</span>
+                <span class="text-[7.5px] font-mono text-amber-400/80 block uppercase">MASTER DEL JUEGO:</span>
+                <span class="font-mono text-[8.5px] text-amber-200">Gran Canciller de los Dados</span>
               </div>
-              <div class="px-2 py-1 rounded bg-amber-500/20 text-amber-300 font-mono text-[8px] font-bold border border-amber-500/40">
-                QUEST COMPLETED
+              <div class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[8px] font-bold border border-amber-500/40">
+                QUEST COMPLETED // 10 VP
               </div>
             </div>
           </div>
@@ -2836,28 +3631,29 @@
         backHtml = `
           <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden theme-park-glow text-white p-5 border-2 border-pink-500/50 flex flex-col justify-between text-left select-none">
             <div>
-              <div class="border-b border-pink-500/30 pb-2 flex justify-between items-center font-mono">
-                <span class="text-xs font-bold text-pink-300">BITACORA DE ADRENALINA</span>
-                <span class="text-[9px] text-neutral-400">EXPRESS LOG</span>
+              <div class="border-b border-pink-500/35 pb-2 flex justify-between items-center font-mono">
+                <span class="text-xs font-bold text-pink-300">BITACORA DE ADRENALINA // LOG</span>
+                <span class="text-[9px] text-neutral-300">FAST TRACK OK</span>
               </div>
 
-              <div class="my-3 space-y-2 font-mono text-[10px]">
-                <div class="p-2 rounded-lg bg-black/60 border border-pink-500/30 flex items-center justify-between">
-                  <span>[V] MONTANA RUSA DE ACELERACION</span>
-                  <span class="text-amber-300 font-bold">115 km/h</span>
+              <!-- Registro de Atracciones Express -->
+              <div class="my-2.5 space-y-1.5 font-mono text-[9px]">
+                <div class="p-2 rounded-lg bg-black/70 border border-pink-500/35 flex items-center justify-between">
+                  <span>[OK] MONTANA RUSA DE ACELERACION</span>
+                  <span class="text-amber-300 font-bold">115 km/h (Looping)</span>
                 </div>
-                <div class="p-2 rounded-lg bg-black/60 border border-pink-500/30 flex items-center justify-between">
-                  <span>[V] CAIDA LIBRE AL VACIO</span>
-                  <span class="text-pink-400 font-bold">100m Alto</span>
+                <div class="p-2 rounded-lg bg-black/70 border border-pink-500/35 flex items-center justify-between">
+                  <span>[OK] TORRE DE CAIDA LIBRE AL VACIO</span>
+                  <span class="text-pink-400 font-bold">100m (Gritos Epicos)</span>
                 </div>
-                <div class="p-2 rounded-lg bg-black/60 border border-pink-500/30 flex items-center justify-between">
-                  <span>[V] FOTO DE FOTOMATON CON CARA EPICA</span>
-                  <span class="text-emerald-400 font-bold">Inmortalizada</span>
+                <div class="p-2 rounded-lg bg-black/70 border border-pink-500/35 flex items-center justify-between">
+                  <span>[OK] RAPIDOS DE AGUA &amp; SPLASH</span>
+                  <span class="text-cyan-300 font-bold">Empapados de Risa</span>
                 </div>
               </div>
 
-              <div class="p-2.5 rounded-xl bg-black/70 border border-pink-500/25 font-mono text-[10px] leading-relaxed italic text-pink-100">
-                "${escapeHtml(pass.note || 'Dia de pura emocion sin hacer ni una sola cola. Gritos en las bajadas y risas en cada curva.')}"
+              <div class="p-2 rounded-xl bg-black/75 border border-pink-500/25 font-mono text-[9.5px] leading-relaxed italic text-pink-100">
+                "${escapeHtml(pass.note || 'Dia de pura emocion sin hacer ni una cola. Gritos de adrenalina en las bajadas y risas en cada curva.')}"
               </div>
 
               ${pass.photo ? `
@@ -2867,13 +3663,13 @@
               ` : ''}
             </div>
 
-            <div class="pt-2 border-t border-pink-500/30 flex items-center justify-between">
+            <div class="pt-2 border-t border-pink-500/35 flex items-center justify-between">
               <div>
-                <span class="text-[8px] font-mono text-pink-300/80 block uppercase">CONTROL DE PARQUE:</span>
-                <span class="font-mono text-[9px] text-neutral-200">Director de Operaciones VIP</span>
+                <span class="text-[7.5px] font-mono text-pink-300/80 block uppercase">CONTROL DE PARQUE:</span>
+                <span class="font-mono text-[8.5px] text-neutral-200">Director de Operaciones VIP</span>
               </div>
-              <div class="px-2 py-1 rounded bg-pink-500/20 text-pink-200 font-mono text-[8px] font-bold border border-pink-400/40">
-                ALL ACCESS VALID
+              <div class="px-2 py-0.5 rounded bg-pink-500/20 text-pink-200 font-mono text-[8px] font-bold border border-pink-400/40">
+                ALL ACCESS VERIFIED
               </div>
             </div>
           </div>
@@ -2882,40 +3678,49 @@
         backHtml = `
           <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden beach-club-azure text-white p-5 border-2 border-cyan-400/50 flex flex-col justify-between text-left select-none">
             <div>
-              <div class="border-b border-cyan-400/30 pb-2 flex justify-between items-center font-mono">
-                <span class="text-xs font-bold text-cyan-300">BITACORA MEDITERRANEA</span>
-                <span class="text-[9px] text-neutral-400">CALA SERENA</span>
+              <div class="border-b border-cyan-400/35 pb-2 flex justify-between items-center font-mono">
+                <span class="text-xs font-bold text-cyan-200">CARTA DE AMENIDADES &amp; BITACORA</span>
+                <span class="text-[9px] text-neutral-300">CALA SERENA DUO</span>
               </div>
 
-              <div class="my-3 grid grid-cols-2 gap-2 font-mono text-[10px]">
-                <div class="p-2 rounded-lg bg-black/60 border border-cyan-400/30">
-                  <div class="text-[8px] text-cyan-300/80 uppercase">AGUA CRISTALINA</div>
-                  <div class="text-sm font-bold text-white mt-0.5">24&deg;C <span class="text-[9px] text-cyan-300">(Calma Total)</span></div>
+              <!-- Cocteleria de Autor y Condiciones Marinas -->
+              <div class="my-2.5 grid grid-cols-2 gap-2 font-mono text-[9px]">
+                <div class="p-2 rounded-lg bg-black/70 border border-cyan-400/35">
+                  <div class="text-[7.5px] text-cyan-300/80 uppercase">AGUA CRISTALINA</div>
+                  <div class="text-xs font-bold text-white mt-0.5">24&deg;C <span class="text-[8px] text-cyan-300">(Calma Total)</span></div>
                 </div>
-                <div class="p-2 rounded-lg bg-black/60 border border-cyan-400/30">
-                  <div class="text-[8px] text-cyan-300/80 uppercase">COCTELERIA &amp; BRINDIS</div>
-                  <div class="text-sm font-bold text-amber-300 mt-0.5">Fruta &amp; Mojitos</div>
+                <div class="p-2 rounded-lg bg-black/70 border border-cyan-400/35">
+                  <div class="text-[7.5px] text-cyan-300/80 uppercase">COCTEL DE BIENVENIDA</div>
+                  <div class="text-xs font-bold text-amber-300 mt-0.5">Spritz &amp; Mojito</div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/70 border border-cyan-400/35">
+                  <div class="text-[7.5px] text-cyan-300/80 uppercase">COORDENADAS CALA</div>
+                  <div class="text-xs font-bold text-cyan-200 mt-0.5">37&deg;35'N 0&deg;58'W</div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/70 border border-cyan-400/35">
+                  <div class="text-[7.5px] text-cyan-300/80 uppercase">ATARDECER EN PAREJA</div>
+                  <div class="text-xs font-bold text-emerald-400 mt-0.5">21:15 Golden Hour</div>
                 </div>
               </div>
 
-              <div class="p-2.5 rounded-xl bg-black/70 border border-cyan-400/25 font-mono text-[10px] leading-relaxed italic text-cyan-100">
-                "${escapeHtml(pass.note || 'Tarde de desconexion bajo el sol. El rumor de las olas, un chapuzon en agua turquesa y el mejor descanso juntos.')}"
+              <div class="p-2 rounded-xl bg-black/75 border border-cyan-400/25 font-mono text-[9.5px] leading-relaxed italic text-cyan-100">
+                "${escapeHtml(pass.note || 'Tarde de desconexion total bajo el sol. El rumor de las olas, un chapuzon en agua turquesa y el mejor descanso juntos.')}"
               </div>
 
               ${pass.photo ? `
-                <div class="mt-2 w-full h-24 rounded-lg overflow-hidden border border-cyan-400/40 shadow-sm">
+                <div class="mt-2 w-full h-20 rounded-lg overflow-hidden border border-cyan-400/40 shadow-sm">
                   <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo de Playa">
                 </div>
               ` : ''}
             </div>
 
-            <div class="pt-2 border-t border-cyan-400/30 flex items-center justify-between">
+            <div class="pt-2 border-t border-cyan-400/35 flex items-center justify-between">
               <div>
-                <span class="text-[8px] font-mono text-cyan-300/80 block uppercase">CAPITANIA:</span>
-                <span class="font-mono text-[9px] text-neutral-200">Cala Serena Day Club</span>
+                <span class="text-[7.5px] font-mono text-cyan-300/80 block uppercase">CAPITANIA DEL CLUB:</span>
+                <span class="font-mono text-[8.5px] text-neutral-200">Cala Serena Harbor Master</span>
               </div>
-              <div class="px-2 py-1 rounded bg-cyan-500/20 text-cyan-200 font-mono text-[8px] font-bold border border-cyan-400/40">
-                PERFECT SUMMER
+              <div class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-200 font-mono text-[8px] font-bold border border-cyan-400/40">
+                PERFECT SUMMER // OK
               </div>
             </div>
           </div>
@@ -2925,133 +3730,149 @@
           <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden karaoke-neon text-white p-5 border-2 border-pink-500/60 flex flex-col justify-between text-left select-none">
             <div>
               <div class="border-b border-pink-500/40 pb-2 flex justify-between items-center font-mono">
-                <span class="text-xs font-bold text-pink-300">SETLIST DE EXITOS DE PAREJA</span>
-                <span class="text-[9px] text-neutral-400">CABINA PRIVADA</span>
+                <span class="text-xs font-bold text-pink-300">CONSOLA DE MEZCLAS &amp; SETLIST</span>
+                <span class="text-[9px] text-neutral-300">CABINA VIP</span>
               </div>
 
-              <div class="my-3 space-y-2 font-mono text-[10px]">
-                <div class="p-2 rounded-lg bg-black/60 border border-pink-500/30 flex items-center justify-between">
-                  <span>1. CANCION MITICA A DUETO</span>
-                  <span class="text-amber-300 font-bold">100 PUNTOS</span>
+              <!-- Lista de Temazos Grabados en Sesion -->
+              <div class="my-2.5 space-y-1.5 font-mono text-[9px]">
+                <div class="p-2 rounded-lg bg-black/70 border border-pink-500/35 flex items-center justify-between">
+                  <span>1. BALADA ROMANTICA A DOS VOCES</span>
+                  <span class="text-amber-300 font-bold">100 PUNTOS (Ovacion)</span>
                 </div>
-                <div class="p-2 rounded-lg bg-black/60 border border-pink-500/30 flex items-center justify-between">
-                  <span>2. BALADA CANTADA CON EL ALMA</span>
-                  <span class="text-pink-400 font-bold">99 PUNTOS</span>
+                <div class="p-2 rounded-lg bg-black/70 border border-pink-500/35 flex items-center justify-between">
+                  <span>2. CLASICO POP OCHENTERO PARA BAILAR</span>
+                  <span class="text-pink-400 font-bold">99 PUNTOS (De Pie)</span>
                 </div>
-                <div class="p-2 rounded-lg bg-black/60 border border-pink-500/30 flex items-center justify-between">
-                  <span>3. CLASICO POP PARA BAILAR</span>
-                  <span class="text-emerald-400 font-bold">OVACION</span>
+                <div class="p-2 rounded-lg bg-black/70 border border-pink-500/35 flex items-center justify-between">
+                  <span>3. HIMNO ROCKERO CANTADO CON EL ALMA</span>
+                  <span class="text-emerald-400 font-bold">100 PUNTOS (Hit)</span>
                 </div>
               </div>
 
-              <div class="p-2.5 rounded-xl bg-black/70 border border-pink-500/25 font-mono text-[10px] leading-relaxed italic text-pink-100">
+              <div class="p-2 rounded-xl bg-black/75 border border-pink-500/25 font-mono text-[9.5px] leading-relaxed italic text-pink-100">
                 "${escapeHtml(pass.note || 'Cantando a pleno pulmon sin que nos importe desafinar ni un segundo. Noche de risas y complicidad maxima.')}"
               </div>
 
               ${pass.photo ? `
-                <div class="mt-2 w-full h-20 rounded-lg overflow-hidden border border-pink-400/40 shadow-sm">
+                <div class="mt-2 w-full h-18 rounded-lg overflow-hidden border border-pink-400/40 shadow-sm">
                   <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo Karaoke">
                 </div>
               ` : ''}
             </div>
 
-            <div class="pt-2 border-t border-pink-500/30 flex items-center justify-between">
+            <div class="pt-2 border-t border-pink-500/40 flex items-center justify-between">
               <div>
-                <span class="text-[8px] font-mono text-pink-300/80 block uppercase">SOUND ENGINEER:</span>
-                <span class="font-mono text-[9px] text-neutral-200">Neon Star Audio Lab</span>
+                <span class="text-[7.5px] font-mono text-pink-300/80 block uppercase">SOUND ENGINEER:</span>
+                <span class="font-mono text-[8.5px] text-neutral-200">Neon Star Audio Lab</span>
               </div>
-              <div class="px-2 py-1 rounded bg-pink-500/20 text-pink-200 font-mono text-[8px] font-bold border border-pink-400/40">
-                HIT RECORDED
+              <div class="px-2 py-0.5 rounded bg-pink-500/20 text-pink-200 font-mono text-[8px] font-bold border border-pink-400/40">
+                MASTER RECORDING // GOLD
               </div>
             </div>
           </div>
         `;
       } else if (arc === 'brunch-cafe') {
         backHtml = `
-          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden kraft-paper text-amber-100 p-5 border-2 border-amber-600/40 flex flex-col justify-between text-left select-none">
+          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden kraft-paper text-amber-100 p-5 border-2 border-amber-600/50 flex flex-col justify-between text-left select-none">
             <div>
-              <div class="border-b border-amber-600/30 pb-2 flex justify-between items-center font-mono">
-                <span class="text-xs font-bold text-amber-300">NOTAS DE CATA DEL BARISTA</span>
+              <div class="border-b border-amber-600/35 pb-2 flex justify-between items-center font-mono">
+                <span class="text-xs font-bold text-amber-300">FICHA DE CATA SENSORIAL // CUPPING</span>
                 <span class="text-[9px] text-amber-400/70">SPECIALTY COFFEE</span>
               </div>
 
-              <div class="my-3 grid grid-cols-2 gap-2 font-mono text-[10px]">
-                <div class="p-2 rounded-lg bg-black/60 border border-amber-600/30">
-                  <div class="text-[8px] text-amber-400/80 uppercase">PERFIL SENSORIAL</div>
-                  <div class="text-xs font-bold text-white mt-0.5">Jazmin, Miel &amp; Frutos Rojos</div>
+              <!-- Rueda y Perfil Sensorial SCA -->
+              <div class="my-2.5 grid grid-cols-2 gap-2 font-mono text-[9px]">
+                <div class="p-2 rounded-lg bg-black/70 border border-amber-600/35">
+                  <div class="text-[7.5px] text-amber-400/80 uppercase">PERFIL SENSORIAL</div>
+                  <div class="text-xs font-bold text-white mt-0.5">Jazmin, Miel &amp; Frutas</div>
                 </div>
-                <div class="p-2 rounded-lg bg-black/60 border border-amber-600/30">
-                  <div class="text-[8px] text-amber-400/80 uppercase">TUESTE ARTESANAL</div>
+                <div class="p-2 rounded-lg bg-black/70 border border-amber-600/35">
+                  <div class="text-[7.5px] text-amber-400/80 uppercase">TUESTE &amp; EXTRACCION</div>
                   <div class="text-xs font-bold text-amber-300 mt-0.5">Medio // Filtro V60</div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/70 border border-amber-600/35">
+                  <div class="text-[7.5px] text-amber-400/80 uppercase">DULZOR &amp; CUERPO</div>
+                  <div class="text-xs font-bold text-amber-200 mt-0.5">Sedoso 10/10</div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/70 border border-amber-600/35">
+                  <div class="text-[7.5px] text-amber-400/80 uppercase">ORIGEN DE ALTURA</div>
+                  <div class="text-xs font-bold text-emerald-400 mt-0.5">Etiopia 2.100m</div>
                 </div>
               </div>
 
-              <div class="p-2.5 rounded-xl bg-black/70 border border-amber-600/25 font-mono text-[10px] leading-relaxed italic text-amber-100">
+              <div class="p-2 rounded-xl bg-black/75 border border-amber-600/30 font-mono text-[9.5px] leading-relaxed italic text-amber-100">
                 "${escapeHtml(pass.note || 'Desayuno pausado y cafe delicioso. Hablando de todo un poco y disfrutando de cada bocado sin prisas.')}"
               </div>
 
               ${pass.photo ? `
-                <div class="mt-2 w-full h-24 rounded-lg overflow-hidden border border-amber-500/40 shadow-sm">
+                <div class="mt-2 w-full h-20 rounded-lg overflow-hidden border border-amber-500/40 shadow-sm">
                   <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo de Cafe">
                 </div>
               ` : ''}
             </div>
 
-            <div class="pt-2 border-t border-amber-600/30 flex items-center justify-between">
+            <div class="pt-2 border-t border-amber-600/35 flex items-center justify-between">
               <div>
-                <span class="text-[8px] font-mono text-amber-400/80 block uppercase">HEAD BARISTA:</span>
-                <span class="font-mono text-[9px] text-amber-200">Duo Specialty Roastery</span>
+                <span class="text-[7.5px] font-mono text-amber-400/80 block uppercase">HEAD BARISTA:</span>
+                <span class="font-mono text-[8.5px] text-amber-200">Duo Specialty Roastery</span>
               </div>
-              <div class="px-2 py-1 rounded bg-amber-600/20 text-amber-300 font-mono text-[8px] font-bold border border-amber-500/40">
-                100% ARABICA
+              <div class="px-2 py-0.5 rounded bg-amber-600/20 text-amber-300 font-mono text-[8px] font-bold border border-amber-500/40">
+                100% ARABICA APPROVED
               </div>
             </div>
           </div>
         `;
       } else if (arc === 'bespoke-signature') {
         backHtml = `
-          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden text-white p-5 border-2 border-amber-400/50 flex flex-col justify-between text-left select-none shadow-2xl bg-gradient-to-b from-[#181124] to-[#050408]">
+          <div class="card-face card-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden obsidian-card text-white p-5 border border-amber-400/50 flex flex-col justify-between text-left select-none">
             <div>
-              <div class="border-b border-amber-400/30 pb-2 flex justify-between items-center font-mono">
-                <span class="text-xs font-bold text-amber-300">CERTIFICADO OFICIAL DE VIVENCIA</span>
-                <span class="text-[9px] text-neutral-400">EMISION BESPOKE</span>
+              <!-- Banda Magnetica HiCo Superior y Microtexto -->
+              <div class="w-full h-7 -mx-5 -mt-5 mb-3 bg-gradient-to-r from-neutral-900 via-black to-neutral-900 border-b border-amber-400/30 flex items-center px-5">
+                <span class="font-mono text-[7px] text-neutral-500 tracking-widest uppercase">HICO MAGNETIC STRIPE // ENCRYPTED DUO MEMORY DATA</span>
               </div>
 
-              <div class="my-3 space-y-2 font-mono text-[10px]">
-                <div class="p-2.5 rounded-xl bg-black/60 border border-amber-400/20">
-                  <div class="text-[8px] text-amber-400/80 uppercase">TITULARES HONORIFICOS</div>
-                  <div class="text-sm font-bold text-amber-200 mt-0.5">${escapeHtml(pass.coupleNames)}</div>
+              <!-- Panel de Firma de Seguridad Blanco con Microtexto -->
+              <div class="p-2 bg-neutral-100 rounded-lg border border-neutral-300 flex justify-between items-center my-2">
+                <div>
+                  <span class="text-[6.5px] font-mono text-neutral-500 block uppercase">PANEL DE FIRMA AUTORIZADA</span>
+                  <span class="font-serif italic text-sm text-neutral-900 font-bold">${escapeHtml(pass.coupleNames)}</span>
                 </div>
-                <div class="p-2.5 rounded-xl bg-black/60 border border-amber-400/20 flex justify-between items-center">
-                  <div>
-                    <div class="text-[8px] text-amber-400/80 uppercase">FECHA DE EMISION</div>
-                    <div class="text-xs font-bold text-white mt-0.5">${pass.date}</div>
-                  </div>
-                  <div class="text-right">
-                    <div class="text-[8px] text-amber-400/80 uppercase">IDENTIFICADOR</div>
-                    <div class="text-xs font-bold text-amber-300 mt-0.5">${pass.ticketNum}</div>
-                  </div>
+                <div class="px-2 py-0.5 bg-amber-100 rounded border border-amber-300 text-[9px] font-mono font-black text-amber-900">
+                  DUO-777
                 </div>
               </div>
 
-              <div class="p-2.5 rounded-xl bg-black/70 border border-amber-400/25 font-mono text-[10px] leading-relaxed italic text-amber-100">
+              <!-- Certificado Oficial de Vivencia y Metadatos -->
+              <div class="my-2 grid grid-cols-2 gap-2 font-mono text-[9px]">
+                <div class="p-2 rounded-lg bg-black/70 border border-amber-400/25">
+                  <div class="text-[7.5px] text-amber-400/80 uppercase">FECHA DE REGISTRO</div>
+                  <div class="text-xs font-bold text-white mt-0.5">${pass.date}</div>
+                </div>
+                <div class="p-2 rounded-lg bg-black/70 border border-amber-400/25">
+                  <div class="text-[7.5px] text-amber-400/80 uppercase">IDENTIFICADOR BESPOKE</div>
+                  <div class="text-xs font-bold text-amber-300 mt-0.5">${pass.ticketNum}</div>
+                </div>
+              </div>
+
+              <div class="p-2 rounded-xl bg-black/75 border border-amber-400/30 font-mono text-[9.5px] leading-relaxed italic text-amber-100">
                 "${escapeHtml(pass.note || 'Un momento unico grabado para siempre en nuestro diario. Porque cualquier plan juntos se convierte en una aventura inolvidable.')}"
               </div>
 
               ${pass.photo ? `
-                <div class="mt-2 w-full h-22 rounded-lg overflow-hidden border border-amber-400/40 shadow-sm">
+                <div class="mt-2 w-full h-18 rounded-lg overflow-hidden border border-amber-400/40 shadow-sm">
                   <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo Personalizado">
                 </div>
               ` : ''}
             </div>
 
-            <div class="pt-2 border-t border-amber-400/30 flex items-center justify-between">
+            <div class="pt-2 border-t border-amber-400/35 flex items-center justify-between">
               <div>
-                <span class="text-[8px] font-mono text-amber-400/80 block uppercase">SELLO DE AUTENTICIDAD:</span>
-                <span class="font-mono text-[9px] text-neutral-300">Duo Official Memory Vault</span>
+                <span class="text-[7.5px] font-mono text-amber-400/80 block uppercase">SELLO DE AUTENTICIDAD:</span>
+                <span class="font-mono text-[8.5px] text-neutral-300">Duo Official Memory Vault</span>
               </div>
-              <div class="px-2 py-1 rounded bg-amber-500/20 text-amber-300 font-mono text-[8px] font-bold border border-amber-400/40">
-                RECORDED &bull; 100% DUO
+              <div class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[8px] font-bold border border-amber-400/40">
+                RECORDED &bull; 100% DUO BESPOKE
               </div>
             </div>
           </div>
@@ -3195,7 +4016,7 @@
           </div>
           
           <div class="mt-1.5 flex items-center justify-between px-1 text-[11px] text-neutral-400">
-            <span class="text-[10px] font-mono text-neutral-500">${pass.archetypeLabel}</span>
+            <span class="text-[10px] font-mono text-neutral-500">${pass.archetypeLabel || this.LABELS[arc] || arc}</span>
             <div class="flex items-center gap-2">
               <button type="button" class="btn-flip-pass text-neutral-400 hover:text-white font-semibold transition" data-card="${cardId}">
                 Voltear
@@ -3299,8 +4120,8 @@
           const cardId = btn.dataset.card;
           const flipper = document.getElementById(cardId + '-flipper');
           if (flipper) {
-            sound.playFlip();
-            sound.vibrate([20]);
+            if (typeof sound !== 'undefined' && sound.playFlip) sound.playFlip();
+            if (typeof sound !== 'undefined' && sound.vibrate) sound.vibrate([20]);
             flipper.classList.toggle('flipped');
           }
         });
@@ -3325,11 +4146,15 @@
           if (e.target.closest('button') || e.target.closest('a')) return;
           const flipper = wrap.querySelector('.flipper-container');
           if (flipper) {
-            sound.playFlip();
-            sound.vibrate([20]);
+            if (typeof sound !== 'undefined' && sound.playFlip) sound.playFlip();
+            if (typeof sound !== 'undefined' && sound.vibrate) sound.vibrate([20]);
             flipper.classList.toggle('flipped');
           }
         });
       });
     }
   };
+
+  if (typeof window !== 'undefined') {
+    window.DuoPassEngine = DuoPassEngine;
+  }
