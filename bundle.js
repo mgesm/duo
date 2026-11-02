@@ -7620,9 +7620,9 @@
 
       if (data.quickNote && data.quickNote.at && data.quickNote.at > (state.lastQuickNoteSeenAt || 0)) {
 
-        const isFromOther = (role === 'player1' && data.quickNote.fromRole !== 'player1') ||
+        const currentRole = role || state.remoteRole || (state.screen === 'player2' ? 'player2' : 'player1');
 
-                            (role === 'player2' && data.quickNote.fromRole !== 'player2');
+        const isFromOther = data.quickNote.fromRole ? (data.quickNote.fromRole !== currentRole) : (data.quickNote.fromName !== (currentRole === 'player2' ? state.player2Name : state.player1Name));
 
         if (isFromOther) {
 
@@ -7750,33 +7750,44 @@
 
     const db = initFirebase();
 
-    if (!db || !state.roomId || !text) return;
+    if (!db || !text) return;
 
     const isP1 = state.remoteRole !== 'player2';
+
+    const myRole = isP1 ? 'player1' : 'player2';
+
+    const myName = isP1 ? state.player1Name : state.player2Name;
 
     const notePayload = {
 
       text: text,
 
-      fromRole: isP1 ? 'player1' : 'player2',
+      fromRole: myRole,
 
-      fromName: isP1 ? state.player1Name : state.player2Name,
+      fromName: myName,
 
       at: Date.now()
 
     };
 
-    db.ref('rooms/' + state.roomId).update({
+    // Actualizar timestamp local para no auto-disparar el banner recibido al escribir
+    state.lastQuickNoteSeenAt = notePayload.at;
 
-      quickNote: notePayload
+    if (state.roomId) {
 
-    }).catch(function () {});
+      db.ref('rooms/' + state.roomId).update({
+
+        quickNote: notePayload
+
+      }).catch(function (err) { console.warn('Error updating room quickNote:', err); });
+
+    }
 
     db.ref('active_session').update({
 
       quickNote: notePayload
 
-    }).catch(function () {});
+    }).catch(function (err) { console.warn('Error updating active_session quickNote:', err); });
 
   }
 
@@ -8339,6 +8350,9 @@
         const db = initFirebase();
 
         if (db) {
+
+          // Suscribirse a la sala en tiempo real como player2 para sincronizar notas, votos y finalización
+          listenToRoom(roomId, 'player2');
 
           db.ref('rooms/' + roomId).once('value').then(function (snapshot) {
 
