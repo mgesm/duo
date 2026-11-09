@@ -4950,11 +4950,33 @@
 
         localStorage.setItem(STATS_HISTORY_KEY, JSON.stringify(deduplicated));
 
+      } else if (!val) {
+
+        localStorage.removeItem(STATS_HISTORY_KEY);
+
       }
 
     });
 
   }
+
+  function resetDuoStatsHistory() {
+    try {
+      localStorage.removeItem(STATS_HISTORY_KEY);
+      const db = initFirebase();
+      if (db) {
+        db.ref('shared_stats').remove().catch(function (e) {
+          console.warn('Error eliminando shared_stats en Firebase:', e);
+        });
+      }
+      return true;
+    } catch (e) {
+      console.error('Error al reiniciar estadísticas de Duo:', e);
+      return false;
+    }
+  }
+
+  window.resetDuoStatsHistory = resetDuoStatsHistory;
 
 
 
@@ -22374,7 +22396,13 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
             </div>
 
-            <button id="btn-close-stats" class="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-neutral-300 hover:text-white flex items-center justify-center font-bold text-xs transition">✕</button>
+            <div class="flex items-center gap-1.5">
+              <button id="btn-reset-stats" class="px-2.5 py-1 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[10px] font-bold transition flex items-center gap-1" title="Reiniciar Wrapped">
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                <span>Reiniciar</span>
+              </button>
+              <button id="btn-close-stats" class="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-neutral-300 hover:text-white flex items-center justify-center font-bold text-xs transition">✕</button>
+            </div>
 
           </div>
 
@@ -22929,10 +22957,22 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
 
     document.getElementById('btn-close-stats').addEventListener('click', function () {
-
       modalContainer.innerHTML = '';
-
     });
+
+    const resetBtn = document.getElementById('btn-reset-stats');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        if (confirm('¿Seguro que deseas reiniciar el Wrapped y todas las estadísticas de las partidas? (Tu diario de comidas y tu lista de deseos se mantendrán intactos)')) {
+          resetDuoStatsHistory();
+          showToast('Estadísticas y Wrapped reiniciados');
+          openStatsModal();
+          if (typeof renderHomeScreen === 'function') {
+            renderHomeScreen();
+          }
+        }
+      });
+    }
 
   }
 
