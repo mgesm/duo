@@ -1,4 +1,4 @@
-/**
+﻿/**
 
  * ¿Dónde comemos? - Bundle unificado compatible con protocolo file:// y http(s)://
 
@@ -4716,6 +4716,80 @@
 
   }
 
+  // ==========================================
+  // CÁPSULA DEL TIEMPO DUO (SUGERENCIA INTELIGENTE DE CITAS)
+  // ==========================================
+  function getTimeCapsuleMemory(visits) {
+    if (!visits || !Array.isArray(visits) || visits.length === 0) return null;
+
+    const now = Date.now();
+    const valid = visits.filter(function (v) { return !!(v.restaurantName || v.name); });
+    if (valid.length === 0) return null;
+
+    const sorted = valid.slice().sort(function (a, b) {
+      const tA = a.timestamp || (a.date ? Date.parse(a.date) : 0) || 0;
+      const tB = b.timestamp || (b.date ? Date.parse(b.date) : 0) || 0;
+      return tB - tA;
+    });
+
+    function getDaysAgo(v) {
+      const t = v.timestamp || (v.date ? Date.parse(v.date) : 0) || 0;
+      if (!t) return 0;
+      return Math.max(0, Math.round((now - t) / (1000 * 60 * 60 * 24)));
+    }
+
+    const milestones = [
+      { days: 365, label: 'Hace 1 año', reason: 'Vuestro aniversario anual de esta cita inolvidable.' },
+      { days: 180, label: 'Hace 6 meses', reason: 'Medio año desde este momentazo juntos.' },
+      { days: 90, label: 'Hace 3 meses', reason: 'Un recuerdo especial que merece repetirse.' },
+      { days: 30, label: 'Hace 1 mes', reason: 'Un mes desde esta velada perfecta.' },
+      { days: 14, label: 'Hace 2 semanas', reason: '¿Os apetece repetir este planazo?' },
+      { days: 7, label: 'Hace 1 semana', reason: 'La semana pasada triunfó este sitio.' }
+    ];
+
+    for (let i = 0; i < milestones.length; i++) {
+      const m = milestones[i];
+      const match = sorted.find(function (v) {
+        const d = getDaysAgo(v);
+        return Math.abs(d - m.days) <= (m.days >= 30 ? 4 : 2);
+      });
+      if (match) {
+        return {
+          visit: match,
+          badge: 'CÁPSULA DEL TIEMPO',
+          badgeColor: 'text-amber-300 bg-amber-500/20 border-amber-500/35',
+          timeLabel: m.label,
+          reason: m.reason,
+          daysAgo: getDaysAgo(match)
+        };
+      }
+    }
+
+    const oldest = sorted[sorted.length - 1];
+    const oldestDays = getDaysAgo(oldest);
+    if (sorted.length >= 3 && oldestDays >= 20) {
+      return {
+        visit: oldest,
+        badge: 'PRIMERA CITA',
+        badgeColor: 'text-rose-300 bg-rose-500/20 border-rose-500/35',
+        timeLabel: oldestDays > 30 ? ('Hace ' + Math.round(oldestDays / 30) + ' meses') : ('Hace ' + oldestDays + ' días'),
+        reason: 'Vuestra primera cita guardada en el Diario. ¿Y si la revivís hoy?',
+        daysAgo: oldestDays
+      };
+    }
+
+    const fiveStar = sorted.find(function (v) { return (v.rating || 0) === 5; }) || sorted[0];
+    const days = getDaysAgo(fiveStar);
+    return {
+      visit: fiveStar,
+      badge: 'CÁPSULA DEL TIEMPO',
+      badgeColor: 'text-indigo-300 bg-indigo-500/20 border-indigo-500/35',
+      timeLabel: days > 0 ? ('Hace ' + (days > 30 ? Math.round(days / 30) + ' meses' : days + ' días')) : 'Reciente',
+      reason: 'Vuestra cita de 5 estrellas favorita. Un acierto seguro para hoy.',
+      daysAgo: days
+    };
+  }
+
 
 
   // Historial de resultados para estadísticas de afinidad y moneda
@@ -7683,6 +7757,12 @@
 
       state.remoteP2Done = !!data.p2Done;
 
+      const partnerStatus = role === 'player1' ? data.p2Status : data.p1Status;
+      state.remotePartnerStatus = partnerStatus || null;
+      if (typeof updateLivePresenceUI === 'function') {
+        updateLivePresenceUI();
+      }
+
 
 
       // Si ambos jugadores han confirmado y estamos esperando o en votación:
@@ -7857,6 +7937,10 @@
 
       updateObj.p1Superlike = state.player1Superlike || null;
 
+      updateObj.p1Status = 'choosing';
+
+      updateObj.p1LastActive = Date.now();
+
     } else {
 
       updateObj.p2Selections = Array.from(state.player2Selections);
@@ -7867,12 +7951,73 @@
 
       updateObj.p2Superlike = state.player2Superlike || null;
 
+      updateObj.p2Status = 'choosing';
+
+      updateObj.p2LastActive = Date.now();
+
     }
 
     db.ref('rooms/' + state.roomId).update(updateObj).catch(function () {});
 
     db.ref('active_session').update(updateObj).catch(function () {});
 
+  }
+
+  // ==========================================
+  // PRESENCIA Y ESTADO EN VIVO ENTRE DISPOSITIVOS
+  // ==========================================
+  function broadcastPresenceStatus(statusType) {
+    const db = initFirebase();
+    if (!db || !state.roomId) return;
+    const isP1 = state.remoteRole !== 'player2';
+    const updateObj = { lastActivityAt: Date.now() };
+    if (isP1) {
+      updateObj.p1Status = statusType;
+      updateObj.p1LastActive = Date.now();
+    } else {
+      updateObj.p2Status = statusType;
+      updateObj.p2LastActive = Date.now();
+    }
+    db.ref('rooms/' + state.roomId).update(updateObj).catch(function () {});
+  }
+
+  function updateLivePresenceUI() {
+    const el = document.getElementById('live-presence-indicator');
+    const waitingEl = document.getElementById('waiting-presence-capsule');
+    if (!el && !waitingEl) return;
+
+    const isP1 = state.remoteRole !== 'player2';
+    const partnerName = isP1 ? state.player2Name : state.player1Name;
+    const partnerCount = isP1 ? (state.remoteP2Count || 0) : (state.remoteP1Count || 0);
+    const partnerDone = isP1 ? state.remoteP2Done : state.remoteP1Done;
+    const partnerStatus = partnerDone ? 'ready' : (state.remotePartnerStatus || (partnerCount > 0 ? 'choosing' : 'thinking'));
+
+    let icon = '';
+    let text = '';
+    let borderClass = 'border-white/10 bg-white/[0.04] text-neutral-300';
+
+    if (partnerDone || partnerStatus === 'ready') {
+      icon = '<svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      text = '<strong class="text-emerald-300 font-bold">' + escapeHtml(partnerName) + '</strong> ya ha confirmado sus votos';
+      borderClass = 'border-emerald-500/35 bg-emerald-500/15 text-emerald-200';
+    } else if (partnerStatus === 'typing_note') {
+      icon = '<svg class="w-3.5 h-3.5 text-rose-400 animate-pulse shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>';
+      text = '<strong class="text-rose-300 font-bold">' + escapeHtml(partnerName) + '</strong> está escribiendo una nota secreta...';
+      borderClass = 'border-rose-500/35 bg-rose-500/15 text-rose-200';
+    } else if (partnerStatus === 'choosing' || partnerCount > 0) {
+      icon = '<span class="flex h-2 w-2 relative shrink-0"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span></span>';
+      text = '<strong class="text-indigo-300 font-bold">' + escapeHtml(partnerName) + '</strong> está decidiendo (' + partnerCount + ' opciones)...';
+      borderClass = 'border-indigo-500/35 bg-indigo-500/15 text-indigo-200';
+    } else {
+      icon = '<span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0"></span>';
+      text = '<strong class="text-white font-bold">' + escapeHtml(partnerName) + '</strong> está pensando sus elecciones...';
+      borderClass = 'border-amber-500/30 bg-white/[0.05] text-neutral-300';
+    }
+
+    const html = '<div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border ' + borderClass + ' backdrop-blur-xl shadow-md text-[11px] leading-tight transition-all duration-300 animate-fade-in">' + icon + '<span>' + text + '</span></div>';
+
+    if (el) el.innerHTML = html;
+    if (waitingEl) waitingEl.innerHTML = html;
   }
 
 
@@ -8042,6 +8187,8 @@
 
   function openQuickNoteModal() {
 
+    broadcastPresenceStatus('typing_note');
+
     const isP1 = state.remoteRole !== 'player2';
 
     const partnerName = isP1 ? state.player2Name : state.player1Name;
@@ -8180,6 +8327,8 @@
 
       modalContainer.innerHTML = '';
 
+      broadcastPresenceStatus('choosing');
+
     };
 
 
@@ -8201,6 +8350,8 @@
         showDynamicIslandNote(text, 'Tú');
 
         showToast('Nota enviada a ' + partnerName);
+
+        broadcastPresenceStatus('choosing');
 
       };
 
@@ -8231,6 +8382,8 @@
         showDynamicIslandNote(text, 'Tú');
 
         showToast('Nota enviada a ' + partnerName);
+
+        broadcastPresenceStatus('choosing');
 
       };
 
@@ -8897,6 +9050,8 @@
 
     const visits = getFoodDiary();
 
+    const timeCapsule = getTimeCapsuleMemory(visits);
+
     const wishlist = getWishlist();
 
     const statsHistory = getDuoStatsHistory();
@@ -9099,7 +9254,55 @@
 
         </div>
 
+        ${timeCapsule && !state.dismissTimeCapsule ? `
+          <!-- Cápsula del Tiempo Duo -->
+          <div class="ios-glass p-4 rounded-[26px] border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-rose-500/5 to-indigo-500/10 relative overflow-hidden my-2 shadow-xl shadow-amber-500/5 text-left animate-ios-slide">
+            <div class="absolute -right-8 -top-8 w-28 h-28 bg-amber-500/15 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="flex items-center justify-between pb-2 border-b border-white/[0.08] relative z-10">
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${timeCapsule.badgeColor}">
+                  <svg class="w-3 h-3 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <span>${timeCapsule.badge}</span>
+                </span>
+                <span class="text-[10px] text-neutral-400 font-medium">${timeCapsule.timeLabel}</span>
+              </div>
+              <button id="btn-dismiss-time-capsule" class="w-6 h-6 rounded-full bg-white/5 hover:bg-white/15 text-neutral-400 hover:text-white flex items-center justify-center text-xs transition" title="Ocultar sugerencia">
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
 
+            <div class="pt-3 flex items-start gap-3 relative z-10">
+              ${(timeCapsule.visit.photo || (timeCapsule.visit.photos && timeCapsule.visit.photos[0])) ? `
+                <div class="w-14 h-14 rounded-2xl overflow-hidden border border-white/20 shrink-0 shadow-md group cursor-pointer" onclick="if(window.DuoLightbox) window.DuoLightbox.open('${timeCapsule.visit.photo || timeCapsule.visit.photos[0]}')">
+                  <img src="${timeCapsule.visit.photo || timeCapsule.visit.photos[0]}" class="w-full h-full object-cover group-hover:scale-110 transition duration-300" alt="Recuerdo" />
+                </div>
+              ` : `
+                <div class="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
+                  <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                </div>
+              `}
+              <div class="min-w-0 flex-1">
+                <h4 class="font-extrabold text-sm sm:text-base text-white leading-tight truncate">
+                  ¿Repetimos en ${escapeHtml(timeCapsule.visit.restaurantName || timeCapsule.visit.name)}?
+                </h4>
+                <p class="text-[11px] text-neutral-300 mt-0.5 leading-snug">
+                  ${timeCapsule.reason}
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-3 pt-2 border-t border-white/[0.08] flex items-center gap-2 relative z-10">
+              <button id="btn-relive-capsule-date" class="flex-1 py-2 px-3 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 shadow-md shadow-amber-500/20 active:scale-95 transition flex items-center justify-center gap-1.5">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                <span>Revivir esta cita</span>
+              </button>
+              <button id="btn-open-capsule-memory" class="py-2 px-3 rounded-xl font-semibold text-xs text-neutral-300 bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 active:scale-95 transition flex items-center justify-center gap-1">
+                <svg class="w-3.5 h-3.5 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                <span>Ver recuerdo</span>
+              </button>
+            </div>
+          </div>
+        ` : ''}
 
         <!-- Acceso Rápido Duo: Wishlist, Diario y Estadísticas Wrapped -->
 
@@ -9623,6 +9826,41 @@
 
       });
 
+    }
+
+    const btnReliveCapsule = document.getElementById('btn-relive-capsule-date');
+    if (btnReliveCapsule && timeCapsule) {
+      btnReliveCapsule.addEventListener('click', function () {
+        sound.vibrate([20, 50, 20]);
+        sound.playSuccess();
+        const rName = timeCapsule.visit.restaurantName || timeCapsule.visit.name;
+        showToast('¡Cita elegida! Reviviendo ' + rName);
+        const match = state.restaurants.find(function (r) {
+          return r.name.toLowerCase() === rName.toLowerCase() || r.id === timeCapsule.visit.restaurantId;
+        });
+        if (match) {
+          state.player1Selections = new Set([match.id]);
+        }
+        startLocalGame();
+      });
+    }
+
+    const btnOpenCapsuleMem = document.getElementById('btn-open-capsule-memory');
+    if (btnOpenCapsuleMem && timeCapsule) {
+      btnOpenCapsuleMem.addEventListener('click', function () {
+        sound.playPop();
+        sound.vibrate([25]);
+        openDiaryModal();
+      });
+    }
+
+    const btnDismissCapsule = document.getElementById('btn-dismiss-time-capsule');
+    if (btnDismissCapsule) {
+      btnDismissCapsule.addEventListener('click', function (e) {
+        e.stopPropagation();
+        state.dismissTimeCapsule = true;
+        renderHomeScreen();
+      });
     }
 
 
@@ -10356,6 +10594,8 @@
               </div>
 
             </div>
+
+            <div id="live-presence-indicator" class="mb-2 flex justify-start"></div>
 
           ` : ''}
 
@@ -12361,6 +12601,8 @@
 
                 p1Done: true,
 
+                p1Status: 'ready',
+
                 p1Selections: Array.from(state.player1Selections),
 
                 p1Veto: state.player1Veto || null,
@@ -12374,6 +12616,8 @@
             : { 
 
                 p2Done: true,
+
+                p2Status: 'ready',
 
                 p2Selections: Array.from(state.player2Selections),
 
@@ -12969,6 +13213,8 @@
 
           `}
 
+          <div id="waiting-presence-capsule" class="mt-3 flex justify-center"></div>
+
         </div>
 
 
@@ -13043,7 +13289,7 @@
 
     `;
 
-
+    updateLivePresenceUI();
 
     const btnWaitingNote = document.getElementById('btn-waiting-quicknote');
 
@@ -20462,9 +20708,13 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
             <!-- Botonera de Interaccion 3D -->
             <div class="w-full mt-3 flex items-center justify-center gap-2">
-              <button id="btn-modal-download" class="py-2.5 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-xs font-bold text-amber-300 flex items-center justify-center gap-1.5 transition active:scale-95">
+              <button id="btn-modal-share" class="py-2.5 px-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-xs font-bold text-emerald-300 flex items-center justify-center gap-1.5 transition active:scale-95" title="Compartir en WhatsApp o Stories">
+                <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                <span>Compartir</span>
+              </button>
+              <button id="btn-modal-download" class="py-2.5 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-xs font-bold text-amber-300 flex items-center justify-center gap-1.5 transition active:scale-95" title="Guardar PNG">
                 <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                <span>Descargar</span>
+                <span>Guardar</span>
               </button>
               <button id="btn-modal-flip" class="flex-1 py-2.5 px-3 rounded-xl bg-white/[0.1] hover:bg-white/[0.18] border border-white/15 text-xs font-bold text-white flex items-center justify-center gap-1.5 transition active:scale-95">
                 <span>Voltear Reverso</span>
@@ -20493,11 +20743,25 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
         });
       }
 
+      const frontFace = document.querySelector('#inspector-card .card-front') || document.querySelector('#inspector-card');
+      if (frontFace && window.VisionOSReflection) {
+        window.VisionOSReflection.attachTo(frontFace);
+      }
+
+      const btnModalShare = document.getElementById('btn-modal-share');
+      if (btnModalShare) {
+        btnModalShare.addEventListener('click', function () {
+          if (window.downloadPassAsImage) {
+            window.downloadPassAsImage('#inspector-card', pass.name || 'Pase Duo', 'share');
+          }
+        });
+      }
+
       const btnModalDownload = document.getElementById('btn-modal-download');
       if (btnModalDownload) {
         btnModalDownload.addEventListener('click', function () {
           if (window.downloadPassAsImage) {
-            window.downloadPassAsImage('#inspector-card', pass.name || 'Pase Duo');
+            window.downloadPassAsImage('#inspector-card', pass.name || 'Pase Duo', 'download');
           }
         });
       }
@@ -20530,6 +20794,12 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
     // Enlazar Eventos de Flip y Apertura de Pases en Contenedores
     bindCardInteractions: function (container) {
       if (!container) return;
+
+      if (window.VisionOSReflection) {
+        container.querySelectorAll('.card-front').forEach(function (front) {
+          window.VisionOSReflection.attachTo(front);
+        });
+      }
 
       container.querySelectorAll('.btn-download-pass').forEach(function (btn) {
         btn.addEventListener('click', function (e) {
@@ -20621,9 +20891,85 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
   };
 
   // ==========================================
+  // MOTOR DE REFLEJO ESPECULAR VISIONOS & GIROSCOPIO
+  // ==========================================
+  const VisionOSReflection = {
+    _initialized: false,
+    init: function () {
+      if (this._initialized) return;
+      this._initialized = true;
+
+      // Soporte para giroscopio / orientación del dispositivo
+      if (typeof window !== 'undefined' && window.DeviceOrientationEvent) {
+        window.addEventListener('deviceorientation', function (e) {
+          if (e.gamma === null || e.beta === null) return;
+          const xPct = Math.max(10, Math.min(90, 50 + (e.gamma * 1.6)));
+          const yPct = Math.max(10, Math.min(90, 30 + ((e.beta - 35) * 1.3)));
+          const angle = Math.round(110 + (e.gamma * 1.4));
+          VisionOSReflection.updateAllSheens(xPct, yPct, angle, 0.55);
+        }, { passive: true });
+      }
+    },
+
+    updateAllSheens: function (xPct, yPct, angle, opacity) {
+      const glares = document.querySelectorAll('.visionos-specular-glare');
+      glares.forEach(function (glare) {
+        glare.style.setProperty('--specular-x', xPct + '%');
+        glare.style.setProperty('--specular-y', yPct + '%');
+        glare.style.setProperty('--specular-angle', angle + 'deg');
+        if (opacity !== undefined) {
+          glare.style.setProperty('--specular-opacity', opacity);
+        }
+      });
+    },
+
+    attachTo: function (cardEl) {
+      if (!cardEl) return;
+      cardEl.classList.add('visionos-specular-card');
+
+      if (!cardEl.querySelector('.visionos-specular-glare')) {
+        const glare = document.createElement('div');
+        glare.className = 'visionos-specular-glare';
+        cardEl.appendChild(glare);
+      }
+
+      const glareEl = cardEl.querySelector('.visionos-specular-glare');
+
+      const onPointerMove = function (e) {
+        const rect = cardEl.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const xPct = Math.max(0, Math.min(100, (x / rect.width) * 100));
+        const yPct = Math.max(0, Math.min(100, (y / rect.height) * 100));
+        const angle = Math.round(105 + ((xPct - 50) * 0.8));
+
+        if (glareEl) {
+          glareEl.style.setProperty('--specular-x', xPct + '%');
+          glareEl.style.setProperty('--specular-y', yPct + '%');
+          glareEl.style.setProperty('--specular-angle', angle + 'deg');
+          glareEl.style.setProperty('--specular-opacity', '0.65');
+        }
+      };
+
+      const onPointerLeave = function () {
+        if (glareEl) {
+          glareEl.style.setProperty('--specular-opacity', '0.35');
+        }
+      };
+
+      cardEl.addEventListener('pointermove', onPointerMove, { passive: true });
+      cardEl.addEventListener('pointerleave', onPointerLeave, { passive: true });
+
+      this.init();
+    }
+  };
+  window.VisionOSReflection = VisionOSReflection;
+
+  // ==========================================
   // MOTOR DE DESCARGA Y COMPARTIR PASES EN PNG
   // ==========================================
-  window.downloadPassAsImage = function(passId, passTitle) {
+  window.downloadPassAsImage = function(passId, passTitle, actionType) {
     if (!passId) return;
 
     let targetEl = null;
@@ -20672,7 +21018,7 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
           const fileName = `duo-pase-${cleanTitle}-${Date.now().toString().slice(-4)}.png`;
           const fileObj = new File([blob], fileName, { type: 'image/png' });
 
-          if (navigator.canShare && navigator.canShare({ files: [fileObj] })) {
+          if (actionType !== 'download' && navigator.canShare && navigator.canShare({ files: [fileObj] })) {
             navigator.share({
               files: [fileObj],
               title: passTitle || 'Pase Duo Coleccionable',
@@ -20742,6 +21088,7 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
     let diarySearchQuery = '';
     let diaryFilterYear = 'ALL';
     let diaryOnlyWithPhotos = false;
+    let diaryPhotoStyle = localStorage.getItem('donde_comemos_diary_photo_style') || 'polaroid';
 
     function formatIsoDateToEs(isoStr) {
       if (!isoStr) return new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -21158,6 +21505,22 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
                         <span>Con fotos (${allVisits.filter(function(v) { return (Array.isArray(v.photos) && v.photos.length > 0) || !!v.photo; }).length})</span>
                       </button>
                     </div>
+
+                    <!-- Selector de Estilo de Fotografía Analógica / Retro -->
+                    <div class="flex items-center justify-between pt-1 border-t border-white/[0.06] text-[10px]">
+                      <span class="text-neutral-400 font-medium">Estilo de fotos:</span>
+                      <div class="flex items-center gap-1 bg-white/[0.04] p-0.5 rounded-lg border border-white/[0.08]">
+                        <button type="button" data-style="polaroid" class="btn-photo-style px-2 py-0.5 rounded-md font-bold transition ${diaryPhotoStyle === 'polaroid' ? 'bg-amber-500/30 text-amber-300 border border-amber-500/40' : 'text-neutral-400 hover:text-white'}">
+                          Polaroid
+                        </button>
+                        <button type="button" data-style="film35" class="btn-photo-style px-2 py-0.5 rounded-md font-bold transition ${diaryPhotoStyle === 'film35' ? 'bg-rose-500/30 text-rose-300 border border-rose-500/40' : 'text-neutral-400 hover:text-white'}">
+                          35mm
+                        </button>
+                        <button type="button" data-style="clean" class="btn-photo-style px-2 py-0.5 rounded-md font-bold transition ${diaryPhotoStyle === 'clean' ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/40' : 'text-neutral-400 hover:text-white'}">
+                          Moderna
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 ` : ''}
 
@@ -21229,6 +21592,10 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
                             <div class="flex items-center gap-1.5 shrink-0">
 
+                              <button data-card-id="${cardId}" data-pass-title="${escapeHtml(v.restaurantName || v.name || 'Pase Duo')}" class="btn-card-share-png p-1.5 rounded-lg text-neutral-400 hover:text-emerald-400 hover:bg-white/[0.08] transition" title="Compartir en WhatsApp o Stories">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                              </button>
+
                               <button data-card-id="${cardId}" data-pass-title="${escapeHtml(v.restaurantName || v.name || 'Pase Duo')}" class="btn-card-download-png p-1.5 rounded-lg text-neutral-400 hover:text-amber-300 hover:bg-white/[0.08] transition" title="Descargar Pase en PNG">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                               </button>
@@ -21251,19 +21618,63 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
                           <!-- Galería Carrusel Horizontal de Fotos en la Tarjeta -->
                           ${photosList.length > 0 ? `
-                            <div class="flex gap-2 overflow-x-auto no-scrollbar py-1 snap-x snap-mandatory">
+                            <div class="flex gap-2.5 overflow-x-auto no-scrollbar py-2 px-1 snap-x snap-mandatory">
                               ${photosList.map(function(photoUrl, pIdx) {
-                                return `
-                                  <div 
-                                    class="shrink-0 w-24 h-24 rounded-xl overflow-hidden border border-white/15 snap-start cursor-pointer hover:border-indigo-400 transition relative group"
-                                    onclick="if(window.DuoLightbox) window.DuoLightbox.open('${photoUrl}')"
-                                  >
-                                    <img src="${photoUrl}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-                                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
-                                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+                                if (diaryPhotoStyle === 'polaroid') {
+                                  const tilt = (pIdx % 2 === 0 ? '-1.5deg' : '1.5deg');
+                                  return `
+                                    <div 
+                                      class="shrink-0 polaroid-frame p-1.5 pb-3 rounded-sm snap-start cursor-pointer transition-transform duration-300 relative"
+                                      style="transform: rotate(${tilt});"
+                                      onclick="if(window.DuoLightbox) window.DuoLightbox.open('${photoUrl}')"
+                                    >
+                                      <div class="w-24 h-24 overflow-hidden bg-neutral-900 border border-black/10">
+                                        <img src="${photoUrl}" class="w-full h-full object-cover hover:scale-105 transition duration-300" alt="Foto" />
+                                      </div>
+                                      <div class="text-[9px] text-neutral-600 font-mono text-center mt-1 leading-none tracking-tight">
+                                        ${v.date || 'Recuerdo'}
+                                      </div>
                                     </div>
-                                  </div>
-                                `;
+                                  `;
+                                } else if (diaryPhotoStyle === 'film35') {
+                                  return `
+                                    <div 
+                                      class="shrink-0 film35-frame py-1 px-1.5 rounded-sm snap-start cursor-pointer transition relative flex flex-col items-center"
+                                      onclick="if(window.DuoLightbox) window.DuoLightbox.open('${photoUrl}')"
+                                    >
+                                      <div class="w-full flex justify-between gap-1 mb-1">
+                                        <div class="film35-sprocket"></div>
+                                        <div class="film35-sprocket"></div>
+                                        <div class="film35-sprocket"></div>
+                                        <div class="film35-sprocket"></div>
+                                      </div>
+                                      <div class="w-24 h-20 overflow-hidden bg-black relative">
+                                        <img src="${photoUrl}" class="w-full h-full object-cover hover:scale-105 transition duration-300" alt="Fotograma" />
+                                        <div class="absolute bottom-1 right-1 text-[8px] font-mono text-amber-500 font-bold bg-black/70 px-1 rounded">
+                                          EXP-${pIdx + 1}
+                                        </div>
+                                      </div>
+                                      <div class="w-full flex justify-between gap-1 mt-1">
+                                        <div class="film35-sprocket"></div>
+                                        <div class="film35-sprocket"></div>
+                                        <div class="film35-sprocket"></div>
+                                        <div class="film35-sprocket"></div>
+                                      </div>
+                                    </div>
+                                  `;
+                                } else {
+                                  return `
+                                    <div 
+                                      class="shrink-0 w-24 h-24 rounded-xl overflow-hidden border border-white/15 snap-start cursor-pointer hover:border-indigo-400 transition relative group"
+                                      onclick="if(window.DuoLightbox) window.DuoLightbox.open('${photoUrl}')"
+                                    >
+                                      <img src="${photoUrl}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                                      <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+                                      </div>
+                                    </div>
+                                  `;
+                                }
                               }).join('')}
                             </div>
                           ` : ''}
@@ -21618,6 +22029,18 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
 
 
+      // Listeners de compartir pase en PNG desde la tarjeta del timeline
+      modalContainer.querySelectorAll('.btn-card-share-png').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const targetCardId = btn.getAttribute('data-card-id');
+          const title = btn.getAttribute('data-pass-title') || 'Pase Duo';
+          if (window.downloadPassAsImage) {
+            window.downloadPassAsImage(targetCardId, title, 'share');
+          }
+        });
+      });
+
       // Listeners de descarga de pases en PNG desde la tarjeta del timeline
       modalContainer.querySelectorAll('.btn-card-download-png').forEach(function (btn) {
         btn.addEventListener('click', function (e) {
@@ -21625,7 +22048,21 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
           const targetCardId = btn.getAttribute('data-card-id');
           const title = btn.getAttribute('data-pass-title') || 'Pase Duo';
           if (window.downloadPassAsImage) {
-            window.downloadPassAsImage(targetCardId, title);
+            window.downloadPassAsImage(targetCardId, title, 'download');
+          }
+        });
+      });
+
+      // Listeners de Selector de Estilo de Fotografía
+      modalContainer.querySelectorAll('.btn-photo-style').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const style = btn.getAttribute('data-style');
+          if (style) {
+            diaryPhotoStyle = style;
+            localStorage.setItem('donde_comemos_diary_photo_style', style);
+            sound.playPop();
+            sound.vibrate([20]);
+            renderModalContent();
           }
         });
       });
