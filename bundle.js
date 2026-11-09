@@ -4448,11 +4448,17 @@
 
 
 
-  function addFoodVisit(restaurantId, restaurantName, rating, note, photoBase64, customSessionId, customPassData) {
+  function addFoodVisit(restaurantId, restaurantName, rating, note, photoData, customSessionId, customPassData, customDate) {
 
     try {
 
       const list = getFoodDiary();
+
+      const photosArray = Array.isArray(photoData) ? photoData : (photoData ? [photoData] : []);
+
+      const primaryPhoto = photosArray.length > 0 ? photosArray[0] : null;
+
+      const visitDate = customDate || new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
 
       const generatedPass = customPassData || DuoPassEngine.generatePassData({
 
@@ -4464,7 +4470,9 @@
 
         note: note || '',
 
-        photo: photoBase64 || null,
+        photo: primaryPhoto,
+
+        photos: photosArray,
 
         mode: state.activeMode,
 
@@ -4472,7 +4480,7 @@
 
         p2Name: state.player2Name,
 
-        date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
+        date: visitDate
 
       });
 
@@ -4490,7 +4498,9 @@
 
         note: note || '',
 
-        photo: photoBase64 || null,
+        photo: primaryPhoto,
+
+        photos: photosArray,
 
         mode: state.activeMode,
 
@@ -4498,7 +4508,7 @@
 
         p2Name: state.player2Name,
 
-        date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }),
+        date: visitDate,
 
         timestamp: Date.now(),
 
@@ -4508,7 +4518,21 @@
 
       list.unshift(newVisit);
 
-      localStorage.setItem(DIARY_STORAGE_KEY, JSON.stringify(list));
+      try {
+
+        localStorage.setItem(DIARY_STORAGE_KEY, JSON.stringify(list));
+
+      } catch (quotaErr) {
+
+        console.warn('QuotaExceeded al guardar en localStorage, optimizando recuerdos antiguos...');
+
+        // Si excede cuota, reducir fotos de recuerdos antiguos para preservar historial
+
+        list.slice(10).forEach(function(v) { if (v.photos && v.photos.length > 1) v.photos = [v.photos[0]]; });
+
+        try { localStorage.setItem(DIARY_STORAGE_KEY, JSON.stringify(list)); } catch (e2) {}
+
+      }
 
 
 
@@ -4523,6 +4547,8 @@
       return newVisit;
 
     } catch (e) {
+
+      console.error('Error in addFoodVisit:', e);
 
       return false;
 
@@ -16936,7 +16962,8 @@
       const coupleNames = `${p1} & ${p2}`;
       const date = item.date || new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
       const rating = item.rating || 5;
-      const photo = item.photo || null;
+      const photos = Array.isArray(item.photos) ? item.photos : (item.photo ? [item.photo] : []);
+      const photo = photos.length > 0 ? photos[0] : (item.photo || null);
       const hash = this.hashString(name + date);
       const cleanPrefix = name.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, 'X') || 'DUO';
       const ticketNum = `#DUO-${hash.slice(0, 4)}-${cleanPrefix}`;
@@ -17074,6 +17101,7 @@
         date: date,
         rating: rating,
         photo: photo,
+        photos: photos,
         p1Name: p1,
         p2Name: p2,
         coupleNames: coupleNames,
@@ -17086,6 +17114,47 @@
         navQuery: navQuery,
         navUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(navQuery)
       };
+    },
+
+    // Renderizador universal y adaptable de fotos en el reverso de los pases
+    renderPassPhotos: function (pass, heightClass, borderClass, label) {
+      const photos = Array.isArray(pass.photos) && pass.photos.length > 0 
+        ? pass.photos 
+        : (pass.photo ? [pass.photo] : []);
+      if (photos.length === 0) return '';
+      const hClass = heightClass || 'h-24';
+      const bClass = borderClass || 'border-white/20';
+      const lbl = label || 'Recuerdo';
+
+      if (photos.length === 1) {
+        return `
+          <div class="my-2 w-full ${hClass} rounded-xl overflow-hidden border ${bClass} shadow-md cursor-pointer group relative" onclick="if(window.DuoLightbox) window.DuoLightbox.open('${photos[0]}')">
+            <img src="${photos[0]}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" alt="${lbl}">
+            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <svg class="w-5 h-5 text-white filter drop-shadow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="my-2 space-y-1">
+          <div class="flex items-center justify-between text-[9px] font-mono text-neutral-400 px-0.5">
+            <span>GALERIA (${photos.length} FOTOS)</span>
+            <span class="text-amber-400">&larr; deslizar &rarr;</span>
+          </div>
+          <div class="flex gap-2 overflow-x-auto no-scrollbar py-0.5 snap-x snap-mandatory">
+            ${photos.map(function (p, pIdx) {
+              return `
+                <div class="shrink-0 w-28 ${hClass} rounded-xl overflow-hidden border ${bClass} shadow-md snap-start cursor-pointer group relative" onclick="if(window.DuoLightbox) window.DuoLightbox.open('${p}')">
+                  <img src="${p}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" alt="${lbl} ${pIdx + 1}">
+                  <span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-[8px] font-bold text-white">${pIdx + 1}/${photos.length}</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
     },
 
     // Codigo de barras realista
@@ -19363,11 +19432,7 @@
                   </p>
                 </div>
 
-                ${pass.photo ? `
-                  <div class="my-2 w-full h-24 rounded-lg overflow-hidden border border-neutral-300 shadow-sm">
-                    <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo">
-                  </div>
-                ` : ''}
+${this.renderPassPhotos(pass, 'h-24', 'border-neutral-300/80', 'Ticket Recuerdo')}
 
                 <div class="p-2.5 bg-neutral-100 rounded-lg border border-neutral-200 text-xs space-y-1">
                   <div class="flex items-center space-x-1 text-neutral-800 font-bold">
@@ -19467,11 +19532,7 @@
                   </div>
                 </div>
 
-                ${pass.photo ? `
-                  <div class="my-2.5 w-full h-24 rounded-lg overflow-hidden border border-amber-500/40 shadow-md">
-                    <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo de la Velada">
-                  </div>
-                ` : ''}
+${this.renderPassPhotos(pass, 'h-24', 'border-amber-500/40', 'Recuerdo de la Velada')}
 
                 <div class="my-2 p-2 rounded-lg bg-amber-950/30 border border-amber-500/20 text-xs text-amber-200/90 font-special italic leading-relaxed">
                   "${escapeHtml(pass.note || 'Cita de cine inolvidable: luces tenues, manos entrelazadas y la magia de la gran pantalla.')}"
@@ -19550,11 +19611,7 @@
                   </div>
                 </div>
 
-                ${pass.photo ? `
-                  <div class="my-2.5 w-full h-24 rounded-lg overflow-hidden border border-cyan-400/40 shadow-md">
-                    <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo Submarino">
-                  </div>
-                ` : ''}
+${this.renderPassPhotos(pass, 'h-24', 'border-cyan-400/40', 'Recuerdo Submarino')}
 
                 <div class="my-2 p-2 rounded-lg bg-cyan-950/50 border border-cyan-500/20 text-xs text-cyan-100 font-sans italic leading-relaxed">
                   "${escapeHtml(pass.note || 'Caminar bajo el agua mientras los tiburones y mantas surcan el techo de cristal tomados de la mano. Un viaje al fondo del mar inolvidable.')}"
@@ -19639,11 +19696,7 @@
                 "${escapeHtml(pass.note || 'Extraordinario golpe de aproximacion con el hierro 7 en el hoyo 2. La bola rodo con suavidad hasta quedar a 30 centimetros del hoyo, firmando un birdie inolvidable entre risas en el green.')}"
               </div>
 
-              ${pass.photo ? `
-                <div class="mt-2 w-full h-20 rounded-lg overflow-hidden border border-[#d4af37]/40 shadow-sm">
-                  <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo en el Green">
-                </div>
-              ` : ''}
+${this.renderPassPhotos(pass, 'h-20', 'border-[#d4af37]/40', 'Recuerdo en el Green')}
             </div>
 
             <!-- Firma Oficial del Caddie Master -->
@@ -19690,11 +19743,7 @@
                   "${escapeHtml(pass.note || 'Tanda de karts a maxima velocidad. El piloto mas veloz elige musica; el segundo invita a boxes.')}"
                 </div>
 
-                ${pass.photo ? `
-                  <div class="w-full h-20 rounded-lg overflow-hidden border border-amber-500/30 shadow-sm">
-                    <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo Paddock">
-                  </div>
-                ` : ''}
+${this.renderPassPhotos(pass, 'h-20', 'border-amber-500/30', 'Recuerdo Paddock')}
               </div>
             </div>
 
@@ -20192,11 +20241,7 @@
                 <div class="text-sm font-bold text-amber-400 mt-0.5">${(pass.rating || 5)} / 5 Estrellas</div>
               </div>
 
-              ${pass.photo ? `
-                <div class="my-2 w-full h-28 rounded-xl overflow-hidden border border-white/15 shadow-md">
-                  <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo">
-                </div>
-              ` : ''}
+${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
               <div class="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-neutral-300 leading-relaxed italic">
                 "${escapeHtml(pass.note || 'Cita memorable guardada en nuestro historial de momentos especiales.')}"
@@ -20392,20 +20437,68 @@
   }
 
 
+  // ==========================================
+  // LIGHTBOX MULTI-FOTO PANTALLA COMPLETA
+  // ==========================================
+  window.DuoLightbox = {
+    open: function(imgSrc) {
+      if (!imgSrc) return;
+      let lb = document.getElementById('duo-global-lightbox');
+      if (!lb) {
+        lb = document.createElement('div');
+        lb.id = 'duo-global-lightbox';
+        lb.className = 'fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-300 select-none';
+        lb.innerHTML = `
+          <button id="btn-close-lightbox" class="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition active:scale-90" aria-label="Cerrar visor">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+          <div class="max-w-4xl max-h-[85vh] w-full flex items-center justify-center">
+            <img id="duo-lightbox-img" src="" class="max-w-full max-h-[82vh] object-contain rounded-2xl shadow-2xl border border-white/10" alt="Foto recuerdo Duo" />
+          </div>
+        `;
+        document.body.appendChild(lb);
+        lb.addEventListener('click', function(e) {
+          if (e.target === lb || e.target.closest('#btn-close-lightbox')) {
+            lb.classList.add('hidden');
+          }
+        });
+      }
+      const img = lb.querySelector('#duo-lightbox-img');
+      if (img) img.src = imgSrc;
+      lb.classList.remove('hidden');
+    }
+  };
 
 
+  window.openDiaryModal = openDiaryModal;
+  window.addFoodVisit = addFoodVisit;
+  window.getFoodDiary = getFoodDiary;
 
   function openDiaryModal(prefillName, prefillId, prefillSessionId) {
 
     let currentRating = 5;
 
-    let currentPhotoBase64 = null;
+    let currentPhotosBase64 = [];
 
     let isFormOpen = !!prefillName;
 
     let currentPreviewPass = null;
 
+    // Selector de fecha nativo (ISO YYYY-MM-DD por defecto hoy)
+    const todayIso = new Date().toISOString().split('T')[0];
+    let selectedDateIso = todayIso;
 
+    function formatIsoDateToEs(isoStr) {
+      if (!isoStr) return new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+      try {
+        const parts = isoStr.split('-');
+        if (parts.length === 3) {
+          const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+          return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+      } catch (e) {}
+      return isoStr;
+    }
 
     function renderModalContent() {
 
@@ -20525,7 +20618,21 @@
 
                   </div>
 
-
+                  <!-- Selector de Fecha Nativo con Estilo iOS HIG -->
+                  <div>
+                    <div class="flex items-center justify-between mb-1">
+                      <label class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block">Fecha del Recuerdo</label>
+                      <span class="text-[10px] text-indigo-400 font-semibold" id="diary-date-preview-badge">${formatIsoDateToEs(selectedDateIso)}</span>
+                    </div>
+                    <div class="relative">
+                      <input 
+                        id="diary-input-date" 
+                        type="date" 
+                        value="${selectedDateIso}" 
+                        class="w-full bg-white/[0.06] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500/60 [color-scheme:dark]"
+                      />
+                    </div>
+                  </div>
 
                   <!-- Selector de Estrellas 1-5 -->
 
@@ -20579,28 +20686,42 @@
 
 
 
-                  <!-- Foto del Momento -->
+                  <!-- Galeria de Fotos Multi-Foto -->
 
                   <div>
 
-                    <label class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">Foto del recuerdo</label>
+                    <div class="flex items-center justify-between mb-1">
+                      <label class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block">Fotos del recuerdo (${currentPhotosBase64.length}/5)</label>
+                      ${currentPhotosBase64.length > 0 ? `<span class="text-[10px] text-neutral-500">Toca ✕ para quitar</span>` : ''}
+                    </div>
 
-                    <input type="file" id="diary-photo-input" accept="image/*" class="hidden" />
+                    <input type="file" id="diary-photo-input" accept="image/*" multiple class="hidden" />
 
-                    ${currentPhotoBase64 ? `
-
-                      <div class="relative w-full h-36 rounded-xl overflow-hidden border border-white/20">
-
-                        <img src="${currentPhotoBase64}" class="w-full h-full object-cover" />
-
-                        <button id="btn-remove-diary-photo" class="absolute top-2 right-2 px-2 py-1 rounded-lg bg-black/70 backdrop-blur-md text-[10px] font-bold text-rose-300 hover:text-rose-100 border border-white/20">
-
-                          Quitar foto
-
-                        </button>
-
+                    <!-- Miniaturas de fotos cargadas -->
+                    ${currentPhotosBase64.length > 0 ? `
+                      <div class="grid grid-cols-3 gap-2 mb-2">
+                        ${currentPhotosBase64.map(function(photoUrl, pIdx) {
+                          return `
+                            <div class="relative h-24 rounded-xl overflow-hidden border border-white/20 group">
+                              <img src="${photoUrl}" class="w-full h-full object-cover" />
+                              <button type="button" data-photo-idx="${pIdx}" class="btn-remove-single-photo absolute top-1 right-1 w-6 h-6 rounded-full bg-black/80 text-rose-300 hover:text-white flex items-center justify-center text-xs font-bold border border-white/20 active:scale-90 transition">
+                                &times;
+                              </button>
+                              <span class="absolute bottom-1 left-1 px-1 rounded bg-black/60 text-[8px] font-mono text-white">#${pIdx + 1}</span>
+                            </div>
+                          `;
+                        }).join('')}
+                        ${currentPhotosBase64.length < 5 ? `
+                          <button 
+                            type="button" 
+                            id="btn-trigger-photo-upload-more" 
+                            class="h-24 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-dashed border-white/20 text-xs font-medium text-neutral-300 flex flex-col items-center justify-center gap-1 active:scale-95 transition"
+                          >
+                            <svg class="w-5 h-5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg>
+                            <span class="text-[10px]">A&ntilde;adir foto</span>
+                          </button>
+                        ` : ''}
                       </div>
-
                     ` : `
 
                       <button 
@@ -20609,13 +20730,13 @@
 
                         id="btn-trigger-photo-upload" 
 
-                        class="w-full py-2.5 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-dashed border-white/20 text-xs font-medium text-neutral-300 flex items-center justify-center gap-2 active:scale-98 transition"
+                        class="w-full py-3 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-dashed border-white/20 text-xs font-medium text-neutral-300 flex items-center justify-center gap-2 active:scale-98 transition"
 
                       >
 
                         <svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
 
-                        <span>Hacer o subir foto del momento</span>
+                        <span>Hacer o subir fotos del momento (hasta 5)</span>
 
                       </button>
 
@@ -20736,6 +20857,9 @@
                     ${currentVisits.map(function (v, idx) {
 
                       const pass = v.passData || DuoPassEngine.generatePassData(v);
+                      const photosList = Array.isArray(v.photos) && v.photos.length > 0 
+                        ? v.photos 
+                        : (v.photo ? [v.photo] : []);
 
                       return `
 
@@ -20751,6 +20875,7 @@
                                 <span>${v.date || 'Reciente'}</span>
                                 <span>&bull;</span>
                                 <span class="text-amber-400 font-semibold inline-flex items-center gap-1">${v.rating || 5}/5 <svg class="w-3.5 h-3.5 fill-amber-400 inline" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span>
+                                ${photosList.length > 0 ? `<span>&bull;</span> <span class="text-indigo-300 flex items-center gap-0.5"><svg class="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg> ${photosList.length}</span>` : ''}
                               </div>
 
                             </div>
@@ -20772,6 +20897,25 @@
                             </div>
 
                           </div>
+
+                          <!-- Galeria Carrusel Horizontal de Fotos en la Tarjeta -->
+                          ${photosList.length > 0 ? `
+                            <div class="flex gap-2 overflow-x-auto no-scrollbar py-1 snap-x snap-mandatory">
+                              ${photosList.map(function(photoUrl, pIdx) {
+                                return `
+                                  <div 
+                                    class="shrink-0 w-24 h-24 rounded-xl overflow-hidden border border-white/15 snap-start cursor-pointer hover:border-indigo-400 transition relative group"
+                                    onclick="if(window.DuoLightbox) window.DuoLightbox.open('${photoUrl}')"
+                                  >
+                                    <img src="${photoUrl}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+                                    </div>
+                                  </div>
+                                `;
+                              }).join('')}
+                            </div>
+                          ` : ''}
 
                           <!-- Pase 3D Coleccionable debajo del t&iacute;tulo -->
 
@@ -20837,7 +20981,7 @@
 
           isFormOpen = false;
 
-          currentPhotoBase64 = null;
+          currentPhotosBase64 = [];
 
           currentPreviewPass = null;
 
@@ -20845,6 +20989,18 @@
 
         });
 
+      }
+
+
+
+      // Selector de Fecha
+      const inputDate = document.getElementById('diary-input-date');
+      if (inputDate) {
+        inputDate.addEventListener('change', function () {
+          selectedDateIso = inputDate.value || todayIso;
+          const badge = document.getElementById('diary-date-preview-badge');
+          if (badge) badge.innerText = formatIsoDateToEs(selectedDateIso);
+        });
       }
 
 
@@ -20859,25 +21015,7 @@
 
           sound.vibrate([20]);
 
-          document.querySelectorAll('.btn-star-pick').forEach(function (b) {
-
-            const s = parseInt(b.dataset.star, 10);
-
-            if (s <= currentRating) {
-
-              b.className = 'btn-star-pick p-1 text-sm font-bold transition transform hover:scale-125 active:scale-95 text-amber-400';
-
-            } else {
-
-              b.className = 'btn-star-pick p-1 text-sm font-bold transition transform hover:scale-125 active:scale-95 text-neutral-600';
-
-            }
-
-          });
-
-          const lbl = document.getElementById('star-rating-label');
-
-          if (lbl) lbl.textContent = currentRating + '/5';
+          renderModalContent();
 
         });
 
@@ -20885,61 +21023,64 @@
 
 
 
+      // Manejo de carga de múltiples fotos
       const btnTriggerPhoto = document.getElementById('btn-trigger-photo-upload');
-
+      const btnTriggerPhotoMore = document.getElementById('btn-trigger-photo-upload-more');
       const photoInput = document.getElementById('diary-photo-input');
 
+      function handlePhotoUploadFiles(files) {
+        if (!files || files.length === 0) return;
+        const remainingSlots = 5 - currentPhotosBase64.length;
+        if (remainingSlots <= 0) {
+          showToast('Límite de 5 fotos alcanzado');
+          return;
+        }
+
+        const filesToProcess = Array.from(files).slice(0, remainingSlots);
+        let processedCount = 0;
+
+        filesToProcess.forEach(function (file) {
+          compressImageFile(file, 640, 640, 0.65, function (dataUrl) {
+            processedCount++;
+            if (dataUrl && currentPhotosBase64.length < 5) {
+              currentPhotosBase64.push(dataUrl);
+            }
+            if (processedCount === filesToProcess.length) {
+              sound.playPop();
+              renderModalContent();
+            }
+          });
+        });
+      }
+
       if (btnTriggerPhoto && photoInput) {
-
         btnTriggerPhoto.addEventListener('click', function () {
-
           photoInput.click();
-
         });
-
+      }
+      if (btnTriggerPhotoMore && photoInput) {
+        btnTriggerPhotoMore.addEventListener('click', function () {
+          photoInput.click();
+        });
+      }
+      if (photoInput) {
         photoInput.addEventListener('change', function (e) {
+          handlePhotoUploadFiles(e.target.files);
+        });
+      }
 
-          const file = e.target.files && e.target.files[0];
-
-          if (file) {
-
-            compressImageFile(file, 640, 640, 0.65, function (dataUrl) {
-
-              if (dataUrl) {
-
-                currentPhotoBase64 = dataUrl;
-
-                sound.playPop();
-
-                renderModalContent();
-
-              }
-
-            });
-
+      // Borrado individual de fotos
+      document.querySelectorAll('.btn-remove-single-photo').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const pIdx = parseInt(btn.dataset.photoIdx, 10);
+          if (!isNaN(pIdx) && pIdx >= 0 && pIdx < currentPhotosBase64.length) {
+            currentPhotosBase64.splice(pIdx, 1);
+            sound.playPop();
+            renderModalContent();
           }
-
         });
-
-      }
-
-
-
-      const btnRemovePhoto = document.getElementById('btn-remove-diary-photo');
-
-      if (btnRemovePhoto) {
-
-        btnRemovePhoto.addEventListener('click', function () {
-
-          currentPhotoBase64 = null;
-
-          sound.playPop();
-
-          renderModalContent();
-
-        });
-
-      }
+      });
 
 
 
@@ -20985,7 +21126,7 @@
 
           sound.vibrate([30]);
 
-
+          const chosenDateFormatted = formatIsoDateToEs(selectedDateIso);
 
           currentPreviewPass = DuoPassEngine.generatePassData({
 
@@ -20997,7 +21138,9 @@
 
             rating: currentRating,
 
-            photo: currentPhotoBase64,
+            photo: currentPhotosBase64.length > 0 ? currentPhotosBase64[0] : null,
+
+            photos: currentPhotosBase64,
 
             mode: state.activeMode,
 
@@ -21005,7 +21148,7 @@
 
             p2Name: state.player2Name,
 
-            date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
+            date: chosenDateFormatted
 
           });
 
@@ -21079,7 +21222,7 @@
 
           }
 
-
+          const chosenDateFormatted = formatIsoDateToEs(selectedDateIso);
 
           const generated = currentPreviewPass || DuoPassEngine.generatePassData({
 
@@ -21091,7 +21234,9 @@
 
             rating: currentRating,
 
-            photo: currentPhotoBase64,
+            photo: currentPhotosBase64.length > 0 ? currentPhotosBase64[0] : null,
+
+            photos: currentPhotosBase64,
 
             mode: state.activeMode,
 
@@ -21099,13 +21244,13 @@
 
             p2Name: state.player2Name,
 
-            date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
+            date: chosenDateFormatted
 
           });
 
 
 
-          addFoodVisit(prefillId || ('item-' + Date.now()), nameVal, currentRating, noteVal, currentPhotoBase64, prefillSessionId, generated);
+          addFoodVisit(prefillId || ('item-' + Date.now()), nameVal, currentRating, noteVal, currentPhotosBase64, prefillSessionId, generated, chosenDateFormatted);
 
           sound.playFanfare();
 
@@ -21115,7 +21260,7 @@
 
           isFormOpen = false;
 
-          currentPhotoBase64 = null;
+          currentPhotosBase64 = [];
 
           currentPreviewPass = null;
 
@@ -21160,14 +21305,6 @@
     renderModalContent();
 
   }
-
-
-
-  // ==========================================
-
-  // 13. MODAL DE WISHLIST COMPARTIDA (BUCKET LIST)
-
-  // ==========================================
 
   function openWishlistModal() {
 

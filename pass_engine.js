@@ -276,7 +276,8 @@
       const coupleNames = `${p1} & ${p2}`;
       const date = item.date || new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
       const rating = item.rating || 5;
-      const photo = item.photo || null;
+      const photos = Array.isArray(item.photos) ? item.photos : (item.photo ? [item.photo] : []);
+      const photo = photos.length > 0 ? photos[0] : (item.photo || null);
       const hash = this.hashString(name + date);
       const cleanPrefix = name.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, 'X') || 'DUO';
       const ticketNum = `#DUO-${hash.slice(0, 4)}-${cleanPrefix}`;
@@ -414,6 +415,7 @@
         date: date,
         rating: rating,
         photo: photo,
+        photos: photos,
         p1Name: p1,
         p2Name: p2,
         coupleNames: coupleNames,
@@ -426,6 +428,47 @@
         navQuery: navQuery,
         navUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(navQuery)
       };
+    },
+
+    // Renderizador universal y adaptable de fotos en el reverso de los pases
+    renderPassPhotos: function (pass, heightClass, borderClass, label) {
+      const photos = Array.isArray(pass.photos) && pass.photos.length > 0 
+        ? pass.photos 
+        : (pass.photo ? [pass.photo] : []);
+      if (photos.length === 0) return '';
+      const hClass = heightClass || 'h-24';
+      const bClass = borderClass || 'border-white/20';
+      const lbl = label || 'Recuerdo';
+
+      if (photos.length === 1) {
+        return `
+          <div class="my-2 w-full ${hClass} rounded-xl overflow-hidden border ${bClass} shadow-md cursor-pointer group relative" onclick="if(window.DuoLightbox) window.DuoLightbox.open('${photos[0]}')">
+            <img src="${photos[0]}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" alt="${lbl}">
+            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <svg class="w-5 h-5 text-white filter drop-shadow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="my-2 space-y-1">
+          <div class="flex items-center justify-between text-[9px] font-mono text-neutral-400 px-0.5">
+            <span>GALERIA (${photos.length} FOTOS)</span>
+            <span class="text-amber-400">&larr; deslizar &rarr;</span>
+          </div>
+          <div class="flex gap-2 overflow-x-auto no-scrollbar py-0.5 snap-x snap-mandatory">
+            ${photos.map(function (p, pIdx) {
+              return `
+                <div class="shrink-0 w-28 ${hClass} rounded-xl overflow-hidden border ${bClass} shadow-md snap-start cursor-pointer group relative" onclick="if(window.DuoLightbox) window.DuoLightbox.open('${p}')">
+                  <img src="${p}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" alt="${lbl} ${pIdx + 1}">
+                  <span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-[8px] font-bold text-white">${pIdx + 1}/${photos.length}</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
     },
 
     // Codigo de barras realista
@@ -2703,11 +2746,7 @@
                   </p>
                 </div>
 
-                ${pass.photo ? `
-                  <div class="my-2 w-full h-24 rounded-lg overflow-hidden border border-neutral-300 shadow-sm">
-                    <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo">
-                  </div>
-                ` : ''}
+${this.renderPassPhotos(pass, 'h-24', 'border-neutral-300/80', 'Ticket Recuerdo')}
 
                 <div class="p-2.5 bg-neutral-100 rounded-lg border border-neutral-200 text-xs space-y-1">
                   <div class="flex items-center space-x-1 text-neutral-800 font-bold">
@@ -2807,11 +2846,7 @@
                   </div>
                 </div>
 
-                ${pass.photo ? `
-                  <div class="my-2.5 w-full h-24 rounded-lg overflow-hidden border border-amber-500/40 shadow-md">
-                    <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo de la Velada">
-                  </div>
-                ` : ''}
+${this.renderPassPhotos(pass, 'h-24', 'border-amber-500/40', 'Recuerdo de la Velada')}
 
                 <div class="my-2 p-2 rounded-lg bg-amber-950/30 border border-amber-500/20 text-xs text-amber-200/90 font-special italic leading-relaxed">
                   "${escapeHtml(pass.note || 'Cita de cine inolvidable: luces tenues, manos entrelazadas y la magia de la gran pantalla.')}"
@@ -2890,11 +2925,7 @@
                   </div>
                 </div>
 
-                ${pass.photo ? `
-                  <div class="my-2.5 w-full h-24 rounded-lg overflow-hidden border border-cyan-400/40 shadow-md">
-                    <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo Submarino">
-                  </div>
-                ` : ''}
+${this.renderPassPhotos(pass, 'h-24', 'border-cyan-400/40', 'Recuerdo Submarino')}
 
                 <div class="my-2 p-2 rounded-lg bg-cyan-950/50 border border-cyan-500/20 text-xs text-cyan-100 font-sans italic leading-relaxed">
                   "${escapeHtml(pass.note || 'Caminar bajo el agua mientras los tiburones y mantas surcan el techo de cristal tomados de la mano. Un viaje al fondo del mar inolvidable.')}"
@@ -2979,11 +3010,7 @@
                 "${escapeHtml(pass.note || 'Extraordinario golpe de aproximacion con el hierro 7 en el hoyo 2. La bola rodo con suavidad hasta quedar a 30 centimetros del hoyo, firmando un birdie inolvidable entre risas en el green.')}"
               </div>
 
-              ${pass.photo ? `
-                <div class="mt-2 w-full h-20 rounded-lg overflow-hidden border border-[#d4af37]/40 shadow-sm">
-                  <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo en el Green">
-                </div>
-              ` : ''}
+${this.renderPassPhotos(pass, 'h-20', 'border-[#d4af37]/40', 'Recuerdo en el Green')}
             </div>
 
             <!-- Firma Oficial del Caddie Master -->
@@ -3030,11 +3057,7 @@
                   "${escapeHtml(pass.note || 'Tanda de karts a maxima velocidad. El piloto mas veloz elige musica; el segundo invita a boxes.')}"
                 </div>
 
-                ${pass.photo ? `
-                  <div class="w-full h-20 rounded-lg overflow-hidden border border-amber-500/30 shadow-sm">
-                    <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo Paddock">
-                  </div>
-                ` : ''}
+${this.renderPassPhotos(pass, 'h-20', 'border-amber-500/30', 'Recuerdo Paddock')}
               </div>
             </div>
 
@@ -3532,11 +3555,7 @@
                 <div class="text-sm font-bold text-amber-400 mt-0.5">${(pass.rating || 5)} / 5 Estrellas</div>
               </div>
 
-              ${pass.photo ? `
-                <div class="my-2 w-full h-28 rounded-xl overflow-hidden border border-white/15 shadow-md">
-                  <img src="${pass.photo}" class="w-full h-full object-cover" alt="Recuerdo">
-                </div>
-              ` : ''}
+${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
               <div class="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-neutral-300 leading-relaxed italic">
                 "${escapeHtml(pass.note || 'Cita memorable guardada en nuestro historial de momentos especiales.')}"
