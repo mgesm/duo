@@ -4420,20 +4420,149 @@
 
 
 
-  function getFoodDiary() {
+  // ==========================================
+  // DUODB: MOTOR HÍBRIDO INDEXEDDB + LOCALSTORAGE PARA FOTOS Y RECUERDOS ILIMITADOS
+  // ==========================================
+  const DuoDB = {
+    db: null,
+    cache: null,
+    isReady: false,
 
-    try {
+    init: function(callback) {
+      try {
+        const raw = localStorage.getItem(DIARY_STORAGE_KEY);
+        DuoDB.cache = raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        DuoDB.cache = [];
+      }
 
-      const raw = localStorage.getItem(DIARY_STORAGE_KEY);
+      if (typeof indexedDB === 'undefined') {
+        DuoDB.isReady = true;
+        if (callback) callback(DuoDB.cache);
+        return;
+      }
 
-      return raw ? JSON.parse(raw) : [];
+      try {
+        const req = indexedDB.open('DuoDatabase', 1);
+        req.onupgradeneeded = function(e) {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('memories')) {
+            db.createObjectStore('memories', { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = function(e) {
+          DuoDB.db = e.target.result;
+          DuoDB.isReady = true;
+          try {
+            const tx = DuoDB.db.transaction('memories', 'readonly');
+            const store = tx.objectStore('memories');
+            const getAllReq = store.getAll();
+            getAllReq.onsuccess = function() {
+              const idbList = getAllReq.result || [];
+              if (idbList.length > 0) {
+                idbList.sort(function(a, b) { return (b.timestamp || 0) - (a.timestamp || 0); });
+                DuoDB.cache = idbList;
+              } else if (DuoDB.cache && DuoDB.cache.length > 0) {
+                const writeTx = DuoDB.db.transaction('memories', 'readwrite');
+                const writeStore = writeTx.objectStore('memories');
+                DuoDB.cache.forEach(function(item) {
+                  try { writeStore.put(item); } catch(err) {}
+                });
+              }
+              if (callback) callback(DuoDB.cache);
+            };
+          } catch(txErr) {
+            if (callback) callback(DuoDB.cache);
+          }
+        };
+        req.onerror = function() {
+          DuoDB.isReady = true;
+          if (callback) callback(DuoDB.cache);
+        };
+      } catch (err) {
+        DuoDB.isReady = true;
+        if (callback) callback(DuoDB.cache);
+      }
+    },
 
-    } catch (e) {
+    getAll: function() {
+      if (!DuoDB.cache) {
+        try {
+          const raw = localStorage.getItem(DIARY_STORAGE_KEY);
+          DuoDB.cache = raw ? JSON.parse(raw) : [];
+        } catch (e) {
+          DuoDB.cache = [];
+        }
+      }
+      return DuoDB.cache;
+    },
 
-      return [];
+    save: function(item) {
+      if (!DuoDB.cache) DuoDB.cache = [];
+      const idx = DuoDB.cache.findIndex(function(x) { return x.id === item.id; });
+      if (idx >= 0) {
+        DuoDB.cache[idx] = item;
+      } else {
+        DuoDB.cache.unshift(item);
+      }
 
+      if (DuoDB.db) {
+        try {
+          const tx = DuoDB.db.transaction('memories', 'readwrite');
+          tx.objectStore('memories').put(item);
+        } catch(e) {
+          console.warn('DuoDB save error:', e);
+        }
+      }
+
+      try {
+        const compactList = DuoDB.cache.map(function(v) {
+          const photos = Array.isArray(v.photos) ? v.photos : (v.photo ? [v.photo] : []);
+          return {
+            id: v.id,
+            sessionId: v.sessionId,
+            restaurantId: v.restaurantId,
+            restaurantName: v.restaurantName,
+            rating: v.rating,
+            note: v.note,
+            date: v.date,
+            mode: v.mode,
+            p1Name: v.p1Name,
+            p2Name: v.p2Name,
+            timestamp: v.timestamp,
+            photo: photos.length > 0 ? photos[0] : null,
+            photos: photos.length > 0 ? [photos[0]] : [],
+            passData: v.passData
+          };
+        });
+        localStorage.setItem(DIARY_STORAGE_KEY, JSON.stringify(compactList));
+      } catch(err) {
+        console.warn('LocalStorage quota safeguard en DuoDB:', err);
+      }
+    },
+
+    remove: function(id) {
+      if (DuoDB.cache) {
+        DuoDB.cache = DuoDB.cache.filter(function(x) { return x.id !== id; });
+      }
+      if (DuoDB.db) {
+        try {
+          const tx = DuoDB.db.transaction('memories', 'readwrite');
+          tx.objectStore('memories').delete(id);
+        } catch(e) {}
+      }
+      try {
+        const list = (DuoDB.cache || []).map(function(v) { return v; });
+        localStorage.setItem(DIARY_STORAGE_KEY, JSON.stringify(list));
+      } catch(e) {}
     }
+  };
 
+  DuoDB.init();
+  window.DuoDB = DuoDB;
+
+  function getFoodDiary() {
+    return DuoDB.getAll();
   }
 
 
@@ -4516,23 +4645,8 @@
 
       };
 
-      list.unshift(newVisit);
-
-      try {
-
-        localStorage.setItem(DIARY_STORAGE_KEY, JSON.stringify(list));
-
-      } catch (quotaErr) {
-
-        console.warn('QuotaExceeded al guardar en localStorage, optimizando recuerdos antiguos...');
-
-        // Si excede cuota, reducir fotos de recuerdos antiguos para preservar historial
-
-        list.slice(10).forEach(function(v) { if (v.photos && v.photos.length > 1) v.photos = [v.photos[0]]; });
-
-        try { localStorage.setItem(DIARY_STORAGE_KEY, JSON.stringify(list)); } catch (e2) {}
-
-      }
+      // Guardar con DuoDB (IndexedDB de alta resolución + respaldo seguro en LocalStorage)
+      DuoDB.save(newVisit);
 
 
 
@@ -4576,7 +4690,7 @@
 
         });
 
-        localStorage.setItem(DIARY_STORAGE_KEY, JSON.stringify(remoteList));
+        remoteList.forEach(function (item) { DuoDB.save(item); });
 
       }
 
@@ -4845,29 +4959,16 @@
 
 
   function removeFoodVisit(id) {
-
     try {
-
-      const list = getFoodDiary().filter(function (v) { return v.id !== id; });
-
-      localStorage.setItem(DIARY_STORAGE_KEY, JSON.stringify(list));
-
+      DuoDB.remove(id);
       const db = initFirebase();
-
       if (db) {
-
         db.ref('shared_diary/' + id).remove().catch(function () {});
-
       }
-
       return true;
-
     } catch (e) {
-
       return false;
-
     }
-
   }
 
 
@@ -20295,6 +20396,10 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
           <div class="mt-1.5 flex items-center justify-between px-1 text-[11px] text-neutral-400">
             <span class="text-[10px] font-mono text-neutral-500">${pass.archetypeLabel || this.LABELS[arc] || arc}</span>
             <div class="flex items-center gap-2">
+              <button type="button" class="btn-download-pass text-neutral-400 hover:text-amber-300 font-medium transition flex items-center gap-1" data-card="${cardId}" data-title="${escapeHtml(pass.name || 'Pase Duo')}">
+                <svg class="w-3 h-3 text-amber-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                <span>Descargar</span>
+              </button>
               <button type="button" class="btn-flip-pass text-neutral-400 hover:text-white font-semibold transition" data-card="${cardId}">
                 Voltear
               </button>
@@ -20335,6 +20440,10 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
             <!-- Botonera de Interaccion 3D -->
             <div class="w-full mt-3 flex items-center justify-center gap-2">
+              <button id="btn-modal-download" class="py-2.5 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-xs font-bold text-amber-300 flex items-center justify-center gap-1.5 transition active:scale-95">
+                <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                <span>Descargar</span>
+              </button>
               <button id="btn-modal-flip" class="flex-1 py-2.5 px-3 rounded-xl bg-white/[0.1] hover:bg-white/[0.18] border border-white/15 text-xs font-bold text-white flex items-center justify-center gap-1.5 transition active:scale-95">
                 <span>Voltear Reverso</span>
               </button>
@@ -20359,6 +20468,15 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
       if (btnClose) {
         btnClose.addEventListener('click', function () {
           modalContainer.innerHTML = '';
+        });
+      }
+
+      const btnModalDownload = document.getElementById('btn-modal-download');
+      if (btnModalDownload) {
+        btnModalDownload.addEventListener('click', function () {
+          if (window.downloadPassAsImage) {
+            window.downloadPassAsImage('#inspector-card', pass.name || 'Pase Duo');
+          }
         });
       }
 
@@ -20390,6 +20508,17 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
     // Enlazar Eventos de Flip y Apertura de Pases en Contenedores
     bindCardInteractions: function (container) {
       if (!container) return;
+
+      container.querySelectorAll('.btn-download-pass').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const cardId = btn.getAttribute('data-card');
+          const title = btn.getAttribute('data-title') || 'Pase Duo';
+          if (window.downloadPassAsImage) {
+            window.downloadPassAsImage(cardId, title);
+          }
+        });
+      });
 
       container.querySelectorAll('.btn-flip-pass').forEach(function (btn) {
         btn.addEventListener('click', function (e) {
@@ -20469,10 +20598,109 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
     }
   };
 
+  // ==========================================
+  // MOTOR DE DESCARGA Y COMPARTIR PASES EN PNG
+  // ==========================================
+  window.downloadPassAsImage = function(passId, passTitle) {
+    if (!passId) return;
+
+    let targetEl = null;
+    if (typeof passId === 'string' && (passId.startsWith('#') || passId.startsWith('.'))) {
+      targetEl = document.querySelector(passId);
+    } else {
+      targetEl = document.getElementById(passId) ||
+                 document.getElementById(passId + '-flipper') ||
+                 document.querySelector(`[data-card="${passId}"]`) ||
+                 document.getElementById(`diary-visit-card-${passId}`) ||
+                 document.querySelector(`[data-card-id="${passId}"]`);
+    }
+
+    if (!targetEl) {
+      const wrappers = document.querySelectorAll('.duo-pass-wrapper');
+      for (let i = 0; i < wrappers.length; i++) {
+        if (wrappers[i].innerHTML.includes(passId)) {
+          targetEl = wrappers[i];
+          break;
+        }
+      }
+    }
+
+    if (!targetEl) {
+      showToast('No se encontró el pase para descargar');
+      return;
+    }
+
+    const captureFace = targetEl.querySelector('.card-front') || targetEl.querySelector('.card-face') || targetEl;
+
+    function executeCapture() {
+      showToast('Generando pase coleccionable en alta resolución...');
+      html2canvas(captureFace, {
+        backgroundColor: '#050505',
+        scale: 2.5,
+        useCORS: true,
+        allowTaint: true,
+        logging: false
+      }).then(function(canvas) {
+        canvas.toBlob(function(blob) {
+          if (!blob) {
+            showToast('Error al crear el archivo de imagen');
+            return;
+          }
+          const cleanTitle = (passTitle || 'duo-pase').toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+          const fileName = `duo-pase-${cleanTitle}-${Date.now().toString().slice(-4)}.png`;
+          const fileObj = new File([blob], fileName, { type: 'image/png' });
+
+          if (navigator.canShare && navigator.canShare({ files: [fileObj] })) {
+            navigator.share({
+              files: [fileObj],
+              title: passTitle || 'Pase Duo Coleccionable',
+              text: 'Nuestro pase oficial Duo de recuerdo.'
+            }).then(function() {
+              showToast('¡Pase compartido con éxito!');
+            }).catch(function(shareErr) {
+              if (shareErr.name !== 'AbortError') {
+                triggerDirectDownload(blob, fileName);
+              }
+            });
+          } else {
+            triggerDirectDownload(blob, fileName);
+          }
+        }, 'image/png');
+      }).catch(function(err) {
+        console.error('Error capturando pase con html2canvas:', err);
+        showToast('No se pudo generar la captura del pase');
+      });
+    }
+
+    function triggerDirectDownload(blob, fileName) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function() { URL.revokeObjectURL(url); }, 1500);
+      showToast('¡Pase descargado en tu galería!');
+    }
+
+    if (typeof html2canvas === 'undefined') {
+      showToast('Cargando motor gráfico de descarga...');
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+      script.onload = executeCapture;
+      script.onerror = function() { showToast('No se pudo cargar html2canvas'); };
+      document.head.appendChild(script);
+    } else {
+      executeCapture();
+    }
+  };
+
 
   window.openDiaryModal = openDiaryModal;
   window.addFoodVisit = addFoodVisit;
   window.getFoodDiary = getFoodDiary;
+  window.downloadPassAsImage = downloadPassAsImage;
 
   function openDiaryModal(prefillName, prefillId, prefillSessionId) {
 
@@ -20488,6 +20716,11 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
     const todayIso = new Date().toISOString().split('T')[0];
     let selectedDateIso = todayIso;
 
+    // Estados reactivos de filtrado y búsqueda
+    let diarySearchQuery = '';
+    let diaryFilterYear = 'ALL';
+    let diaryOnlyWithPhotos = false;
+
     function formatIsoDateToEs(isoStr) {
       if (!isoStr) return new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
       try {
@@ -20502,7 +20735,36 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
     function renderModalContent() {
 
-      const currentVisits = getFoodDiary();
+      const allVisits = getFoodDiary();
+
+      // Extraer años únicos presentes en los recuerdos
+      const availableYears = [];
+      allVisits.forEach(function (v) {
+        if (v.date) {
+          const m = v.date.match(/\b(20\d\d)\b/);
+          if (m && !availableYears.includes(m[1])) {
+            availableYears.push(m[1]);
+          }
+        }
+      });
+      availableYears.sort().reverse();
+
+      // Filtrado interactivo
+      const filteredVisits = allVisits.filter(function (v) {
+        if (diaryOnlyWithPhotos) {
+          const hasPh = (Array.isArray(v.photos) && v.photos.length > 0) || !!v.photo;
+          if (!hasPh) return false;
+        }
+        if (diaryFilterYear !== 'ALL') {
+          if (!v.date || !v.date.includes(diaryFilterYear)) return false;
+        }
+        if (diarySearchQuery && diarySearchQuery.trim().length > 0) {
+          const q = diarySearchQuery.toLowerCase().trim();
+          const str = ((v.restaurantName || '') + ' ' + (v.note || '') + ' ' + (v.date || '') + ' ' + (v.passData && v.passData.archetypeLabel || '')).toLowerCase();
+          if (!str.includes(q)) return false;
+        }
+        return true;
+      });
 
       modalContainer.innerHTML = `
 
@@ -20578,7 +20840,7 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
               ` : `
 
-                <!-- Formulario A&ntilde;adir Recuerdo (Apple visionOS Card) -->
+                <!-- Formulario Añadir Recuerdo (Apple visionOS Card) -->
 
                 <div class="ios-glass p-4 rounded-2xl border border-indigo-500/30 bg-indigo-500/5 space-y-3">
 
@@ -20588,7 +20850,7 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
                       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
 
-                      <span>Registrar Recuerdo & Generar Pase</span>
+                      <span>Registrar Recuerdo &amp; Generar Pase</span>
 
                     </span>
 
@@ -20610,7 +20872,7 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
                       value="${escapeHtml(prefillName || '')}" 
 
-                      placeholder="Ej: Karts, Goiko Grill, Acuario, Cine..." 
+                      placeholder="Ej: Karts, Padel, Concierto, Goiko Grill, Cine..." 
 
                       class="w-full bg-white/[0.06] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-indigo-500/60"
 
@@ -20618,7 +20880,7 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
                   </div>
 
-                  <!-- Selector de Fecha Nativo con Estilo iOS HIG -->
+                  <!-- Selector de Fecha Nativo (Editable) -->
                   <div>
                     <div class="flex items-center justify-between mb-1">
                       <label class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block">Fecha del Recuerdo</label>
@@ -20686,13 +20948,13 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
 
 
-                  <!-- Galeria de Fotos Multi-Foto -->
+                  <!-- Fotos del Momento (Multi-foto hasta 5 imagenes) -->
 
                   <div>
 
                     <div class="flex items-center justify-between mb-1">
                       <label class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block">Fotos del recuerdo (${currentPhotosBase64.length}/5)</label>
-                      ${currentPhotosBase64.length > 0 ? `<span class="text-[10px] text-neutral-500">Toca ✕ para quitar</span>` : ''}
+                      ${currentPhotosBase64.length > 0 ? `<span class="text-[10px] text-neutral-500">Toca &times; para quitar</span>` : ''}
                     </div>
 
                     <input type="file" id="diary-photo-input" accept="image/*" multiple class="hidden" />
@@ -20780,15 +21042,19 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
                         </span>
 
-                        <span id="live-archetype-badge" class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                        <span class="text-[9px] font-mono font-bold text-amber-300 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full" id="diary-preview-badge">
 
-                          ${currentPreviewPass ? currentPreviewPass.archetypeLabel : 'Pase &Uacute;nico'}
+                          ${currentPreviewPass ? (currentPreviewPass.archetypeLabel || 'Bespoke') : ''}
 
                         </span>
 
                       </div>
 
-                      <div id="diary-live-pass-preview"></div>
+                      <div id="diary-preview-render-slot">
+
+                        ${currentPreviewPass ? DuoPassEngine.renderPassCard(currentPreviewPass, { isPreview: true, compact: true }) : ''}
+
+                      </div>
 
                     </div>
 
@@ -20796,13 +21062,17 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
 
 
+                  <!-- Boton de Guardar Recuerdo -->
+
                   <button 
 
-                    id="btn-save-memory" 
+                    id="btn-save-diary-entry" 
 
-                    class="w-full py-3 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-indigo-500 to-rose-500 shadow-lg shadow-rose-500/20 active:scale-98 transition flex items-center justify-center gap-2"
+                    class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-98 transition"
 
                   >
+
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
 
                     <span>Guardar Recuerdo en Duo</span>
 
@@ -20814,21 +21084,62 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
 
 
-              <!-- Timeline de Recuerdos -->
+              <!-- Historial de Recuerdos / Timeline -->
 
               <div>
 
-                <div class="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-2.5 pl-1 flex items-center justify-between">
+                <div class="px-1 mb-2 flex items-center justify-between text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
 
-                  <span>Recuerdos Guardados (${currentVisits.length})</span>
+                  <span>Recuerdos Guardados (${filteredVisits.length}${allVisits.length !== filteredVisits.length ? ` de ${allVisits.length}` : ''})</span>
 
-                  <span class="text-[10px] text-indigo-400 font-semibold">Sincronizado en la nube</span>
+                  <span class="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                    <svg class="w-3 h-3 text-emerald-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>Storage Seguro</span>
+                  </span>
 
                 </div>
 
+                ${allVisits.length > 0 ? `
+                  <!-- Barra de Búsqueda y Filtros por Año / Fotos -->
+                  <div class="space-y-2 mb-3 bg-white/[0.03] p-2.5 rounded-2xl border border-white/[0.08]">
+                    <!-- Buscador en tiempo real -->
+                    <div class="relative">
+                      <input 
+                        id="diary-search-input" 
+                        type="text" 
+                        value="${escapeHtml(diarySearchQuery)}" 
+                        placeholder="Buscar por lugar, plan, notas o fecha..." 
+                        class="w-full bg-white/[0.06] border border-white/10 rounded-xl pl-8 pr-7 py-1.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-indigo-500/50 transition"
+                      />
+                      <svg class="w-3.5 h-3.5 text-neutral-400 absolute left-2.5 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                      ${diarySearchQuery ? `
+                        <button id="btn-clear-diary-search" class="absolute right-2 top-1.5 w-5 h-5 rounded-full bg-white/10 hover:bg-white/20 text-neutral-300 hover:text-white flex items-center justify-center text-xs font-bold transition">&times;</button>
+                      ` : ''}
+                    </div>
 
+                    <!-- Píldoras de Filtro Rápido (Años + Con Fotos) -->
+                    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-[10px]">
+                      <button type="button" data-year="ALL" class="btn-filter-year shrink-0 px-2.5 py-1 rounded-lg font-medium transition ${diaryFilterYear === 'ALL' && !diaryOnlyWithPhotos ? 'bg-indigo-500/25 text-indigo-300 border border-indigo-500/40' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.08]'}">
+                        Todos (${allVisits.length})
+                      </button>
+                      ${availableYears.map(function(yr) {
+                        const isSel = diaryFilterYear === yr;
+                        const countYr = allVisits.filter(function(v) { return v.date && v.date.includes(yr); }).length;
+                        return `
+                          <button type="button" data-year="${yr}" class="btn-filter-year shrink-0 px-2.5 py-1 rounded-lg font-medium transition ${isSel ? 'bg-indigo-500/25 text-indigo-300 border border-indigo-500/40' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.08]'}">
+                            ${yr} (${countYr})
+                          </button>
+                        `;
+                      }).join('')}
+                      <button type="button" id="btn-toggle-filter-photos" class="shrink-0 px-2.5 py-1 rounded-lg font-medium transition flex items-center gap-1 ${diaryOnlyWithPhotos ? 'bg-amber-500/25 text-amber-300 border border-amber-500/40' : 'bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.08]'}">
+                        <svg class="w-3 h-3 text-amber-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <span>Con fotos (${allVisits.filter(function(v) { return (Array.isArray(v.photos) && v.photos.length > 0) || !!v.photo; }).length})</span>
+                      </button>
+                    </div>
+                  </div>
+                ` : ''}
 
-                ${currentVisits.length === 0 ? `
+                ${allVisits.length === 0 ? `
 
                   <div class="p-8 text-center text-xs text-neutral-500 border border-white/[0.06] rounded-2xl ios-glass">
 
@@ -20850,20 +21161,34 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
                   </div>
 
+                ` : filteredVisits.length === 0 ? `
+
+                  <div class="p-8 text-center text-xs text-neutral-400 border border-white/[0.06] rounded-2xl ios-glass space-y-2">
+                    <div class="w-10 h-10 rounded-2xl bg-white/[0.06] border border-white/[0.1] text-neutral-400 mx-auto flex items-center justify-center">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
+                    <div class="text-neutral-200 font-semibold">No se encontraron recuerdos con estos filtros</div>
+                    <div class="text-neutral-500 text-[11px]">Prueba con otra b&uacute;squeda o restablece los filtros activos.</div>
+                    <button id="btn-reset-diary-filters" class="mt-2 px-3 py-1.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 text-xs font-semibold transition active:scale-95">
+                      Restablecer filtros
+                    </button>
+                  </div>
+
                 ` : `
 
                   <div class="space-y-4">
 
-                    ${currentVisits.map(function (v, idx) {
+                    ${filteredVisits.map(function (v, idx) {
 
                       const pass = v.passData || DuoPassEngine.generatePassData(v);
                       const photosList = Array.isArray(v.photos) && v.photos.length > 0 
                         ? v.photos 
                         : (v.photo ? [v.photo] : []);
+                      const cardId = `diary-card-${v.id || idx}`;
 
                       return `
 
-                        <div class="ios-glass p-3.5 rounded-2xl border border-white/10 space-y-2">
+                        <div class="ios-glass p-3.5 rounded-2xl border border-white/10 space-y-2" id="diary-visit-card-${v.id}">
 
                           <div class="flex items-center justify-between gap-2 pb-1.5 border-b border-white/[0.08]">
 
@@ -20880,7 +21205,11 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
                             </div>
 
-                            <div class="flex items-center gap-2 shrink-0">
+                            <div class="flex items-center gap-1.5 shrink-0">
+
+                              <button data-card-id="${cardId}" data-pass-title="${escapeHtml(v.restaurantName || v.name || 'Pase Duo')}" class="btn-card-download-png p-1.5 rounded-lg text-neutral-400 hover:text-amber-300 hover:bg-white/[0.08] transition" title="Descargar Pase en PNG">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                              </button>
 
                               <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
 
@@ -20898,7 +21227,7 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
                           </div>
 
-                          <!-- Galeria Carrusel Horizontal de Fotos en la Tarjeta -->
+                          <!-- Galería Carrusel Horizontal de Fotos en la Tarjeta -->
                           ${photosList.length > 0 ? `
                             <div class="flex gap-2 overflow-x-auto no-scrollbar py-1 snap-x snap-mandatory">
                               ${photosList.map(function(photoUrl, pIdx) {
@@ -20917,9 +21246,9 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
                             </div>
                           ` : ''}
 
-                          <!-- Pase 3D Coleccionable debajo del t&iacute;tulo -->
+                          <!-- Pase 3D Coleccionable debajo del título -->
 
-                          ${DuoPassEngine.renderPassCard(pass, { compact: true, id: v.id, idx: idx })}
+                          ${DuoPassEngine.renderPassCard(pass, { compact: true, id: cardId, idx: idx })}
 
                         </div>
 
@@ -20977,8 +21306,6 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
         btnCancelAdd.addEventListener('click', function () {
 
-          sound.playPop();
-
           isFormOpen = false;
 
           currentPhotosBase64 = [];
@@ -20993,29 +21320,51 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
 
 
-      // Selector de Fecha
-      const inputDate = document.getElementById('diary-input-date');
-      if (inputDate) {
-        inputDate.addEventListener('change', function () {
-          selectedDateIso = inputDate.value || todayIso;
+      // Listeners de Fecha editable
+      const dateInput = document.getElementById('diary-input-date');
+      if (dateInput) {
+        dateInput.addEventListener('change', function(e) {
+          selectedDateIso = e.target.value;
           const badge = document.getElementById('diary-date-preview-badge');
           if (badge) badge.innerText = formatIsoDateToEs(selectedDateIso);
         });
       }
 
+      // Listeners de estrellas
 
-
-      document.querySelectorAll('.btn-star-pick').forEach(function (btn) {
+      modalContainer.querySelectorAll('.btn-star-pick').forEach(function (btn) {
 
         btn.addEventListener('click', function () {
 
-          currentRating = parseInt(btn.dataset.star, 10) || 5;
+          const star = parseInt(btn.dataset.star, 10);
+
+          currentRating = star;
 
           sound.playPop();
 
-          sound.vibrate([20]);
+          modalContainer.querySelectorAll('.btn-star-pick').forEach(function (b) {
 
-          renderModalContent();
+            const s = parseInt(b.dataset.star, 10);
+
+            if (s <= currentRating) {
+
+              b.classList.remove('text-neutral-600');
+
+              b.classList.add('text-amber-400');
+
+            } else {
+
+              b.classList.remove('text-amber-400');
+
+              b.classList.add('text-neutral-600');
+
+            }
+
+          });
+
+          const lbl = document.getElementById('star-rating-label');
+
+          if (lbl) lbl.textContent = currentRating + '/5';
 
         });
 
@@ -21023,60 +21372,73 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
 
 
-      // Manejo de carga de múltiples fotos
-      const btnTriggerPhoto = document.getElementById('btn-trigger-photo-upload');
-      const btnTriggerPhotoMore = document.getElementById('btn-trigger-photo-upload-more');
+      // Listeners de Fotos (Múltiples fotos con FileList y compresión)
+
       const photoInput = document.getElementById('diary-photo-input');
 
-      function handlePhotoUploadFiles(files) {
-        if (!files || files.length === 0) return;
-        const remainingSlots = 5 - currentPhotosBase64.length;
-        if (remainingSlots <= 0) {
-          showToast('Límite de 5 fotos alcanzado');
-          return;
-        }
+      const triggerUploadBtn = document.getElementById('btn-trigger-photo-upload');
 
-        const filesToProcess = Array.from(files).slice(0, remainingSlots);
-        let processedCount = 0;
+      const triggerUploadMoreBtn = document.getElementById('btn-trigger-photo-upload-more');
 
-        filesToProcess.forEach(function (file) {
-          compressImageFile(file, 640, 640, 0.65, function (dataUrl) {
-            processedCount++;
-            if (dataUrl && currentPhotosBase64.length < 5) {
-              currentPhotosBase64.push(dataUrl);
-            }
-            if (processedCount === filesToProcess.length) {
-              sound.playPop();
-              renderModalContent();
-            }
-          });
-        });
-      }
+      if (triggerUploadBtn && photoInput) {
 
-      if (btnTriggerPhoto && photoInput) {
-        btnTriggerPhoto.addEventListener('click', function () {
+        triggerUploadBtn.addEventListener('click', function () {
+
           photoInput.click();
+
         });
+
       }
-      if (btnTriggerPhotoMore && photoInput) {
-        btnTriggerPhotoMore.addEventListener('click', function () {
+
+      if (triggerUploadMoreBtn && photoInput) {
+
+        triggerUploadMoreBtn.addEventListener('click', function () {
+
           photoInput.click();
+
         });
+
       }
+
+
+
       if (photoInput) {
+
         photoInput.addEventListener('change', function (e) {
-          handlePhotoUploadFiles(e.target.files);
+
+          const files = e.target.files;
+
+          if (!files || files.length === 0) return;
+
+          showToast('Procesando foto(s)...');
+
+          const remainingSlots = 5 - currentPhotosBase64.length;
+          const filesToProcess = Array.from(files).slice(0, remainingSlots);
+
+          let processed = 0;
+          filesToProcess.forEach(function(file) {
+            compressImageFile(file, function (base64) {
+              if (base64 && currentPhotosBase64.length < 5) {
+                currentPhotosBase64.push(base64);
+              }
+              processed++;
+              if (processed === filesToProcess.length) {
+                renderModalContent();
+              }
+            });
+          });
+
         });
+
       }
 
-      // Borrado individual de fotos
-      document.querySelectorAll('.btn-remove-single-photo').forEach(function (btn) {
-        btn.addEventListener('click', function (e) {
+      // Eliminar foto individual
+      modalContainer.querySelectorAll('.btn-remove-single-photo').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
           e.stopPropagation();
-          const pIdx = parseInt(btn.dataset.photoIdx, 10);
-          if (!isNaN(pIdx) && pIdx >= 0 && pIdx < currentPhotosBase64.length) {
-            currentPhotosBase64.splice(pIdx, 1);
-            sound.playPop();
+          const idxToRemove = parseInt(btn.getAttribute('data-photo-idx'), 10);
+          if (!isNaN(idxToRemove)) {
+            currentPhotosBase64.splice(idxToRemove, 1);
             renderModalContent();
           }
         });
@@ -21084,7 +21446,7 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
 
 
-      // Boton Generar y Previsualizar Pase Unico Bajo Demanda
+      // Boton Generar y Previsualizar Pase Unico
 
       const btnGenPass = document.getElementById('btn-generate-diary-pass');
 
@@ -21092,51 +21454,29 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
         btnGenPass.addEventListener('click', function () {
 
-          const inputName = document.getElementById('diary-input-name');
-
-          const inputNote = document.getElementById('diary-input-note');
-
-          const previewContainer = document.getElementById('diary-live-pass-preview');
-
-          const previewWrap = document.getElementById('diary-preview-container');
-
-          const badge = document.getElementById('live-archetype-badge');
-
-          const nameVal = inputName ? inputName.value.trim() : '';
-
-          const noteVal = inputNote ? inputNote.value.trim() : '';
-
-
+          const nameVal = (document.getElementById('diary-input-name').value || '').trim();
 
           if (!nameVal) {
 
-            sound.vibrate([50, 50]);
-
-            showToast('Escribe primero el t&iacute;tulo o plan para analizarlo');
-
-            if (inputName) inputName.focus();
+            showToast('Escribe primero el t&iacute;tulo del plan para generar el pase');
 
             return;
 
           }
 
-
-
-          sound.playPop();
-
-          sound.vibrate([30]);
+          const noteVal = (document.getElementById('diary-input-note').value || '').trim();
 
           const chosenDateFormatted = formatIsoDateToEs(selectedDateIso);
 
           currentPreviewPass = DuoPassEngine.generatePassData({
 
-            id: prefillId || ('item-' + Date.now()),
+            id: 'preview-' + Date.now(),
 
             name: nameVal,
 
-            note: noteVal,
-
             rating: currentRating,
+
+            note: noteVal,
 
             photo: currentPhotosBase64.length > 0 ? currentPhotosBase64[0] : null,
 
@@ -21154,19 +21494,25 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
 
 
-          if (previewWrap) previewWrap.classList.remove('hidden');
+          sound.playPop();
 
-          if (badge) badge.innerText = currentPreviewPass.archetypeLabel || 'Pase Único';
+          const previewContainer = document.getElementById('diary-preview-container');
 
-          if (previewContainer) {
+          const previewSlot = document.getElementById('diary-preview-render-slot');
 
-            previewContainer.innerHTML = DuoPassEngine.renderPassCard(currentPreviewPass, { compact: true, hideActions: true, id: 'diary-preview-pass' });
+          const previewBadge = document.getElementById('diary-preview-badge');
 
-            DuoPassEngine.bindCardInteractions(previewContainer);
+          if (previewContainer && previewSlot) {
+
+            previewSlot.innerHTML = DuoPassEngine.renderPassCard(currentPreviewPass, { isPreview: true, compact: true });
+
+            if (previewBadge) previewBadge.textContent = currentPreviewPass.archetypeLabel || 'Bespoke';
+
+            previewContainer.classList.remove('hidden');
+
+            DuoPassEngine.bindCardInteractions(previewSlot);
 
           }
-
-          showToast('Pase ' + currentPreviewPass.archetypeLabel + ' generado');
 
         });
 
@@ -21174,53 +21520,25 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
 
 
-      // Si ya existia un pase previsualizado, renderizarlo
+      // Boton Guardar Recuerdo
 
-      if (currentPreviewPass) {
+      const btnSaveEntry = document.getElementById('btn-save-diary-entry');
 
-        const previewWrap = document.getElementById('diary-preview-container');
+      if (btnSaveEntry) {
 
-        const previewContainer = document.getElementById('diary-live-pass-preview');
+        btnSaveEntry.addEventListener('click', function () {
 
-        if (previewWrap) previewWrap.classList.remove('hidden');
-
-        if (previewContainer) {
-
-          previewContainer.innerHTML = DuoPassEngine.renderPassCard(currentPreviewPass, { compact: true, hideActions: true, id: 'diary-preview-pass' });
-
-          DuoPassEngine.bindCardInteractions(previewContainer);
-
-        }
-
-      }
-
-
-
-      const btnSaveMemory = document.getElementById('btn-save-memory');
-
-      if (btnSaveMemory) {
-
-        btnSaveMemory.addEventListener('click', function () {
-
-          const inputName = document.getElementById('diary-input-name');
-
-          const inputNote = document.getElementById('diary-input-note');
-
-          const nameVal = inputName ? inputName.value.trim() : '';
-
-          const noteVal = inputNote ? inputNote.value.trim() : '';
-
-
+          const nameVal = (document.getElementById('diary-input-name').value || '').trim();
 
           if (!nameVal) {
 
-            sound.vibrate([50, 50]);
-
-            showToast('Escribe el nombre del sitio o plan');
+            showToast('&iexcl;Escribe el t&iacute;tulo del plan o restaurante!');
 
             return;
 
           }
+
+          const noteVal = (document.getElementById('diary-input-note').value || '').trim();
 
           const chosenDateFormatted = formatIsoDateToEs(selectedDateIso);
 
@@ -21230,9 +21548,9 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
             name: nameVal,
 
-            note: noteVal,
-
             rating: currentRating,
+
+            note: noteVal,
 
             photo: currentPhotosBase64.length > 0 ? currentPhotosBase64[0] : null,
 
@@ -21278,7 +21596,71 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
 
 
-      document.querySelectorAll('.btn-delete-visit').forEach(function (btn) {
+      // Listeners de descarga de pases en PNG desde la tarjeta del timeline
+      modalContainer.querySelectorAll('.btn-card-download-png').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const targetCardId = btn.getAttribute('data-card-id');
+          const title = btn.getAttribute('data-pass-title') || 'Pase Duo';
+          if (window.downloadPassAsImage) {
+            window.downloadPassAsImage(targetCardId, title);
+          }
+        });
+      });
+
+      // Listeners del Buscador y Filtros
+      const searchInput = document.getElementById('diary-search-input');
+      if (searchInput) {
+        searchInput.addEventListener('input', function (e) {
+          diarySearchQuery = e.target.value;
+          renderModalContent();
+          const updatedInput = document.getElementById('diary-search-input');
+          if (updatedInput) {
+            updatedInput.focus();
+            const len = updatedInput.value.length;
+            updatedInput.setSelectionRange(len, len);
+          }
+        });
+      }
+
+      const btnClearSearch = document.getElementById('btn-clear-diary-search');
+      if (btnClearSearch) {
+        btnClearSearch.addEventListener('click', function () {
+          diarySearchQuery = '';
+          renderModalContent();
+        });
+      }
+
+      modalContainer.querySelectorAll('.btn-filter-year').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const yr = btn.getAttribute('data-year');
+          diaryFilterYear = yr;
+          sound.playPop();
+          renderModalContent();
+        });
+      });
+
+      const btnTogglePhotos = document.getElementById('btn-toggle-filter-photos');
+      if (btnTogglePhotos) {
+        btnTogglePhotos.addEventListener('click', function () {
+          diaryOnlyWithPhotos = !diaryOnlyWithPhotos;
+          sound.playPop();
+          renderModalContent();
+        });
+      }
+
+      const btnResetFilters = document.getElementById('btn-reset-diary-filters');
+      if (btnResetFilters) {
+        btnResetFilters.addEventListener('click', function () {
+          diarySearchQuery = '';
+          diaryFilterYear = 'ALL';
+          diaryOnlyWithPhotos = false;
+          sound.playPop();
+          renderModalContent();
+        });
+      }
+
+      modalContainer.querySelectorAll('.btn-delete-visit').forEach(function (btn) {
 
         btn.addEventListener('click', function () {
 

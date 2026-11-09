@@ -3609,6 +3609,10 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
           <div class="mt-1.5 flex items-center justify-between px-1 text-[11px] text-neutral-400">
             <span class="text-[10px] font-mono text-neutral-500">${pass.archetypeLabel || this.LABELS[arc] || arc}</span>
             <div class="flex items-center gap-2">
+              <button type="button" class="btn-download-pass text-neutral-400 hover:text-amber-300 font-medium transition flex items-center gap-1" data-card="${cardId}" data-title="${escapeHtml(pass.name || 'Pase Duo')}">
+                <svg class="w-3 h-3 text-amber-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                <span>Descargar</span>
+              </button>
               <button type="button" class="btn-flip-pass text-neutral-400 hover:text-white font-semibold transition" data-card="${cardId}">
                 Voltear
               </button>
@@ -3649,6 +3653,10 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
 
             <!-- Botonera de Interaccion 3D -->
             <div class="w-full mt-3 flex items-center justify-center gap-2">
+              <button id="btn-modal-download" class="py-2.5 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-xs font-bold text-amber-300 flex items-center justify-center gap-1.5 transition active:scale-95">
+                <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                <span>Descargar</span>
+              </button>
               <button id="btn-modal-flip" class="flex-1 py-2.5 px-3 rounded-xl bg-white/[0.1] hover:bg-white/[0.18] border border-white/15 text-xs font-bold text-white flex items-center justify-center gap-1.5 transition active:scale-95">
                 <span>Voltear Reverso</span>
               </button>
@@ -3673,6 +3681,15 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
       if (btnClose) {
         btnClose.addEventListener('click', function () {
           modalContainer.innerHTML = '';
+        });
+      }
+
+      const btnModalDownload = document.getElementById('btn-modal-download');
+      if (btnModalDownload) {
+        btnModalDownload.addEventListener('click', function () {
+          if (window.downloadPassAsImage) {
+            window.downloadPassAsImage('#inspector-card', pass.name || 'Pase Duo');
+          }
         });
       }
 
@@ -3704,6 +3721,17 @@ ${this.renderPassPhotos(pass, 'h-28', 'border-white/20', 'Recuerdo Duo')}
     // Enlazar Eventos de Flip y Apertura de Pases en Contenedores
     bindCardInteractions: function (container) {
       if (!container) return;
+
+      container.querySelectorAll('.btn-download-pass').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const cardId = btn.getAttribute('data-card');
+          const title = btn.getAttribute('data-title') || 'Pase Duo';
+          if (window.downloadPassAsImage) {
+            window.downloadPassAsImage(cardId, title);
+          }
+        });
+      });
 
       container.querySelectorAll('.btn-flip-pass').forEach(function (btn) {
         btn.addEventListener('click', function (e) {
